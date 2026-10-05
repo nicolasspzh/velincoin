@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Velincoin — Same rules. New chain.</title>
-<meta name="description" content="Velincoin (VLC) runs Bitcoin's monetary rules on its own proof-of-work network. 21 million coins, ten-minute blocks, open source. Not launched yet.">
+<title>Velincoin — A currency of its own</title>
+<meta name="description" content="Velincoin is a digital currency with its own blockchain. Fixed supply, proof of work, open source. Currently in testing ahead of launch.">
 <meta name="theme-color" content="#000000">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,33 +25,40 @@
   --dx: 8.5;    /* hero block optical offset, solved against the reference render */
   --dy: 13.1;
 
-  /* reading surfaces (sheet) */
-  --sheet-bg:   rgba(9,9,11,.92);
-  --text:       #d6d6dc;
-  --text-dim:   #9b9ba6;
-  --rule:       rgba(255,255,255,.08);
-  --code-bg:    #121215;
-  --accent:     #a78bfa;
-  --pending:    #fbbf24;
+  /* content sections */
+  --text:     #d4d4da;
+  --dim:      #8e8e98;
+  --rule:     rgba(255,255,255,.09);
+  --code-bg:  #0e0e11;
+  --accent:   #a78bfa;
+  --done:     #86efac;
+  --pending:  #fbbf24;
+  --nav-h:    calc(67 * var(--u));
   --mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
 
   --e-reveal: cubic-bezier(.16, 1, .3, 1);   /* long, graceful settle */
   --e-soft:   cubic-bezier(.25, .8, .3, 1);  /* supporting elements   */
+
+  color-scheme:dark;
 }
 @supports not (height: 100dvh){
   :root{ --u: min(calc(100vw / 1280), calc(100vh / 760)); }
 }
 
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;padding:0;overflow:hidden;background:#000}
+html{scroll-behavior:smooth}
+html,body{margin:0;padding:0;background:#000}
 body{
+  overflow-x:clip;
   font-family:'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
   text-rendering:geometricPrecision;color:var(--ink);
 }
 
-/* ---------- hero ---------- */
-.hero{position:relative;width:100vw;height:100dvh;overflow:hidden;background:#000}
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{position:relative;width:100%;height:100dvh;overflow:hidden;background:#000}
 @supports not (height: 100dvh){ .hero{height:100vh} }
 
 /* 1280:800 bleed box, always covering the viewport */
@@ -78,10 +85,14 @@ body{
 }
 .bg-video.is-active{opacity:1}
 
-/* ---------- nav ---------- */
-.nav{position:absolute;top:0;left:0;right:0;height:calc(67 * var(--u));
+/* ---------- nav (fixed, turns to glass once the page scrolls) ---------- */
+.nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);
      display:flex;align-items:center;
-     padding-left:calc(24.5 * var(--u));padding-right:calc(50.7 * var(--u));z-index:3}
+     padding-left:calc(24.5 * var(--u));padding-right:calc(50.7 * var(--u));z-index:10;
+     border-bottom:1px solid transparent;
+     transition:background-color .3s ease,border-color .3s ease,-webkit-backdrop-filter .3s ease,backdrop-filter .3s ease}
+.nav.scrolled{background:rgba(0,0,0,.62);border-bottom-color:var(--glass-line);
+     -webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%)}
 
 .logo{font-weight:800;font-size:calc(26 * var(--u));letter-spacing:calc(0.45 * var(--u));
   transform:translateY(calc(-2.4 * var(--u)));line-height:1;color:var(--ink);
@@ -93,7 +104,7 @@ body{
 .nav-links a{color:var(--ink-muted);text-decoration:none;font-size:calc(11.5 * var(--u));
   font-weight:500;letter-spacing:calc(-0.15 * var(--u));line-height:1;
   transition:color .18s ease}
-.nav-links a:hover{color:#fff}
+.nav-links a:hover,.nav-links a[aria-current="true"]{color:#fff}
 
 .nav-actions{margin-left:auto;display:flex;align-items:center;gap:calc(6.8 * var(--u))}
 
@@ -159,112 +170,173 @@ h1{margin:0;font-weight:500;font-size:calc(89 * var(--u));
 .btn-ghost:hover{background:rgba(0,0,0,.66);border-color:rgba(255,255,255,.16)}
 .btn-lg .arw{width:calc(13 * var(--u));height:calc(10.8 * var(--u))}
 
-/* ---------- foot: genesis stamp + motion control ---------- */
-.foot{position:absolute;left:0;right:0;bottom:0;z-index:3;display:flex;align-items:center;
-  padding:0 calc(50.7 * var(--u)) calc(22 * var(--u)) calc(24.5 * var(--u))}
-.stamp{display:inline-flex;align-items:baseline;gap:calc(8 * var(--u));
-  font-family:var(--mono);font-size:max(11px, calc(10.5 * var(--u)));letter-spacing:.02em;
-  color:rgba(255,255,255,.62);text-decoration:none;white-space:nowrap;
-  transition:color .18s ease}
-.stamp:hover{color:#fff}
-.stamp b{font-weight:500;color:rgba(255,255,255,.86)}
-.vid-toggle{margin-left:auto;width:max(36px, calc(30 * var(--u)));height:max(36px, calc(30 * var(--u)));
+/* ---------- hero foot: scroll cue + motion control ---------- */
+.round{width:max(38px, calc(32 * var(--u)));height:max(38px, calc(32 * var(--u)));
   display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;
   border-radius:50%;background:var(--glass-fill);border:1px solid var(--glass-line);color:#d9d9d9;
+  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
   transition:background .18s ease,border-color .18s ease,color .18s ease}
-.vid-toggle:hover{background:rgba(0,0,0,.66);border-color:rgba(255,255,255,.16);color:#fff}
-.vid-toggle svg{width:12px;height:12px;display:block}
+.round:hover{background:rgba(0,0,0,.66);border-color:rgba(255,255,255,.16);color:#fff}
+.round svg{width:12px;height:12px;display:block}
+.cue{position:absolute;left:50%;bottom:calc(24 * var(--u));transform:translateX(-50%);z-index:3}
+.cue svg{width:13px;height:13px}
+.vid-toggle{position:absolute;right:calc(50.7 * var(--u));bottom:calc(24 * var(--u));z-index:3}
 .vid-toggle .i-play{display:none}
 .vid-toggle[aria-pressed="true"] .i-play{display:block}
 .vid-toggle[aria-pressed="true"] .i-pause{display:none}
 
-a:focus-visible,button:focus-visible{outline:2px solid var(--accent);
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);
   outline-offset:3px;border-radius:99px}
 
 .menu{display:none}
 @keyframes menuIn{from{opacity:0;transform:translateY(-6px) scale(.985)}to{opacity:1;transform:none}}
 
-/* ---------- sheet (topic panels) ---------- */
-.sheet{position:fixed;inset:0 0 0 auto;margin:0;padding:0;border:0;
-  width:min(620px, 100vw);height:100dvh;max-width:none;max-height:none;
-  background:var(--sheet-bg);color:var(--text);
-  -webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);
-  border-left:1px solid var(--glass-line);overflow:hidden;font-family:inherit}
-.sheet[open]{display:flex;flex-direction:column;animation:sheetIn .38s var(--e-reveal) both}
-.sheet::backdrop{background:rgba(0,0,0,.5)}
-@keyframes sheetIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+/* ============================================================
+   CONTENT SECTIONS
+   ============================================================ */
+.wrap{max-width:1200px;margin:0 auto;padding:0 clamp(20px, 5vw, 56px)}
+.sec{padding:clamp(96px, 13vw, 168px) 0;border-top:1px solid var(--rule);
+  scroll-margin-top:calc(var(--nav-h) - 1px)}
+.sec-grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,9fr);gap:clamp(24px, 4vw, 64px)}
+.sec-body{container-type:inline-size}
 
-.sheet-head{display:flex;align-items:center;gap:12px;padding:18px 20px 0 32px;flex:0 0 auto}
-.sheet-tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;flex:1 1 auto;
-  margin-left:-10px;padding:4px 2px}
-.sheet-tabs::-webkit-scrollbar{display:none}
-.sheet-tabs button{flex:0 0 auto;font:inherit;font-size:13.5px;font-weight:500;color:var(--text-dim);
-  background:transparent;border:0;border-radius:99px;padding:0 12px;height:34px;cursor:pointer;
-  transition:background .18s ease,color .18s ease}
-.sheet-tabs button:hover{color:#fff;background:rgba(255,255,255,.05)}
-.sheet-tabs button[aria-current="true"]{color:var(--btn-ink);background:var(--white-btn)}
-.sheet-close{flex:0 0 auto;width:44px;height:44px;border-radius:50%;border:1px solid var(--glass-line);
-  background:var(--panel);color:#e8e8e8;display:flex;align-items:center;justify-content:center;
-  cursor:pointer;padding:0;transition:background .18s ease}
-.sheet-close:hover{background:#232323;color:#fff}
-.sheet-close svg{width:14px;height:14px}
+.label{margin:0;font-family:var(--mono);font-size:12.5px;line-height:1.4;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--dim);padding-top:.9em}
+.label::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:var(--accent);margin-right:10px;vertical-align:1px}
 
-.sheet-body{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:30px 32px 48px;
+h2{margin:0;font-size:clamp(34px, 4.6vw, 60px);line-height:1.04;font-weight:500;
+  letter-spacing:-.032em;color:var(--ink);max-width:17ch;text-wrap:balance}
+.intro{margin:20px 0 0;font-size:clamp(17px, 1.45vw, 19px);line-height:1.6;color:var(--text);max-width:56ch}
+
+.statement{margin:0;font-size:clamp(25px, 3vw, 40px);line-height:1.24;font-weight:400;
+  letter-spacing:-.022em;color:var(--ink);text-wrap:pretty}
+.statement span{color:#7f7f89}
+
+.supply{margin:clamp(64px, 9vw, 112px) 0 0;padding-top:28px;border-top:1px solid var(--rule)}
+.supply-num{display:block;font-size:clamp(44px, 9vw, 136px);font-size:clamp(44px, 16cqi, 140px);
+  line-height:.92;font-weight:500;letter-spacing:-.055em;color:var(--ink);font-variant-numeric:tabular-nums}
+.supply-num small{font-size:.24em;letter-spacing:0;font-weight:500;color:var(--dim);margin-left:.35em;vertical-align:.3em}
+.supply p{margin:18px 0 0;font-size:17px;line-height:1.6;color:var(--text);max-width:44ch}
+
+.principles{margin:clamp(56px, 7vw, 88px) 0 0;display:grid;grid-template-columns:repeat(2, minmax(0,1fr));
+  column-gap:clamp(24px, 4vw, 56px)}
+.principles article{padding:28px 0 34px;border-top:1px solid var(--rule)}
+.idx{display:block;font-family:var(--mono);font-size:12.5px;color:var(--dim);letter-spacing:.04em}
+.principles h3,.steps h3,.list h3{margin:14px 0 0;font-size:21px;line-height:1.25;font-weight:600;letter-spacing:-.015em;color:var(--ink)}
+.principles p,.steps p{margin:10px 0 0;font-size:16px;line-height:1.62;color:var(--text);max-width:42ch}
+
+.steps{margin:clamp(48px, 6vw, 80px) 0 0;display:grid;grid-template-columns:repeat(3, minmax(0,1fr));
+  gap:clamp(24px, 3vw, 40px)}
+.steps article{padding-top:28px;border-top:1px solid var(--rule)}
+.ico{width:48px;height:48px;border-radius:14px;border:1px solid var(--glass-line);background:#0b0b0d;
+  display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.ico svg{width:22px;height:22px;display:block}
+.steps h3{margin-top:22px}
+
+.split{margin-top:clamp(40px, 5vw, 64px);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:clamp(32px, 5vw, 72px);align-items:start}
+.split .intro{margin-top:0}
+.checks{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+.checks li{display:flex;gap:14px;align-items:flex-start;padding:17px 0;border-bottom:1px solid var(--rule);
+  font-size:16.5px;line-height:1.5;color:var(--ink)}
+.checks svg{flex:0 0 auto;width:18px;height:18px;margin-top:2px;color:var(--accent)}
+.checks span{display:block;color:var(--dim);font-size:15px;margin-top:3px}
+
+.btn-md{height:46px;border-radius:23px;padding:0 22px;gap:9px;font-size:15px;font-weight:500;letter-spacing:-.01em}
+.btn-md .arw{width:13px;height:11px}
+.btn-md.btn-ghost{padding:0 21px}
+.row{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+
+.howto{list-style:none;margin:clamp(40px, 5vw, 64px) 0 0;padding:0;counter-reset:s}
+.howto > li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:0 18px;padding:28px 0;
+  border-top:1px solid var(--rule);counter-increment:s}
+.howto > li::before{content:counter(s);grid-row:1 / span 3;width:30px;height:30px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:600;color:var(--ink);margin-top:-2px}
+.howto h3{margin:0;font-size:19px;font-weight:600;letter-spacing:-.01em;color:var(--ink)}
+.howto p{margin:8px 0 0;font-size:16px;line-height:1.6;color:var(--text);max-width:60ch}
+.howto code,.faq code{font-family:var(--mono);font-size:.86em;color:#ececf1;background:var(--code-bg);
+  border:1px solid var(--rule);border-radius:6px;padding:1px 6px;white-space:nowrap}
+
+.code{position:relative;margin:14px 0 0}
+.code pre{margin:0;background:var(--code-bg);border:1px solid var(--rule);border-radius:14px;
+  padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:13.5px;line-height:1.75;color:#ececf1;
   scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent}
-.topic[hidden]{display:none}
-.topic h2{margin:0;color:var(--ink);font-size:30px;line-height:1.15;font-weight:600;letter-spacing:-.025em}
-.topic .lede{margin:12px 0 0;font-size:16px;line-height:1.6;color:var(--text);max-width:52ch}
-.topic h3{margin:34px 0 0;color:var(--ink);font-size:15px;font-weight:600;letter-spacing:-.005em}
-.topic p{margin:10px 0 0;font-size:15px;line-height:1.65;max-width:60ch}
-.topic p.small{font-size:13.5px;color:var(--text-dim)}
-.topic code{font-family:var(--mono);font-size:.88em;color:#ececf1;background:var(--code-bg);
-  border:1px solid var(--rule);border-radius:6px;padding:1px 5px;white-space:nowrap}
-.topic a{color:var(--accent);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
-.topic a:hover{color:#c4b5fd}
-
-.facts{margin:24px 0 0;display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);
-  border-top:1px solid var(--rule)}
-.facts dt,.facts dd{margin:0;padding:12px 0;border-bottom:1px solid var(--rule);font-size:14.5px;line-height:1.5}
-.facts dt{color:var(--text-dim);padding-right:16px}
-.facts dd{color:var(--ink)}
-.facts .m{font-family:var(--mono);font-size:13.5px;word-break:break-all}
-
-.grid3{margin:24px 0 0;width:100%;border-collapse:collapse;font-size:14px;line-height:1.45}
-.grid3 th,.grid3 td{text-align:left;padding:11px 12px 11px 0;border-bottom:1px solid var(--rule);vertical-align:top}
-.grid3 thead th{color:var(--text-dim);font-weight:500;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;
-  border-bottom-color:rgba(255,255,255,.14)}
-.grid3 tbody th{color:var(--text-dim);font-weight:400;width:34%}
-.grid3 td{color:var(--ink);font-family:var(--mono);font-size:13px}
-
-.steps{list-style:none;margin:8px 0 0;padding:0;counter-reset:s}
-.steps > li{position:relative;padding:26px 0 0 44px;counter-increment:s}
-.steps > li::before{content:counter(s);position:absolute;left:0;top:24px;width:28px;height:28px;
-  border-radius:50%;border:1px solid rgba(255,255,255,.18);color:var(--ink);font-size:13px;font-weight:600;
-  display:flex;align-items:center;justify-content:center}
-.steps h3{margin:0}
-
-.code{position:relative;margin:12px 0 0}
-.code pre{margin:0;background:var(--code-bg);border:1px solid var(--rule);border-radius:12px;
-  padding:14px 76px 14px 16px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.7;color:#ececf1}
-.code pre .c{color:#7d7d89}
-.copy{position:absolute;top:8px;right:8px;height:30px;padding:0 11px;border-radius:99px;cursor:pointer;
-  font:inherit;font-size:12.5px;font-weight:500;color:#d9d9d9;background:#1d1d22;border:1px solid var(--rule);
+.code pre .p{color:#5f5f6b;user-select:none}
+.code.has-copy pre{padding-top:48px}
+.copy{position:absolute;top:9px;right:9px;height:30px;padding:0 12px;border-radius:99px;cursor:pointer;
+  font:inherit;font-size:12.5px;font-weight:500;color:#d9d9d9;background:#1b1b20;border:1px solid var(--rule);
   transition:background .18s ease,color .18s ease}
 .copy:hover{background:#26262c;color:#fff}
 
-.status{list-style:none;margin:16px 0 0;padding:0;border-top:1px solid var(--rule)}
-.status li{display:grid;grid-template-columns:92px minmax(0,1fr);gap:12px;padding:13px 0;
-  border-bottom:1px solid var(--rule);font-size:14.5px;line-height:1.55;color:var(--ink)}
-.status li span{color:var(--text-dim)}
-.tag{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;letter-spacing:.02em;
-  color:var(--text-dim);white-space:nowrap;line-height:1.9}
-.tag::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
-.tag.done{color:#86efac}
-.tag.open{color:var(--pending)}
+.list{list-style:none;margin:clamp(40px, 5vw, 64px) 0 0;padding:0}
+.list li{display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;padding:24px 0;border-top:1px solid var(--rule)}
+.list li:last-child{border-bottom:1px solid var(--rule)}
+.list h3{margin:0;font-size:19px}
+.list p{margin:6px 0 0;font-size:15.5px;line-height:1.6;color:var(--dim);max-width:60ch}
+.tag{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;letter-spacing:.01em;
+  white-space:nowrap;line-height:1.9;color:var(--dim)}
+.tag::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.tag.done{color:var(--done)}
+.tag.next{color:var(--pending)}
 
-.note{margin:28px 0 0;padding:16px 18px;border:1px solid rgba(251,191,36,.28);border-radius:14px;
-  background:rgba(251,191,36,.06);font-size:14.5px;line-height:1.6;color:var(--ink)}
-.note strong{font-weight:600}
+.faq{margin:clamp(40px, 5vw, 64px) 0 0;border-top:1px solid var(--rule)}
+.faq details{border-bottom:1px solid var(--rule)}
+.faq summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;
+  gap:20px;padding:24px 0;min-height:44px;font-size:clamp(18px, 1.6vw, 20px);font-weight:500;
+  letter-spacing:-.012em;color:var(--ink);border-radius:8px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"";flex:0 0 auto;width:14px;height:14px;
+  background:linear-gradient(currentColor,currentColor) center/14px 1.6px no-repeat,
+             linear-gradient(currentColor,currentColor) center/1.6px 14px no-repeat;
+  color:var(--dim);transition:transform .25s var(--e-soft)}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq summary:hover::after{color:#fff}
+.faq details p{margin:-6px 0 0;padding:0 0 26px;font-size:16.5px;line-height:1.65;color:var(--text);max-width:62ch}
+
+.closing{position:relative;overflow:hidden;border-top:1px solid var(--rule);text-align:center;
+  padding:clamp(120px, 18vw, 220px) 0}
+.closing::before{content:"";position:absolute;inset:0;
+  background:#000 url("https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/82e7eb75-c65f-490a-99b5-f3d1cad54200.webp") 51% 30% / cover no-repeat;
+  opacity:.42}
+.closing::after{content:"";position:absolute;inset:0;
+  background:radial-gradient(ellipse at center, rgba(0,0,0,.25) 0%, rgba(0,0,0,.85) 70%, #000 100%)}
+.closing .wrap{position:relative;z-index:1}
+.closing h2{margin:0 auto;max-width:none;font-size:clamp(44px, 7vw, 96px);letter-spacing:-.04em;line-height:1}
+.closing p{margin:22px auto 0;font-size:clamp(17px, 1.5vw, 19px);line-height:1.6;color:var(--text);max-width:46ch}
+.closing .row{justify-content:center;margin-top:34px}
+
+.footer{border-top:1px solid var(--rule);padding:48px 0 calc(40px + env(safe-area-inset-bottom))}
+.footer .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:24px}
+.footer .logo{font-size:22px;letter-spacing:-.2px;transform:none}
+.footer nav{display:flex;flex-wrap:wrap;gap:6px 26px}
+.footer nav a{color:var(--dim);text-decoration:none;font-size:14.5px;font-weight:500;transition:color .18s ease;
+  padding:10px 0}
+.footer nav a:hover{color:#fff}
+.footer small{width:100%;font-size:13px;color:#6f6f79;line-height:1.6}
+
+/* reveal on scroll (armed by script, so content shows without JS) */
+html.rv .reveal{opacity:0;transform:translateY(22px);
+  transition:opacity .9s var(--e-reveal),transform .9s var(--e-reveal)}
+html.rv .reveal.in{opacity:1;transform:none}
+
+@media (max-width:900px){
+  .sec-grid{grid-template-columns:1fr;gap:20px}
+  .label{padding-top:0}
+  .steps{grid-template-columns:1fr;gap:0}
+  .steps article{padding:28px 0 34px}
+  .split{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .principles{grid-template-columns:1fr}
+  .list li{grid-template-columns:1fr;gap:4px}
+  .howto > li{grid-template-columns:minmax(0,1fr);gap:0}
+  .howto > li::before{grid-row:auto;margin:0 0 14px}
+  .code pre{font-size:12.5px;padding:14px 14px}
+  .code.has-copy pre{padding-top:46px}
+  .footer .wrap{flex-direction:column;align-items:flex-start}
+}
 
 /* ============================================================
    TABLET
@@ -274,9 +346,9 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);
       max(0.9px, min(calc(100vw / 1280), calc(100dvh / 760))),
       calc((100vw - 72px) / 575),
       calc(100dvh / 620)
-    ); }
-  .nav{height:max(58px, calc(67 * var(--u)));
-       padding-left:max(24px, calc(28 * var(--u)));
+    );
+    --nav-h:max(58px, calc(67 * var(--u))); }
+  .nav{padding-left:max(24px, calc(28 * var(--u)));
        padding-right:max(24px, calc(28 * var(--u)))}
   .nav-links,.nav-actions{display:none}
   .burger{display:flex;width:max(46px, calc(48 * var(--u)));
@@ -291,13 +363,16 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);
   .btn-ghost{padding-left:max(20px, calc(17.4 * var(--u)));
              padding-right:max(21px, calc(18.4 * var(--u)))}
   .btn-lg .arw{width:max(14px, calc(13 * var(--u)));height:max(11.6px, calc(10.8 * var(--u)))}
-  .foot{padding:0 max(24px, calc(28 * var(--u))) max(20px, calc(22 * var(--u)))}
-  .menu{position:absolute;top:calc(max(58px, calc(67 * var(--u))) - 6px);
+  .btn-md.btn-primary{padding:0 22px}
+  .btn-md.btn-ghost{padding:0 21px}
+  .vid-toggle{right:max(24px, calc(28 * var(--u)));bottom:max(20px, calc(24 * var(--u)))}
+  .cue{bottom:max(20px, calc(24 * var(--u)))}
+  .menu{position:fixed;top:calc(var(--nav-h) - 6px);
         right:max(24px, calc(28 * var(--u)));width:min(320px, calc(100vw - 48px));
         background:rgba(10,10,12,.86);-webkit-backdrop-filter:blur(22px);
         backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,.09);
         border-radius:20px;padding:10px 8px 12px;flex-direction:column;
-        box-shadow:0 24px 60px rgba(0,0,0,.55);transform-origin:top right;z-index:5}
+        box-shadow:0 24px 60px rgba(0,0,0,.55);transform-origin:top right;z-index:11}
   .menu.open{display:flex;animation:menuIn .18s ease both}
   .menu a{color:var(--ink-muted);text-decoration:none;font-size:15px;font-weight:500;
           letter-spacing:calc(-0.15 * var(--u));padding:12px 14px;border-radius:12px;
@@ -317,14 +392,14 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);
    MOBILE
    ============================================================ */
 @media (max-width:552px){
-  :root{--u:1px}
-  .nav{height:56px;padding:0 20px}
+  :root{--u:1px;--nav-h:56px}
+  .nav{padding:0 20px}
   .logo{font-size:22px;letter-spacing:-.4px}
   .burger{width:42px;height:36px}
   .hero-inner{position:absolute;left:0;right:0;top:50%;width:auto;max-width:none;
               padding:0 20px;transform:translateY(-47%)}
-  /* "Same rules." ink is 5.12x the font size; 5.6 leaves headroom at every width */
-  h1{font-size:min(74px, calc((100vw - 44px) / 5.6));line-height:1.04;letter-spacing:-.02em}
+  /* "A currency" ink is about 4.6x the font size; 5.4 leaves headroom at every width */
+  h1{font-size:min(74px, calc((100vw - 44px) / 5.4));line-height:1.04;letter-spacing:-.02em}
   .sub{margin-top:16px;font-size:clamp(15.5px, 4vw, 16.5px);line-height:1.6;
        letter-spacing:0;max-width:42ch;margin-left:auto;margin-right:auto}
   .sub br{display:none}
@@ -333,37 +408,24 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);
   .btn-primary{padding-left:20px;padding-right:21px}
   .btn-ghost{padding-left:19px;padding-right:20px}
   .btn-lg .arw{width:13px;height:11px}
-  .foot{padding:0 20px max(18px, env(safe-area-inset-bottom))}
-  .stamp .hash{display:none}
+  .vid-toggle{right:20px;bottom:max(18px, env(safe-area-inset-bottom))}
+  .cue{bottom:max(18px, env(safe-area-inset-bottom))}
   .menu{top:50px;left:16px;right:16px;width:auto}
   .menu a{font-size:15.5px;padding:13px 14px}
   .menu .m-start{padding:14px 16px}
-
-  .sheet{inset:auto 0 0 0;width:100vw;height:auto;max-height:90dvh;
-    border-left:0;border-top:1px solid var(--glass-line);border-radius:22px 22px 0 0}
-  @keyframes sheetIn{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:none}}
-  .sheet-head{padding:12px 12px 0 20px}
-  .sheet-body{padding:24px 20px calc(36px + env(safe-area-inset-bottom))}
-  .topic h2{font-size:26px}
-  .facts{grid-template-columns:1fr}
-  .facts dt{padding-bottom:2px;border-bottom:0}
-  .facts dd{padding-top:0}
-  .status li{grid-template-columns:1fr;gap:2px}
-  .grid3 tbody th{width:auto}
-  .grid3 th,.grid3 td{padding-right:8px}
 }
 
 @media (max-width:353px){
   .ctas{flex-direction:column;align-items:center}
-  .btn-lg{width:min(100%,272px)}
+  .ctas .btn-lg{width:min(100%,272px)}
 }
 
 @media (max-width:552px) and (max-height:460px){
-  h1{font-size:min(44px, calc((100vw - 44px) / 5.6))}
+  h1{font-size:min(44px, calc((100vw - 44px) / 5.4))}
   .sub{margin-top:12px;font-size:15px;line-height:1.5}
   .ctas{margin-top:18px}
   .hero-inner{transform:translateY(-44%)}
-  .stamp{display:none}
+  .cue{display:none}
 }
 
 /* ============================================================
@@ -373,8 +435,8 @@ html.anim .ln{overflow:hidden;padding-top:.26em;margin-top:-.26em}
 html.anim .ln-i{transform:translateY(100%)}
 html.anim .logo, html.anim .nav-links a, html.anim .nav-actions .btn,
 html.anim .burger, html.anim .sub, html.anim .ctas .btn,
-html.anim .stamp, html.anim .vid-toggle{opacity:0}
-.ln-i,.logo,.nav-links a,.nav-actions .btn,.sub,.ctas .btn{will-change:transform,opacity}
+html.anim .cue, html.anim .vid-toggle{opacity:0}
+.ln-i,.nav .logo,.nav-links a,.nav-actions .btn,.sub,.ctas .btn{will-change:transform,opacity}
 
 @keyframes lineRise{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @keyframes subIn{from{opacity:0;transform:translateY(calc(14 * var(--u)));filter:blur(4px)}
@@ -394,7 +456,7 @@ html.anim .stamp, html.anim .vid-toggle{opacity:0}
 html.anim.go .ln-i{animation:lineRise 1.05s var(--e-reveal) both}
 html.anim.go .ln:nth-child(1) .ln-i{animation-delay:.12s}
 html.anim.go .ln:nth-child(2) .ln-i{animation-delay:.22s}
-html.anim.go .logo{animation:logoIn .62s var(--e-soft) .46s both}
+html.anim.go .nav .logo{animation:logoIn .62s var(--e-soft) .46s both}
 html.anim.go .nav-links a{animation:liftIn .55s var(--e-soft) both}
 html.anim.go .nav-links a:nth-child(1){animation-delay:.540s}
 html.anim.go .nav-links a:nth-child(2){animation-delay:.585s}
@@ -407,7 +469,7 @@ html.anim.go .burger{animation:pillIn .55s var(--e-soft) .68s both}
 html.anim.go .btn-nav-start{animation:pillIn .55s var(--e-soft) .73s both}
 html.anim.go .ctas .btn-primary{animation:pillIn .70s var(--e-reveal) .90s both}
 html.anim.go .ctas .btn-ghost{animation:pillIn .70s var(--e-reveal) .97s both}
-html.anim.go .stamp,html.anim.go .vid-toggle{animation:fadeIn .6s var(--e-soft) 1.0s both}
+html.anim.go .cue,html.anim.go .vid-toggle{animation:fadeIn .6s var(--e-soft) 1.0s both}
 
 @media (max-width:552px){
   html.anim.go .sub{animation-name:subInFlat}
@@ -417,11 +479,12 @@ html.anim.go .stamp,html.anim.go .vid-toggle{animation:fadeIn .6s var(--e-soft) 
 }
 
 @media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
   html.anim .ln{overflow:visible;padding-top:0;margin-top:0}
   html.anim .ln-i{transform:none}
   html.anim .logo, html.anim .nav-links a, html.anim .nav-actions .btn,
   html.anim .burger, html.anim .sub, html.anim .ctas .btn,
-  html.anim .stamp, html.anim .vid-toggle{opacity:1}
+  html.anim .cue, html.anim .vid-toggle{opacity:1}
   .vid-toggle{display:none}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -459,213 +522,287 @@ html.anim.go .stamp,html.anim.go .vid-toggle{animation:fadeIn .6s var(--e-soft) 
 </script>
 </head>
 <body>
-<main class="hero">
-  <div class="bg" role="img" aria-label="Stylised globe of Earth rendered as a purple dot matrix against a starfield, slowly rotating">
-    <video class="bg-video is-active" id="bgVideoA" autoplay muted loop playsinline preload="auto" disablepictureinpicture aria-hidden="true"
-           poster="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/82e7eb75-c65f-490a-99b5-f3d1cad54200.webp">
-      <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260912_104036_bd6924f6-3c8e-417e-8465-6d03c8c2e9e6.mp4" type="video/mp4">
-    </video>
-    <video class="bg-video" id="bgVideoB" muted loop playsinline preload="auto" disablepictureinpicture aria-hidden="true"
-           poster="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/82e7eb75-c65f-490a-99b5-f3d1cad54200.webp">
-      <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260912_104036_bd6924f6-3c8e-417e-8465-6d03c8c2e9e6.mp4" type="video/mp4">
-    </video>
-  </div>
 
-  <header class="nav">
-    <a class="logo" href="#" aria-label="Velincoin, home">Velincoin</a>
-    <nav class="nav-links" aria-label="Primary">
-      <a href="#protocol">Protocol</a>
-      <a href="#network">Network</a>
-      <a href="#genesis">Genesis</a>
-      <a href="#security">Security</a>
-      <a href="#status">Status</a>
-    </nav>
-    <div class="nav-actions">
-      <a class="btn btn-login" href="#status"><span class="dot" aria-hidden="true"></span>Pre-launch</a>
-      <a class="btn btn-nav-start" href="#run">Run a node
-        <svg class="arw" viewBox="0 0 12 10" fill="none" aria-hidden="true"><path d="M0.8 5h10M7.1 1.4 10.9 5l-3.8 3.6" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-    </div>
-    <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="menu"><span></span></button>
-  </header>
-
-  <nav class="menu" id="menu" aria-label="Mobile">
-    <a href="#protocol">Protocol</a>
-    <a href="#network">Network</a>
-    <a href="#genesis">Genesis</a>
-    <a href="#security">Security</a>
-    <a class="m-status" href="#status"><span class="dot" aria-hidden="true"></span>Status: pre-launch</a>
-    <div class="divider"></div>
-    <a class="m-start" href="#run">Run a node
+<header class="nav" id="nav">
+  <a class="logo" href="#top" aria-label="Velincoin, back to top">Velincoin</a>
+  <nav class="nav-links" aria-label="Primary">
+    <a href="#about">About</a>
+    <a href="#how">How it works</a>
+    <a href="#wallet">Wallet</a>
+    <a href="#roadmap">Roadmap</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+  <div class="nav-actions">
+    <a class="btn btn-login" href="#roadmap"><span class="dot" aria-hidden="true"></span>Pre-launch</a>
+    <a class="btn btn-nav-start" href="#start">Get started
       <svg class="arw" viewBox="0 0 12 10" fill="none" aria-hidden="true"><path d="M0.8 5h10M7.1 1.4 10.9 5l-3.8 3.6" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
-  </nav>
-
-  <div class="hero-inner">
-    <h1><span class="ln"><span class="ln-i">Same rules.</span></span>
-        <span class="ln"><span class="ln-i">New chain.</span></span></h1>
-    <p class="sub">Velincoin runs Bitcoin&rsquo;s monetary policy on a network of its own:<br>
-      21 million VLC, ten-minute blocks, a halving every four years.<br>
-      Open source, proof of work, and not launched yet.</p>
-    <div class="ctas">
-      <a class="btn btn-lg btn-primary" href="#run">Run a node
-        <svg class="arw" viewBox="0 0 12 10" fill="none" aria-hidden="true"><path d="M0.8 5h10M7.1 1.4 10.9 5l-3.8 3.6" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-      <a class="btn btn-lg btn-ghost" href="#protocol">Read the spec
-        <svg class="arw" viewBox="0 0 12 10" fill="none" aria-hidden="true"><path d="M0.8 5h10M7.1 1.4 10.9 5l-3.8 3.6" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-    </div>
   </div>
+  <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="menu"><span></span></button>
+</header>
 
-  <div class="foot">
-    <a class="stamp" href="#genesis"><b>Block 0</b><span class="hash">000000002e63a20c&hellip;469f05e7</span><span>05 Oct 2026</span></a>
-    <button class="vid-toggle" id="vidToggle" type="button" aria-pressed="false" aria-label="Pause background animation">
+<nav class="menu" id="menu" aria-label="Mobile">
+  <a href="#about">About</a>
+  <a href="#how">How it works</a>
+  <a href="#wallet">Wallet</a>
+  <a href="#roadmap">Roadmap</a>
+  <a href="#faq">FAQ</a>
+  <div class="divider"></div>
+  <a class="m-status" href="#roadmap"><span class="dot" aria-hidden="true"></span>Status: pre-launch</a>
+  <a class="m-start" href="#start">Get started
+    <svg class="arw" viewBox="0 0 12 10" fill="none" aria-hidden="true"><path d="M0.8 5h10M7.1 1.4 10.9 5l-3.8 3.6" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </a>
+</nav>
+
+<main id="top">
+  <section class="hero" aria-label="Introduction">
+    <div class="bg" role="img" aria-label="Stylised globe of Earth rendered as a purple dot matrix against a starfield, slowly rotating">
+      <video class="bg-video is-active" id="bgVideoA" autoplay muted loop playsinline preload="auto" disablepictureinpicture aria-hidden="true"
+             poster="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/82e7eb75-c65f-490a-99b5-f3d1cad54200.webp">
+        <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260912_104036_bd6924f6-3c8e-417e-8465-6d03c8c2e9e6.mp4" type="video/mp4">
+      </video>
+      <video class="bg-video" id="bgVideoB" muted loop playsinline preload="auto" disablepictureinpicture aria-hidden="true"
+             poster="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/82e7eb75-c65f-490a-99b5-f3d1cad54200.webp">
+        <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260912_104036_bd6924f6-3c8e-417e-8465-6d03c8c2e9e6.mp4" type="video/mp4">
+      </video>
+    </div>
+
+    <div class="hero-inner">
+      <h1><span class="ln"><span class="ln-i">A currency</span></span>
+          <span class="ln"><span class="ln-i">of its own.</span></span></h1>
+      <p class="sub">Velincoin is digital money on a blockchain of its own,<br>
+        with a fixed supply, secured by proof of work and run by no one.<br>
+        Open source, and in testing ahead of launch.</p>
+      <div class="ctas">
+        <a class="btn btn-lg btn-primary" href="#start">Get started
+          <svg class="arw" viewBox="0 0 12 10" fill="none" aria-hidden="true"><path d="M0.8 5h10M7.1 1.4 10.9 5l-3.8 3.6" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="btn btn-lg btn-ghost" href="#how">How it works
+          <svg class="arw" viewBox="0 0 12 10" fill="none" aria-hidden="true"><path d="M0.8 5h10M7.1 1.4 10.9 5l-3.8 3.6" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <a class="round cue" href="#about" aria-label="Scroll to About">
+      <svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M6 1.2v9.4M2.2 6.8 6 10.6l3.8-3.8" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <button class="round vid-toggle" id="vidToggle" type="button" aria-pressed="false" aria-label="Pause background animation">
       <svg class="i-pause" viewBox="0 0 12 12" aria-hidden="true"><rect x="2" y="1.5" width="2.6" height="9" rx=".8" fill="currentColor"/><rect x="7.4" y="1.5" width="2.6" height="9" rx=".8" fill="currentColor"/></svg>
       <svg class="i-play" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.8v8.4c0 .5.5.8.9.5l6.6-4.2a.6.6 0 0 0 0-1L3.9 1.3c-.4-.3-.9 0-.9.5Z" fill="currentColor"/></svg>
     </button>
-  </div>
-</main>
+  </section>
 
-<dialog class="sheet" id="sheet" aria-labelledby="sheetTitle">
-  <div class="sheet-head">
-    <nav class="sheet-tabs" aria-label="Topics">
-      <button type="button" data-topic="run">Run a node</button>
-      <button type="button" data-topic="protocol">Protocol</button>
-      <button type="button" data-topic="network">Network</button>
-      <button type="button" data-topic="genesis">Genesis</button>
-      <button type="button" data-topic="security">Security</button>
-      <button type="button" data-topic="status">Status</button>
-    </nav>
-    <button class="sheet-close" id="sheetClose" type="button" aria-label="Close">
-      <svg viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 2l10 10M12 2 2 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-    </button>
-  </div>
+  <!-- ABOUT -->
+  <section class="sec" id="about" aria-labelledby="about-h">
+    <div class="wrap sec-grid">
+      <p class="label reveal" id="about-h">About</p>
+      <div class="sec-body">
+        <p class="statement reveal">Velincoin is a digital currency with its own blockchain. <span>No company issues it and no bank holds it. New coins only come from mining, and every computer on the network checks every payment against the same public rules.</span></p>
 
-  <div class="sheet-body" id="sheetBody">
+        <div class="supply reveal">
+          <span class="supply-num">21,000,000<small>VLC</small></span>
+          <p>That is the most there will ever be. The limit is part of the protocol, and every node on the network enforces it.</p>
+        </div>
 
-    <section class="topic" data-topic="run" hidden>
-      <h2>Run a node</h2>
-      <p class="lede">A node downloads the chain, checks every block against the rules and talks to other nodes. Velincoin Core is the reference node and wallet. These commands are for Linux.</p>
-      <ol class="steps">
-        <li>
-          <h3>Build from source</h3>
-          <p>In the Velincoin Core source folder:</p>
-          <div class="code"><pre>sudo apt-get install build-essential cmake pkgconf \
+        <div class="principles">
+          <article class="reveal">
+            <span class="idx">01</span>
+            <h3>Fixed supply</h3>
+            <p>No one can create extra coins, not even the people who write the software. A block that tries to is rejected.</p>
+          </article>
+          <article class="reveal">
+            <span class="idx">02</span>
+            <h3>No premine</h3>
+            <p>Every coin is mined. Nobody received coins in advance, and nothing was sold before launch.</p>
+          </article>
+          <article class="reveal">
+            <span class="idx">03</span>
+            <h3>Open source</h3>
+            <p>The software is published under the MIT licence. Anyone can read it, check it and run it.</p>
+          </article>
+          <article class="reveal">
+            <span class="idx">04</span>
+            <h3>Your keys</h3>
+            <p>The wallet keeps your keys on your own device. There is no account to open and no one to ask for permission.</p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="sec" id="how" aria-labelledby="how-h">
+    <div class="wrap sec-grid">
+      <p class="label reveal">How it works</p>
+      <div class="sec-body">
+        <h2 class="reveal" id="how-h">From a mined block to your wallet.</h2>
+        <p class="intro reveal">Three parts keep Velincoin running. None of them needs a bank, a company or a central server.</p>
+        <div class="steps">
+          <article class="reveal">
+            <div class="ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 2.8 20 7.4v9.2l-8 4.6-8-4.6V7.4z"/><path d="M4 7.4l8 4.6 8-4.6M12 12v9.2"/></svg>
+            </div>
+            <h3>Mining</h3>
+            <p>Miners collect new payments into a block and compete to solve a hard computing puzzle. The winner adds the block to the chain and is paid in newly created VLC.</p>
+          </article>
+          <article class="reveal">
+            <div class="ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8 19.5 5.6v6c0 4.6-3.2 8-7.5 9.6-4.3-1.6-7.5-5-7.5-9.6v-6z"/><path d="m8.6 12 2.4 2.4 4.6-4.8"/></svg>
+            </div>
+            <h3>Verification</h3>
+            <p>Every node keeps its own copy of the chain and checks each new block. A block that breaks a rule is thrown out, no matter who sent it.</p>
+          </article>
+          <article class="reveal">
+            <div class="ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4.5"/><path d="m11.2 11.8 8.8-8.8M16.5 6.5l2.5 2.5M14 9l2 2"/></svg>
+            </div>
+            <h3>Ownership</h3>
+            <p>Coins belong to whoever holds the private key. You sign payments on your own device, and the key never leaves it.</p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WALLET -->
+  <section class="sec" id="wallet" aria-labelledby="wallet-h">
+    <div class="wrap sec-grid">
+      <p class="label reveal">Wallet</p>
+      <div class="sec-body">
+        <h2 class="reveal" id="wallet-h">Your coins and your own node, in one app.</h2>
+        <div class="split">
+          <div class="reveal">
+            <p class="intro">Velincoin Core is the official wallet. It does not ask a server what your balance is. It downloads the chain and checks it itself, so what you see is what the network agreed on.</p>
+            <div class="row">
+              <a class="btn btn-md btn-primary" href="#start">Set it up
+                <svg class="arw" viewBox="0 0 12 10" fill="none" aria-hidden="true"><path d="M0.8 5h10M7.1 1.4 10.9 5l-3.8 3.6" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+            </div>
+          </div>
+          <ul class="checks reveal">
+            <li><svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="m4 9.4 3.2 3.1L14 5.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><div>Keys stay on your device<span>Back up the wallet file and you hold your coins.</span></div></li>
+            <li><svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="m4 9.4 3.2 3.1L14 5.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><div>Checks every block itself<span>No trusted server between you and the network.</span></div></li>
+            <li><svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="m4 9.4 3.2 3.1L14 5.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><div>Payment links and QR codes<span>Request a payment with a <code style="font-family:var(--mono);font-size:.92em">velincoin:</code> link.</span></div></li>
+            <li><svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="m4 9.4 3.2 3.1L14 5.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><div>Free and open source<span>Desktop app and command line tools, MIT licence.</span></div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GET STARTED -->
+  <section class="sec" id="start" aria-labelledby="start-h">
+    <div class="wrap sec-grid">
+      <p class="label reveal">Get started</p>
+      <div class="sec-body">
+        <h2 class="reveal" id="start-h">Try it on the test network.</h2>
+        <p class="intro reveal">The main network has not launched yet. You can already build the software and use it on the test network, where coins have no value. The commands below are for Linux.</p>
+        <ol class="howto">
+          <li class="reveal">
+            <h3>Build the software</h3>
+            <p>In the Velincoin Core source folder:</p>
+            <div class="code"><pre>sudo apt-get install build-essential cmake pkgconf \
   python3 libevent-dev libboost-dev libsqlite3-dev
 cmake -B build -DBUILD_GUI=OFF -DWITH_ZMQ=OFF -DENABLE_IPC=OFF
 cmake --build build -j4</pre></div>
-          <p class="small">The programs end up in <code>build/bin/</code>. For the desktop wallet, install the Qt 6 packages and configure with <code>-DBUILD_GUI=ON</code>.</p>
-        </li>
-        <li>
-          <h3>Practise on your own machine</h3>
-          <p>Regtest is a private chain where blocks appear instantly. Mine 101 blocks, because a block reward can only be spent after 100 more blocks.</p>
-          <div class="code"><pre>build/bin/velincoind -regtest -daemon
-build/bin/velincoin-cli -regtest createwallet "demo"
-build/bin/velincoin-cli -regtest getnewaddress
-build/bin/velincoin-cli -regtest generatetoaddress 101 &lt;address&gt;
-build/bin/velincoin-cli -regtest getbalance   <span class="c"># 50.00000000</span></pre></div>
-        </li>
-        <li>
-          <h3>Join the test network</h3>
-          <p>The testnet is a real network with no value. There are no seed servers yet, so you add peers by hand. Open TCP port <code>29733</code> to accept connections.</p>
-          <div class="code"><pre>build/bin/velincoind -testnet4 -daemon
-build/bin/velincoin-cli -testnet4 addnode "&lt;peer-ip&gt;:29733" "add"
-build/bin/velincoin-cli -testnet4 getconnectioncount</pre></div>
-          <p class="small">The built-in miner uses one CPU core. On the testnet that means roughly 15 to 25 minutes per block, depending on the machine and on luck.</p>
-        </li>
-      </ol>
-    </section>
+          </li>
+          <li class="reveal">
+            <h3>Start a node</h3>
+            <p>The node runs in the background. Add another node on the test network so yours can find it.</p>
+            <div class="code"><pre>build/bin/velincoind -testnet4 -daemon
+build/bin/velincoin-cli -testnet4 addnode "&lt;peer-ip&gt;:29733" "add"</pre></div>
+          </li>
+          <li class="reveal">
+            <h3>Create a wallet</h3>
+            <p>Make a wallet and get your first address. Test network addresses start with <code>tvlc1</code>.</p>
+            <div class="code"><pre>build/bin/velincoin-cli -testnet4 createwallet "my-wallet"
+build/bin/velincoin-cli -testnet4 getnewaddress</pre></div>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
 
-    <section class="topic" data-topic="protocol" hidden>
-      <h2>Protocol</h2>
-      <p class="lede">The monetary rules are Bitcoin&rsquo;s, unchanged. Every VLC comes from mining; there is no premine and no sale.</p>
-      <dl class="facts">
-        <dt>Maximum supply</dt><dd>21,000,000 VLC</dd>
-        <dt>Block time</dt><dd>10 minutes on average</dd>
-        <dt>Block reward</dt><dd>50 VLC at the start</dd>
-        <dt>Halving</dt><dd>Every 210,000 blocks, about every four years</dd>
-        <dt>Smallest unit</dt><dd>0.00000001 VLC (1 sat)</dd>
-        <dt>Proof of work</dt><dd>SHA-256</dd>
-        <dt>Difficulty</dt><dd>Adjusts every 2,016 blocks, about every two weeks</dd>
-        <dt>Soft forks</dt><dd>SegWit, Taproot and the rest active from block 1</dd>
-        <dt>Payment links</dt><dd class="m">velincoin:</dd>
-        <dt>Signed messages</dt><dd class="m">Velincoin Signed Message:</dd>
-      </dl>
-      <h3>What is different</h3>
-      <p>The network. Velincoin has its own genesis block, its own network magic and its own ports and address formats. Velincoin nodes and Bitcoin nodes do not recognise each other and never exchange data.</p>
-      <h3>Code</h3>
-      <p>Velincoin Core is a fork of Bitcoin Core 31.1, released under the MIT licence. The difference to upstream is kept small on purpose, so that future Bitcoin Core fixes can be carried over.</p>
-    </section>
+  <!-- ROADMAP -->
+  <section class="sec" id="roadmap" aria-labelledby="roadmap-h">
+    <div class="wrap sec-grid">
+      <p class="label reveal">Roadmap</p>
+      <div class="sec-body">
+        <h2 class="reveal" id="roadmap-h">Where Velincoin stands.</h2>
+        <p class="intro reveal">Velincoin is in testing. There is no launch date yet, because it launches when it is ready.</p>
+        <ul class="list">
+          <li class="reveal"><span class="tag done">Done</span><div><h3>Own blockchain and test network</h3><p>Velincoin runs on its own network, with its own addresses and its own first block.</p></div></li>
+          <li class="reveal"><span class="tag done">Done</span><div><h3>Node and wallet software</h3><p>Velincoin Core for the desktop and the command line.</p></div></li>
+          <li class="reveal"><span class="tag next">Next</span><div><h3>Seed servers</h3><p>So that new nodes find the network on their own, without entering addresses by hand.</p></div></li>
+          <li class="reveal"><span class="tag next">Next</span><div><h3>Final mining algorithm</h3><p>A last review of how mining is secured, before the network carries real value.</p></div></li>
+          <li class="reveal"><span class="tag next">Next</span><div><h3>Visual identity and block explorer</h3><p>A finished look for the wallet, and a website to look up blocks and payments.</p></div></li>
+          <li class="reveal"><span class="tag">Later</span><div><h3>Public launch</h3><p>The main network opens to everyone.</p></div></li>
+        </ul>
+      </div>
+    </div>
+  </section>
 
-    <section class="topic" data-topic="network" hidden>
-      <h2>Network</h2>
-      <p class="lede">Two public networks: the main network, which has not started yet, and a test network for trying things without value.</p>
-      <table class="grid3">
-        <thead><tr><th scope="col"></th><th scope="col">Mainnet</th><th scope="col">Testnet</th></tr></thead>
-        <tbody>
-          <tr><th scope="row">Start flag</th><td>&mdash;</td><td>-testnet4</td></tr>
-          <tr><th scope="row">Network magic</th><td>e4 d2 a7 c9</td><td>d7 e9 b3 f1</td></tr>
-          <tr><th scope="row">P2P port</th><td>9733</td><td>29733</td></tr>
-          <tr><th scope="row">RPC port</th><td>9732</td><td>29732</td></tr>
-          <tr><th scope="row">Legacy address</th><td>V&hellip;</td><td>t&hellip;</td></tr>
-          <tr><th scope="row">Script address</th><td>S&hellip;</td><td>u&hellip;</td></tr>
-          <tr><th scope="row">SegWit address</th><td>vlc1&hellip;</td><td>tvlc1&hellip;</td></tr>
-          <tr><th scope="row">Data folder</th><td>~/.velincoin</td><td>~/.velincoin/testnet4</td></tr>
-        </tbody>
-      </table>
-      <h3>Finding peers</h3>
-      <p>No seed nodes are configured yet. Until they are, a node only finds the network if you tell it where to look, for example with <code>-addnode=&lt;ip&gt;:9733</code>.</p>
-      <h3>Testnet rules</h3>
-      <p>Like Bitcoin&rsquo;s testnet4: if no block is found for 20 minutes, the next block may be mined at minimum difficulty. That keeps the testnet usable with ordinary computers.</p>
-    </section>
+  <!-- FAQ -->
+  <section class="sec" id="faq" aria-labelledby="faq-h">
+    <div class="wrap sec-grid">
+      <p class="label reveal">FAQ</p>
+      <div class="sec-body">
+        <h2 class="reveal" id="faq-h">Questions, answered plainly.</h2>
+        <div class="faq reveal">
+          <details>
+            <summary>Can I buy Velincoin?</summary>
+            <p>Not yet. Velincoin has not launched, and there is no exchange, no token sale and no presale. If someone offers to sell you VLC today, it is not Velincoin.</p>
+          </details>
+          <details>
+            <summary>How do new coins come into existence?</summary>
+            <p>Only through mining. Whoever adds a valid block to the chain receives newly created VLC, until the limit of 21 million is reached.</p>
+          </details>
+          <details>
+            <summary>Who controls Velincoin?</summary>
+            <p>No one in particular. The rules live in open source software, and every node checks them for itself. A change only takes effect if the people running nodes choose to install it.</p>
+          </details>
+          <details>
+            <summary>Is it safe to use right now?</summary>
+            <p>Not for anything of value. A young proof-of-work network is small, and someone with a lot of rented computing power could overpower it. Until the network has grown and the mining algorithm is final, use it for testing only.</p>
+          </details>
+          <details>
+            <summary>What do I need to run a node?</summary>
+            <p>A computer with Linux, a few minutes to build the software, and an internet connection. To accept connections from others, open TCP port <code>29733</code> on the test network.</p>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <section class="topic" data-topic="genesis" hidden>
-      <h2>Genesis block</h2>
-      <p class="lede">Block 0 is written into the code. Every Velincoin node starts from it.</p>
-      <dl class="facts">
-        <dt>Message</dt><dd class="m">velincoin.com 05/Oct/2026 Velincoin Genesis</dd>
-        <dt>Time</dt><dd>5 October 2026, 08:51:58 UTC <span class="m" style="color:var(--text-dim)">(1791190318)</span></dd>
-        <dt>Hash</dt><dd class="m">000000002e63a20ccb2371805261134fdc98a6a22dad956e5599fca4469f05e7</dd>
-        <dt>Merkle root</dt><dd class="m">b9b0a6d3e91faa65f910bb26080bd644add054293a045c66c2d63ac5fd82f571</dd>
-        <dt>Nonce</dt><dd class="m">3153039446</dd>
-        <dt>Bits</dt><dd class="m">0x1d00ffff</dd>
-      </dl>
-      <h3>Testnet genesis</h3>
-      <dl class="facts">
-        <dt>Message</dt><dd class="m">velincoin.com 05/Oct/2026 Velincoin Testnet</dd>
-        <dt>Hash</dt><dd class="m">00000000e803ebf103aa707b7f6aa2b80a613e47ef46c9f77b8c969a1a8b3817</dd>
-      </dl>
-      <p class="small">Both blocks were mined with <code>contrib/velincoin/genesis.py</code>. The script checks itself by rebuilding Bitcoin&rsquo;s known genesis blocks first.</p>
-    </section>
+  <!-- CLOSING -->
+  <section class="closing" aria-labelledby="closing-h">
+    <div class="wrap">
+      <h2 class="reveal" id="closing-h">A currency of its own.</h2>
+      <p class="reveal">Build it, run it and check it for yourself. Everything you need is open.</p>
+      <div class="row reveal">
+        <a class="btn btn-md btn-primary" href="#start">Get started
+          <svg class="arw" viewBox="0 0 12 10" fill="none" aria-hidden="true"><path d="M0.8 5h10M7.1 1.4 10.9 5l-3.8 3.6" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="btn btn-md btn-ghost" href="#faq">Read the FAQ</a>
+      </div>
+    </div>
+  </section>
+</main>
 
-    <section class="topic" data-topic="security" hidden>
-      <h2>Security</h2>
-      <p class="lede">Velincoin uses SHA-256, the same proof of work as Bitcoin. For a small new chain that is a real weakness, and we would rather say so up front.</p>
-      <h3>The risk</h3>
-      <p>Almost all SHA-256 mining hardware in the world works on Bitcoin. Anyone who rents a small slice of it for a few hours could out-mine the whole Velincoin network. With that majority they could reverse their own payments and push other miners&rsquo; blocks off the chain. They could not take coins from other people or create coins outside the rules.</p>
-      <h3>Our position</h3>
-      <p>Keep SHA-256 while Velincoin has no market value and runs as a test network. Decide again before any public launch. The two serious options are merged mining with Bitcoin, which is the strongest if pools take part, or RandomX, which lets anyone mine with an ordinary CPU.</p>
-      <p>Any switch should happen before launch. Until then the chain can simply be restarted. After launch the same change is a hard fork that every node and miner has to make at once.</p>
-      <div class="note"><strong>Until then:</strong> treat confirmations on Velincoin as weak, and do not accept VLC for anything of value.</div>
-    </section>
-
-    <section class="topic" data-topic="status" hidden>
-      <h2>Status</h2>
-      <p class="lede">The main network has not launched, and there is no launch date yet.</p>
-      <ul class="status">
-        <li><span class="tag done">Done</span>Own chain parameters, network magic, ports and address formats</li>
-        <li><span class="tag done">Done</span>Main and test genesis blocks</li>
-        <li><span class="tag done">Done</span>Node, command line tools and desktop wallet use VLC</li>
-        <li><span class="tag open">Open</span>Seed servers, so new nodes find the network by themselves</li>
-        <li><span class="tag open">Open</span>Decision on the mining algorithm (see Security)</li>
-        <li><span class="tag open">Open</span>Logo and icons in the desktop wallet</li>
-        <li><span class="tag open">Open</span>Block explorer</li>
-      </ul>
-      <div class="note"><strong>There is no exchange, no token sale and no presale.</strong> If someone offers to sell you VLC today, it is not Velincoin.</div>
-    </section>
-
+<footer class="footer">
+  <div class="wrap">
+    <a class="logo" href="#top">Velincoin</a>
+    <nav aria-label="Footer">
+      <a href="#about">About</a>
+      <a href="#how">How it works</a>
+      <a href="#wallet">Wallet</a>
+      <a href="#start">Get started</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <small>Velincoin is open source software under the MIT licence. Nothing on this site is financial advice.</small>
   </div>
-</dialog>
+</footer>
 
 <script>
 (function(){
@@ -689,95 +826,81 @@ build/bin/velincoin-cli -testnet4 getconnectioncount</pre></div>
 </script>
 
 <script>
-/* Topic sheet: each topic has its own URL hash, so links can be shared and Back closes the sheet. */
+/* In-page links: scroll by script so they also work in embedded previews,
+   move focus to the section for keyboard users, keep the hash shareable. */
 (function(){
-  var dlg = document.getElementById('sheet');
-  if (!dlg || typeof dlg.showModal !== 'function') return;
-  var tabs = dlg.querySelectorAll('.sheet-tabs button');
-  var topics = dlg.querySelectorAll('.topic');
-  var body = document.getElementById('sheetBody');
-  var names = {}, pushed = false, i;
-  for (i = 0; i < topics.length; i++) names[topics[i].getAttribute('data-topic')] = topics[i];
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var nav = document.getElementById('nav');
 
-  function show(name){
-    for (var k in names){
-      var on = k === name;
-      names[k].hidden = !on;
-      var h = names[k].querySelector('h2');
-      if (on && h){ h.id = 'sheetTitle'; } else if (h){ h.removeAttribute('id'); }
+  document.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!a) return;
+    var id = a.getAttribute('href').slice(1);
+    var target = document.getElementById(id);
+    if (!target) return;
+    e.preventDefault();
+    var behavior = reduce ? 'auto' : 'smooth';
+    if (id === 'top') window.scrollTo({ top: 0, behavior: behavior });
+    else target.scrollIntoView({ behavior: behavior, block: 'start' });
+    if (id !== 'top'){
+      if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+      target.focus({ preventScroll: true });
     }
-    for (var j = 0; j < tabs.length; j++){
-      if (tabs[j].getAttribute('data-topic') === name){
-        tabs[j].setAttribute('aria-current', 'true');
-        if (dlg.open) tabs[j].scrollIntoView({ block: 'nearest', inline: 'nearest' });
-      } else tabs[j].removeAttribute('aria-current');
-    }
-    body.scrollTop = 0;
-  }
-  function topicFromHash(){
-    var h = location.hash.slice(1);
-    return names[h] ? h : null;
-  }
-  function route(fromNav){
-    var t = topicFromHash();
-    if (t){
-      show(t);
-      if (!dlg.open){
-        pushed = !!fromNav;
-        dlg.showModal();
-        var cur = dlg.querySelector('.sheet-tabs [aria-current="true"]');
-        if (cur){ cur.focus(); cur.scrollIntoView({ block: 'nearest', inline: 'nearest' }); }
-      }
-    } else if (dlg.open){
-      dlg.close();
-    }
-  }
-  function clearHash(){
-    history.replaceState(null, '', location.pathname + location.search);
-  }
-
-  window.addEventListener('hashchange', function(){ route(true); });
-
-  dlg.addEventListener('close', function(){
-    if (!topicFromHash()) return;
-    if (pushed){ pushed = false; history.back(); } else { clearHash(); }
+    try { history.replaceState(null, '', id === 'top' ? location.pathname + location.search : '#' + id); } catch (err) {}
   });
-  document.getElementById('sheetClose').addEventListener('click', function(){ dlg.close(); });
-  dlg.addEventListener('click', function(e){
-    if (e.target !== dlg) return;
-    var r = dlg.getBoundingClientRect();
-    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dlg.close();
-  });
-  for (i = 0; i < tabs.length; i++){
-    tabs[i].addEventListener('click', function(){
-      var t = this.getAttribute('data-topic');
-      history.replaceState(null, '', '#' + t);
-      show(t);
+
+  /* glass nav once the page has moved */
+  function onScroll(){ nav.classList.toggle('scrolled', window.scrollY > 8); }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  if (!('IntersectionObserver' in window)) return;
+
+  /* highlight the section in view */
+  var links = document.querySelectorAll('.nav-links a');
+  var byId = {};
+  for (var i = 0; i < links.length; i++) byId[links[i].getAttribute('href').slice(1)] = links[i];
+  var spy = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (!en.isIntersecting) return;
+      for (var k in byId) byId[k].removeAttribute('aria-current');
+      if (byId[en.target.id]) byId[en.target.id].setAttribute('aria-current', 'true');
     });
-  }
+  }, { rootMargin: '-45% 0px -50% 0px' });
+  document.querySelectorAll('.sec').forEach(function(s){ spy.observe(s); });
+  document.querySelector('.hero') && new IntersectionObserver(function(en){
+    if (en[0].isIntersecting) for (var k in byId) byId[k].removeAttribute('aria-current');
+  }, { rootMargin: '-45% 0px -50% 0px' }).observe(document.querySelector('.hero'));
 
-  /* copy buttons on command blocks */
-  var blocks = dlg.querySelectorAll('.code');
-  for (i = 0; i < blocks.length; i++){
-    (function(block){
-      if (!navigator.clipboard) return;
-      var b = document.createElement('button');
-      b.type = 'button'; b.className = 'copy'; b.textContent = 'Copy';
-      b.setAttribute('aria-live', 'polite');
-      b.addEventListener('click', function(){
-        var pre = block.querySelector('pre').cloneNode(true);
-        var notes = pre.querySelectorAll('.c');
-        for (var n = 0; n < notes.length; n++) notes[n].remove();
-        navigator.clipboard.writeText(pre.textContent.replace(/[ \t]+$/gm, '')).then(function(){
-          b.textContent = 'Copied';
-          setTimeout(function(){ b.textContent = 'Copy'; }, 1600);
-        }, function(){});
-      });
-      block.appendChild(b);
-    })(blocks[i]);
-  }
+  /* reveal on scroll */
+  if (reduce) return;
+  document.documentElement.classList.add('rv');
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+    });
+  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+})();
+</script>
 
-  route(false);
+<script>
+/* copy buttons on command blocks */
+(function(){
+  if (!navigator.clipboard) return;
+  document.querySelectorAll('.code').forEach(function(block){
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'copy'; b.textContent = 'Copy';
+    b.setAttribute('aria-live', 'polite');
+    b.addEventListener('click', function(){
+      navigator.clipboard.writeText(block.querySelector('pre').textContent).then(function(){
+        b.textContent = 'Copied';
+        setTimeout(function(){ b.textContent = 'Copy'; }, 1600);
+      }, function(){});
+    });
+    block.classList.add('has-copy');
+    block.appendChild(b);
+  });
 })();
 </script>
 
@@ -795,16 +918,22 @@ build/bin/velincoin-cli -testnet4 getconnectioncount</pre></div>
     return;
   }
 
-  var FADE = 0.9, cur = A, nxt = B, swapping = false, userPaused = false;
+  var FADE = 0.9, cur = A, nxt = B, swapping = false;
+  var userPaused = false, offscreen = false;
 
   function play(v){
     var p = v.play();
     if (p && typeof p.catch === 'function') p.catch(function(){});
   }
+  function shouldRun(){ return !userPaused && !offscreen && !document.hidden; }
+  function sync(){
+    if (shouldRun()) play(cur);
+    else { A.pause(); B.pause(); }
+  }
   play(A);
 
   function tick(){
-    if (swapping || userPaused || !cur.duration) return;
+    if (swapping || !shouldRun() || !cur.duration) return;
     if (cur.duration - cur.currentTime > FADE) return;
     swapping = true;
     var out = cur;
@@ -828,13 +957,16 @@ build/bin/velincoin-cli -testnet4 getconnectioncount</pre></div>
       userPaused = !userPaused;
       toggle.setAttribute('aria-pressed', userPaused ? 'true' : 'false');
       toggle.setAttribute('aria-label', userPaused ? 'Play background animation' : 'Pause background animation');
-      if (userPaused){ A.pause(); B.pause(); } else { play(cur); }
+      sync();
     });
   }
-  document.addEventListener('visibilitychange', function(){
-    if (document.hidden){ A.pause(); B.pause(); }
-    else if (!userPaused){ play(cur); }
-  });
+  document.addEventListener('visibilitychange', sync);
+  if ('IntersectionObserver' in window){
+    new IntersectionObserver(function(en){
+      offscreen = !en[0].isIntersecting;
+      sync();
+    }).observe(document.querySelector('.hero'));
+  }
 })();
 </script>
 </body>
