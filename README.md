@@ -91,6 +91,19 @@ Diese Tests wurden für Velincoin angepasst:
   `contrib/velincoin/gen_bip324_vectors.py` für die Velincoin-Netzwerk-Kennung neu
   berechnet.
 
+Bekannte Testfehler:
+
+- `mining_mainnet.py` (Funktionstest) schlägt fehl. Der Test baut 2016 echt geminte
+  Blöcke auf dem Genesis-Block auf. Die mitgelieferten Daten gehören zum Bitcoin-
+  Genesis-Block. Für Velincoin müssen sie neu gemined werden, das sind auf einem
+  normalen Rechner grob 80 Stunden. Wird später nachgeholt.
+- `feature_bind_extra.py` und `rpc_bind.py --ipv4`/`--nonloopback` brauchen IPv6.
+  In einer Umgebung ohne IPv6 schlagen sie fehl, das hat nichts mit Velincoin zu tun.
+
+Automatische Tests auf GitHub (GitHub Actions) sind vorerst abgeschaltet. Die
+Konfiguration in `.github/workflows/ci.yml` stammt von Bitcoin Core und ist noch
+nicht an Velincoin angepasst. Sie lässt sich im Reiter "Actions" von Hand starten.
+
 Tests laufen lassen:
 
 ```

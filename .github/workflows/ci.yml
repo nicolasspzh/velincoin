@@ -4,14 +4,13 @@
 
 name: CI
 on:
-  # See: https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request.
-  pull_request:
-  # See: https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#push.
-  push:
-    branches:
-      - '**'
-    tags-ignore:
-      - '**'
+  # Velincoin: the automatic runs on every push and pull request are switched
+  # off for now. This is the Bitcoin Core CI and it is not adapted to
+  # Velincoin yet (for example the Windows jobs still expect bitcoind.exe).
+  # The workflow can still be started by hand in the GitHub "Actions" tab.
+  # To switch the automatic runs back on, restore the pull_request and push
+  # triggers from Bitcoin Core.
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.event_name != 'pull_request' && github.run_id || github.ref }}
