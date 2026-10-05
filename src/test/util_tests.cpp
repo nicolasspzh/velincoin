@@ -1502,6 +1502,9 @@ BOOST_AUTO_TEST_CASE(test_tracked_vector)
     BOOST_CHECK_EQUAL(v8[2].copies, 0);
 }
 
+// Velincoin: the signatures and the address of the crafted signature in the
+// message_sign and message_verify tests were recomputed for the Velincoin
+// message prefix with contrib/velincoin/gen_signmessage_vectors.py.
 BOOST_AUTO_TEST_CASE(message_sign)
 {
     const std::array<unsigned char, 32> privkey_bytes = {
@@ -1516,7 +1519,7 @@ BOOST_AUTO_TEST_CASE(message_sign)
     const std::string message = "Trust no one";
 
     const std::string expected_signature =
-        "IPojfrX2dfPnH26UegfbGQQLrdK844DlHq5157/P6h57WyuS/Qsl+h/WSVGDF4MUi4rWSswW38oimDYfNNUBUOk=";
+        "IDRjloOl4o4Ellrndi4dWcTy94yEPiTqqoom1sd+SdNbJMG7NwZOeKRrsb5Zo4xnPiK8eflDlPM8N980tGYjq2U=";
 
     CKey privkey;
     std::string generated_signature;
@@ -1571,20 +1574,20 @@ BOOST_AUTO_TEST_CASE(message_verify)
     BOOST_CHECK_EQUAL(
         MessageVerify(
             "VEresrW98Shtaquzqf6bsGgynJfMs2TZY1",
-            "IPojfrX2dfPnH26UegfbGQQLrdK844DlHq5157/P6h57WyuS/Qsl+h/WSVGDF4MUi4rWSswW38oimDYfNNUBUOk=",
+            "IDRjloOl4o4Ellrndi4dWcTy94yEPiTqqoom1sd+SdNbJMG7NwZOeKRrsb5Zo4xnPiK8eflDlPM8N980tGYjq2U=",
             "I never signed this"),
         MessageVerificationResult::ERR_NOT_SIGNED);
 
     BOOST_CHECK_EQUAL(
         MessageVerify(
             "VEresrW98Shtaquzqf6bsGgynJfMs2TZY1",
-            "IPojfrX2dfPnH26UegfbGQQLrdK844DlHq5157/P6h57WyuS/Qsl+h/WSVGDF4MUi4rWSswW38oimDYfNNUBUOk=",
+            "IDRjloOl4o4Ellrndi4dWcTy94yEPiTqqoom1sd+SdNbJMG7NwZOeKRrsb5Zo4xnPiK8eflDlPM8N980tGYjq2U=",
             "Trust no one"),
         MessageVerificationResult::OK);
 
     BOOST_CHECK_EQUAL(
         MessageVerify(
-            "VAfqWPmsWmxMd9NzvCSGKdTcX5WiLGGyer",
+            "VU1kHeFH2rFCoxqn9UoED6i1BEnTgb7FDA",
             "IIcaIENoYW5jZWxsb3Igb24gYnJpbmsgb2Ygc2Vjb25kIGJhaWxvdXQgZm9yIGJhbmtzIAaHRtbCeDZINyavx14=",
             "Trust me"),
         MessageVerificationResult::OK);

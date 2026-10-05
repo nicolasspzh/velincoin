@@ -44,6 +44,7 @@ erkennen sich gegenseitig nicht und tauschen keine Daten aus.
 | Programme | `bitcoind`, `bitcoin-cli`, `bitcoin-wallet`, `bitcoin-tx`, `bitcoin-util`, `bitcoin-qt`, `bitcoin` | `velincoind`, `velincoin-cli`, `velincoin-wallet`, `velincoin-tx`, `velincoin-util`, `velincoin-qt`, `velincoin` |
 | Genesis-Block | 3. Januar 2009 | eigener Block, siehe unten |
 | Soft Forks (SegWit, Taproot usw.) | nach und nach aktiviert | ab Block 1 aktiv |
+| Vorspann signierter Nachrichten | `Bitcoin Signed Message:` | `Velincoin Signed Message:` |
 
 ### Genesis-Block
 
@@ -70,7 +71,6 @@ Was noch nicht angepasst ist
   der Copyright-Hinweis von Bitcoin Core und interne Protokoll-Konstanten.
 - **Skripte und Anleitungen** in `contrib/`, `share/` und `doc/` (zum Beispiel
   systemd-Dienste, Shell-Vervollständigung, Man-Pages) nennen noch `bitcoind` usw.
-- **Signierte Nachrichten:** Nutzen noch den Bitcoin-Text "Bitcoin Signed Message".
 - **Testnetze:** `-testnet`, `-testnet4` und `-signet` sind noch die Bitcoin-Testnetze.
   Nur das Hauptnetz und `-regtest` (lokales Testnetz) sind für Velincoin gedacht.
   Im Regtest beginnen Adressen noch wie bei Bitcoin mit `bcrt1`.
