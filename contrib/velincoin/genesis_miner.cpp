@@ -73,7 +73,12 @@ int main(int argc, char** argv)
                 SHA256_CTX ctx = midstate;
                 SHA256_Update(&ctx, tail, 16);
                 SHA256_Final(hash1, &ctx);
-                SHA256(hash1, 32, hash2);
+                // Use the low level functions here: the one-shot SHA256() of
+                // OpenSSL 3 looks up the algorithm on every call, which is slow.
+                SHA256_CTX ctx2;
+                SHA256_Init(&ctx2);
+                SHA256_Update(&ctx2, hash1, 32);
+                SHA256_Final(hash2, &ctx2);
                 // The block hash is hash2 read backwards. Compare it with the target.
                 bool below = false, decided = false;
                 for (int i = 0; i < 32 && !decided; ++i) {
