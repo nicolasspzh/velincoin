@@ -97,10 +97,14 @@ Weitere Dokumente
 Was noch nicht angepasst ist
 ----------------------------
 
-- **Texte in der grafischen Wallet (GUI):** sprechen noch von "Bitcoin". Die Texte
-  von Node, Kommandozeile und RPC-Befehlen sind angepasst. Bewusst unverändert
-  bleiben Links zu den Bitcoin-Standards (BIPs), Titel von Forschungsarbeiten,
-  der Copyright-Hinweis von Bitcoin Core und interne Protokoll-Konstanten.
+- **Bewusst unverändert** bleiben Links zu den Bitcoin-Standards (BIPs), Titel
+  von Forschungsarbeiten, der Copyright-Hinweis von Bitcoin Core und interne
+  Protokoll-Konstanten.
+- **Grafische Wallet (GUI):** Texte, Einheit (VLC), Zahlungs-Links (`velincoin:`)
+  und Einstellungsordner (`~/.config/Velincoin/`) sind angepasst. Die automatischen
+  GUI-Tests bestehen. Noch nicht angepasst: Logo und Symbole (noch Bitcoin),
+  Übersetzungen in andere Sprachen und der Name des macOS-Programmpakets.
+  Die Fenster wurden noch nicht von Hand angeschaut.
 - **Skripte und Anleitungen** in `contrib/`, `share/` und `doc/` (zum Beispiel
   systemd-Dienste, Shell-Vervollständigung, Man-Pages) nennen noch `bitcoind` usw.
 - **Regtest** (lokales Testnetz für Entwickler): Adressen beginnen noch wie bei
@@ -111,7 +115,6 @@ Was noch nicht angepasst ist
 - **Mindest-Arbeit der Kette (`nMinimumChainWork`):** steht auf 0. Das ist für eine
   neue Kette nötig. Sobald das Netz läuft, muss der Wert regelmässig erhöht werden.
   Er schützt neue Nodes davor, einer gefälschten Kette mit wenig Arbeit zu folgen.
-- **Grafische Wallet (GUI):** noch nicht angepasst und nicht getestet.
 
 Tests
 -----
@@ -159,6 +162,14 @@ Kompilieren (Linux)
 ```
 sudo apt-get install build-essential cmake pkgconf python3 libevent-dev libboost-dev libsqlite3-dev
 cmake -B build -DBUILD_GUI=OFF -DWITH_ZMQ=OFF -DENABLE_IPC=OFF
+cmake --build build -j4
+```
+
+Mit grafischer Wallet (`velincoin-qt`):
+
+```
+sudo apt-get install qt6-base-dev qt6-tools-dev qt6-l10n-tools qt6-tools-dev-tools libgl-dev libqrencode-dev
+cmake -B build -DBUILD_GUI=ON -DWITH_ZMQ=OFF -DENABLE_IPC=OFF
 cmake --build build -j4
 ```
 
