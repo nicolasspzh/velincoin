@@ -64,11 +64,36 @@ Was noch nicht angepasst ist
 ----------------------------
 
 - **Programmnamen:** Die Programme heissen noch `bitcoind`, `bitcoin-cli` usw.
+- **Texte im Programm:** Viele Meldungen sprechen noch von "Bitcoin", zum Beispiel
+  "Invalid Bitcoin address".
+- **Signierte Nachrichten:** Nutzen noch den Bitcoin-Text "Bitcoin Signed Message".
 - **Testnetze:** `-testnet`, `-testnet4` und `-signet` sind noch die Bitcoin-Testnetze.
   Nur das Hauptnetz und `-regtest` (lokales Testnetz) sind für Velincoin gedacht.
+  Im Regtest beginnen Adressen noch wie bei Bitcoin mit `bcrt1`.
 - **Seed-Nodes:** Es sind keine eingetragen. Nodes müssen sich im Moment manuell
   verbinden, zum Beispiel mit `-addnode=<ip>:9733`.
+- **Mindest-Arbeit der Kette (`nMinimumChainWork`):** steht auf 0. Das ist für eine
+  neue Kette nötig. Sobald das Netz läuft, muss der Wert regelmässig erhöht werden.
+  Er schützt neue Nodes davor, einer gefälschten Kette mit wenig Arbeit zu folgen.
 - **Grafische Wallet (GUI):** noch nicht angepasst und nicht getestet.
+
+Tests
+-----
+
+Die Unit-Tests von Bitcoin Core prüfen an vielen Stellen feste Bitcoin-Werte.
+Diese Tests wurden für Velincoin angepasst:
+
+- Adressen und private Schlüssel wurden mit `contrib/velincoin/convert_test_vectors.py`
+  ins Velincoin-Format umgerechnet (gleicher Inhalt, neues Präfix und neue Prüfsumme).
+- Die BIP324-Testdaten (verschlüsselte Verbindung zwischen Nodes) wurden mit
+  `contrib/velincoin/gen_bip324_vectors.py` für die Velincoin-Netzwerk-Kennung neu
+  berechnet.
+
+Tests laufen lassen:
+
+```
+ctest --test-dir build -j4
+```
 
 Sicherheitshinweis
 ------------------
