@@ -820,6 +820,9 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
             txCoinbase.version = 1;
             txCoinbase.vin[0].scriptSig = CScript{} << (current_height + 1) << bi.extranonce;
             txCoinbase.vout.resize(1); // Ignore the (optional) segwit commitment added by CreateNewBlock (as the hardcoded nonces don't account for this)
+            // Velincoin: SegWit is active from block 1, so the coinbase also carries the
+            // witness reserved value that belongs to the commitment. Drop it as well.
+            txCoinbase.vin[0].scriptWitness.SetNull();
             txCoinbase.vout[0].scriptPubKey = CScript();
             block.vtx[0] = MakeTransactionRef(txCoinbase);
             if (txFirst.size() == 0)
