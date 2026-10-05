@@ -13,6 +13,15 @@ function(install_binary_component component)
     ""                          # multi_value_keywords
   )
   set(target_name ${component})
+  # Velincoin: keep the upstream target names (bitcoind, bitcoin-cli, ...) to
+  # make merging Bitcoin Core changes easier, but name the built programs
+  # velincoind, velincoin-cli, ... Developer tools like test_bitcoin and
+  # bench_bitcoin keep their names.
+  set(output_name ${target_name})
+  if(target_name MATCHES "^bitcoin")
+    string(REGEX REPLACE "^bitcoin" "velincoin" output_name ${target_name})
+    set_target_properties(${target_name} PROPERTIES OUTPUT_NAME ${output_name})
+  endif()
   if(IC_INTERNAL)
     set(runtime_dest ${CMAKE_INSTALL_LIBEXECDIR})
   else()
@@ -25,6 +34,7 @@ function(install_binary_component component)
   if(INSTALL_MAN AND IC_HAS_MANPAGE)
     install(FILES ${PROJECT_SOURCE_DIR}/doc/man/${target_name}.1
       DESTINATION ${CMAKE_INSTALL_MANDIR}/man1
+      RENAME ${output_name}.1
       COMPONENT ${component}
     )
   endif()

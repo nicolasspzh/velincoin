@@ -41,6 +41,7 @@ erkennen sich gegenseitig nicht und tauschen keine Daten aus.
 | SegWit-Adressen beginnen mit | `bc1` | `vlc1` |
 | Datenordner (Linux) | `~/.bitcoin` | `~/.velincoin` |
 | Konfigurationsdatei | `bitcoin.conf` | `velincoin.conf` |
+| Programme | `bitcoind`, `bitcoin-cli`, `bitcoin-wallet`, `bitcoin-tx`, `bitcoin-util`, `bitcoin-qt`, `bitcoin` | `velincoind`, `velincoin-cli`, `velincoin-wallet`, `velincoin-tx`, `velincoin-util`, `velincoin-qt`, `velincoin` |
 | Genesis-Block | 3. Januar 2009 | eigener Block, siehe unten |
 | Soft Forks (SegWit, Taproot usw.) | nach und nach aktiviert | ab Block 1 aktiv |
 
@@ -63,9 +64,10 @@ selbst, indem es die bekannten Bitcoin-Genesis-Blöcke nachbaut (`--selftest`).
 Was noch nicht angepasst ist
 ----------------------------
 
-- **Programmnamen:** Die Programme heissen noch `bitcoind`, `bitcoin-cli` usw.
 - **Texte im Programm:** Viele Meldungen sprechen noch von "Bitcoin", zum Beispiel
   "Invalid Bitcoin address".
+- **Skripte und Anleitungen** in `contrib/`, `share/` und `doc/` (zum Beispiel
+  systemd-Dienste, Shell-Vervollständigung, Man-Pages) nennen noch `bitcoind` usw.
 - **Signierte Nachrichten:** Nutzen noch den Bitcoin-Text "Bitcoin Signed Message".
 - **Testnetze:** `-testnet`, `-testnet4` und `-signet` sind noch die Bitcoin-Testnetze.
   Nur das Hauptnetz und `-regtest` (lokales Testnetz) sind für Velincoin gedacht.
@@ -112,7 +114,13 @@ cmake -B build -DBUILD_GUI=OFF -DWITH_ZMQ=OFF -DENABLE_IPC=OFF
 cmake --build build -j4
 ```
 
-Die Programme liegen danach in `build/bin/`.
+Die Programme liegen danach in `build/bin/`, zum Beispiel `build/bin/velincoind`.
+
+Intern (im Build-System) heissen die Ziele weiterhin wie bei Bitcoin Core, zum
+Beispiel `bitcoind`. Nur die fertigen Dateien heissen `velincoind` usw. Das hält
+den Unterschied zu Bitcoin Core klein, damit spätere Bitcoin-Updates leichter
+übernommen werden können. Die Entwickler-Programme `test_bitcoin` und
+`bench_bitcoin` behalten ihren Namen.
 
 Weitere Anleitungen zum Kompilieren stehen in [doc/](doc/). Sie stammen von
 Bitcoin Core und gelten auch für Velincoin.
