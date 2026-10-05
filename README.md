@@ -104,8 +104,10 @@ Was noch nicht angepasst ist
   Protokoll-Konstanten.
 - **Grafische Wallet (GUI):** Texte, Einheit (VLC), Zahlungs-Links (`velincoin:`)
   und Einstellungsordner (`~/.config/Velincoin/`) sind angepasst. Die automatischen
-  GUI-Tests bestehen. Noch nicht angepasst: Logo und Symbole (noch Bitcoin),
-  Übersetzungen in andere Sprachen und der Name des macOS-Programmpakets.
+  GUI-Tests bestehen. Das Velincoin-Logo ist als Programmsymbol eingebaut (Original
+  in `doc/velincoin/logo/`). Noch nicht angepasst: einige kleine Bitcoin-Symbole in
+  der Oberfläche, Übersetzungen in andere Sprachen und der Name des
+  macOS-Programmpakets. Für das Logo gibt es noch keine Vektordatei (SVG).
   Die Fenster wurden noch nicht von Hand angeschaut.
 - **Anleitungen und Hilfsskripte** in `doc/` und `contrib/` stammen von Bitcoin Core
   und nennen oft noch `bitcoind` usw. Angepasst sind die Dienst-Vorlagen in
