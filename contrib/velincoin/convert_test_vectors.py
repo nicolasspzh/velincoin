@@ -15,7 +15,13 @@ change:
 Strings with an invalid checksum are left alone, so test cases that check
 for invalid input keep working.
 
+With --testnet4 only the entries of src/test/data/key_io_valid.json that have
+"chain": "testnet4" are converted, to the Velincoin test network format:
+  Base58 version 111 -> 127 ('t...'), 196 -> 130 ('u...'), 239 -> 240
+  Bech32/Bech32m 'tb1...' -> 'tvlc1...'
+
 Usage: convert_test_vectors.py FILE [FILE ...]   (files are changed in place)
+       convert_test_vectors.py --testnet4 src/test/data/key_io_valid.json
 """
 
 import hashlib
@@ -24,6 +30,7 @@ import sys
 
 B58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 BASE58_MAP = {0: 70, 5: 63, 128: 198}
+TESTNET4_BASE58_MAP = {111: 127, 196: 130, 239: 240}
 
 BECH32_CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
 BECH32_CONST = 1
@@ -57,18 +64,19 @@ def b58encode_check(payload: bytes) -> str:
     return "1" * (len(data) - len(data.lstrip(b"\x00"))) + out
 
 
-def convert_base58(s: str):
+def convert_base58(s: str, base58_map=BASE58_MAP):
     payload = b58decode_check(s)
     if payload is None:
         return None
     version, body = payload[0], payload[1:]
-    if version not in BASE58_MAP:
+    if version not in base58_map:
         return None
-    if version in (0, 5) and len(body) != 20:
+    secret_version = max(base58_map)  # 128 (main) or 239 (testnet)
+    if version != secret_version and len(body) != 20:
         return None
-    if version == 128 and not (len(body) == 32 or (len(body) == 33 and body[-1] == 1)):
+    if version == secret_version and not (len(body) == 32 or (len(body) == 33 and body[-1] == 1)):
         return None
-    return b58encode_check(bytes([BASE58_MAP[version]]) + body)
+    return b58encode_check(bytes([base58_map[version]]) + body)
 
 
 def bech32_polymod(values):
@@ -86,24 +94,24 @@ def hrp_expand(hrp):
     return [ord(x) >> 5 for x in hrp] + [0] + [ord(x) & 31 for x in hrp]
 
 
-def convert_bech32(s: str):
+def convert_bech32(s: str, old_hrp=OLD_HRP, new_hrp=NEW_HRP):
     lower = s.lower()
     if s != lower and s != s.upper():
         return None  # mixed case is invalid anyway
     pos = lower.rfind("1")
-    if lower[:pos] != OLD_HRP:
+    if lower[:pos] != old_hrp:
         return None
     try:
         data = [BECH32_CHARSET.index(c) for c in lower[pos + 1:]]
     except ValueError:
         return None
-    const = bech32_polymod(hrp_expand(OLD_HRP) + data)
+    const = bech32_polymod(hrp_expand(old_hrp) + data)
     if const not in (BECH32_CONST, BECH32M_CONST):
         return None
     values = data[:-6]
-    polymod = bech32_polymod(hrp_expand(NEW_HRP) + values + [0] * 6) ^ const
+    polymod = bech32_polymod(hrp_expand(new_hrp) + values + [0] * 6) ^ const
     checksum = [(polymod >> 5 * (5 - i)) & 31 for i in range(6)]
-    out = NEW_HRP + "1" + "".join(BECH32_CHARSET[d] for d in values + checksum)
+    out = new_hrp + "1" + "".join(BECH32_CHARSET[d] for d in values + checksum)
     return out.upper() if s == s.upper() else out
 
 
@@ -125,7 +133,38 @@ def convert_text(text: str):
     return TOKEN.sub(repl, text), count
 
 
+ENTRY = re.compile(r'(\[\s*")([^"]+)("\s*,\s*"[^"]*"\s*,\s*\{[^}]*"chain":\s*"testnet4"[^}]*\}\s*\])')
+
+
+def convert_testnet4_entries(text: str):
+    """Convert only the key_io entries with "chain": "testnet4"."""
+    count = 0
+
+    def repl(m):
+        nonlocal count
+        tok = m.group(2)
+        if tok[:3].lower() == "tb1":
+            new = convert_bech32(tok, "tb", "tvlc")
+        else:
+            new = convert_base58(tok, TESTNET4_BASE58_MAP)
+        if new is None:
+            return m.group(0)
+        count += 1
+        return m.group(1) + new + m.group(3)
+
+    return ENTRY.sub(repl, text), count
+
+
 def main():
+    if sys.argv[1:2] == ["--testnet4"]:
+        for path in sys.argv[2:]:
+            with open(path, encoding="utf-8") as f:
+                text = f.read()
+            new_text, count = convert_testnet4_entries(text)
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(new_text)
+            print(f"{path}: {count} testnet4 entries converted")
+        return
     for path in sys.argv[1:]:
         with open(path, encoding="utf-8") as f:
             text = f.read()

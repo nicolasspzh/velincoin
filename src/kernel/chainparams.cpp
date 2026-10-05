@@ -245,11 +245,9 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
         // nodes with support for servicebits filtering should be at the top
-        vSeeds.emplace_back("testnet-seed.bitcoin.jonasschnelli.ch.");
-        vSeeds.emplace_back("seed.tbtc.petertodd.net.");
-        vSeeds.emplace_back("seed.testnet.bitcoin.sprovoost.nl.");
-        vSeeds.emplace_back("testnet-seed.bluematt.me."); // Just a static list of stable node(s), only supports x9
-        vSeeds.emplace_back("seed.testnet.achownodes.xyz."); // Ava Chow, only supports x1, x5, x9, x49, x809, x849, xd, x400, x404, x408, x448, xc08, xc48, x40c
+        // Velincoin: this is the Bitcoin testnet3 and not a Velincoin network.
+        // Its Bitcoin seeds are removed so that a Velincoin node never connects
+        // to it on its own. The Velincoin test network is -testnet4.
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
@@ -259,7 +257,6 @@ public:
 
         bech32_hrp = "tb";
 
-        vFixedSeeds = std::vector<uint8_t>(std::begin(chainparams_seed_test), std::end(chainparams_seed_test));
 
         fDefaultConsistencyChecks = false;
         m_is_mockable_chain = false;
@@ -295,7 +292,10 @@ public:
 };
 
 /**
- * Testnet (v4): public test network which is reset from time to time.
+ * Velincoin test network (uses the testnet4 slot of Bitcoin Core, start it
+ * with -testnet4). Same rules as the Bitcoin testnet4 (BIP94, minimum
+ * difficulty blocks after 20 minutes), but its own genesis block, message
+ * start bytes, ports and address formats.
  */
 class CTestNet4Params : public CChainParams {
 public:
@@ -333,70 +333,55 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].threshold = 1512; // 75%
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].period = 2016;
 
-        consensus.nMinimumChainWork = uint256{"0000000000000000000000000000000000000000000009a0fe15d0177d086304"};
-        consensus.defaultAssumeValid = uint256{"0000000002368b1e4ee27e2e85676ae6f9f9e69579b29093e9a82c170bf7cf8a"}; // 123613
+        // New chain: no minimum work and no assumed-valid block yet.
+        consensus.nMinimumChainWork = uint256{};
+        consensus.defaultAssumeValid = uint256{};
 
-        pchMessageStart[0] = 0x1c;
-        pchMessageStart[1] = 0x16;
-        pchMessageStart[2] = 0x3f;
-        pchMessageStart[3] = 0x28;
-        nDefaultPort = 48333;
+        pchMessageStart[0] = 0xd7;
+        pchMessageStart[1] = 0xe9;
+        pchMessageStart[2] = 0xb3;
+        pchMessageStart[3] = 0xf1;
+        nDefaultPort = 29733;
         nPruneAfterHeight = 1000;
-        m_assumed_blockchain_size = 31;
-        m_assumed_chain_state_size = 2;
+        m_assumed_blockchain_size = 1;
+        m_assumed_chain_state_size = 1;
 
-        const char* testnet4_genesis_msg = "03/May/2024 000000000000000000001ebd58c244970b3aa9d783bb001011fbe8ea8e98e00e";
+        const char* testnet4_genesis_msg = "velincoin.com 05/Oct/2026 Velincoin Testnet";
         const CScript testnet4_genesis_script = CScript() << "000000000000000000000000000000000000000000000000000000000000000000"_hex << OP_CHECKSIG;
         genesis = CreateGenesisBlock(testnet4_genesis_msg,
                 testnet4_genesis_script,
-                1714777860,
-                393743547,
+                1791201250,
+                779260034,
                 0x1d00ffff,
                 1,
                 50 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256{"00000000da84f2bafbbc53dee25a72ae507ff4914b867c565be350b0da8bf043"});
-        assert(genesis.hashMerkleRoot == uint256{"7aa0a7ae1e223414cb807e40cd57e667b718e42aaf9306db9102fe28912b7b4e"});
+        assert(consensus.hashGenesisBlock == uint256{"00000000e803ebf103aa707b7f6aa2b80a613e47ef46c9f77b8c969a1a8b3817"});
+        assert(genesis.hashMerkleRoot == uint256{"c82407bd2296a5651dac226c8a1b7122b015b20570c3e145237a238b89df8bc2"});
 
+        // No seed nodes yet. Add DNS seeds (for example "testnet-seed.velincoin.com.")
+        // and fixed seed nodes here once Velincoin test servers are running.
         vFixedSeeds.clear();
         vSeeds.clear();
-        // nodes with support for servicebits filtering should be at the top
-        vSeeds.emplace_back("seed.testnet4.bitcoin.sprovoost.nl."); // Sjors Provoost
-        vSeeds.emplace_back("seed.testnet4.wiz.biz."); // Jason Maurice
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
-        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
-        base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239);
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,127); // addresses start with 't'
+        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,130); // addresses start with 'u'
+        base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,240);
         base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x35, 0x87, 0xCF};
         base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x35, 0x83, 0x94};
 
-        bech32_hrp = "tb";
-
-        vFixedSeeds = std::vector<uint8_t>(std::begin(chainparams_seed_testnet4), std::end(chainparams_seed_testnet4));
+        bech32_hrp = "tvlc"; // SegWit addresses start with "tvlc1"
 
         fDefaultConsistencyChecks = false;
         m_is_mockable_chain = false;
 
-        m_assumeutxo_data = {
-            {
-                .height = 90'000,
-                .hash_serialized = AssumeutxoHash{uint256{"784fb5e98241de66fdd429f4392155c9e7db5c017148e66e8fdbc95746f8b9b5"}},
-                .m_chain_tx_count = 11347043,
-                .blockhash = uint256{"0000000002ebe8bcda020e0dd6ccfbdfac531d2f6a81457191b99fc2df2dbe3b"},
-            },
-            {
-                .height = 120'000,
-                .hash_serialized = AssumeutxoHash{uint256{"10b05d05ad468d0971162e1b222a4aa66caca89da2bb2a93f8f37fb29c4794b0"}},
-                .m_chain_tx_count = 14141057,
-                .blockhash = uint256{"000000000bd2317e51b3c5794981c35ba894ce27d3e772d5c39ecd9cbce01dc8"},
-            }
-        };
+        // No assumeutxo snapshots yet.
+        m_assumeutxo_data = {};
 
         chainTxData = ChainTxData{
-            // Data from RPC: getchaintxstats 4096 0000000002368b1e4ee27e2e85676ae6f9f9e69579b29093e9a82c170bf7cf8a
-            .nTime    = 1772013387,
-            .tx_count = 14191421,
-            .dTxRate  = 0.01848579579528412,
+            .nTime    = 0,
+            .tx_count = 0,
+            .dTxRate  = 0,
         };
 
         // Generated by headerssync-params.py on 2026-02-25.
@@ -420,9 +405,10 @@ public:
 
         if (!options.challenge) {
             bin = "512103ad5e0edad18cb1f0fc0d28a3d4f1f3e445640337489abb10404f2d1e086be430210359ef5021964fe22d6f8e05b2463c9540ce96883fe3b278760f048f5189f2e6c452ae"_hex_v_u8;
-            vFixedSeeds = std::vector<uint8_t>(std::begin(chainparams_seed_signet), std::end(chainparams_seed_signet));
-            vSeeds.emplace_back("seed.signet.bitcoin.sprovoost.nl.");
-            vSeeds.emplace_back("seed.signet.achownodes.xyz."); // Ava Chow, only supports x1, x5, x9, x49, x809, x849, xd, x400, x404, x408, x448, xc08, xc48, x40c
+            // Velincoin: the default signet is the Bitcoin signet. Its Bitcoin
+            // seeds are removed so that a Velincoin node never connects to it
+            // on its own. A Velincoin signet can be started later with an own
+            // -signetchallenge and -signetseednode.
 
             consensus.nMinimumChainWork = uint256{"00000000000000000000000000000000000000000000000000000b463ea0a4b8"};
             consensus.defaultAssumeValid = uint256{"00000008414aab61092ef93f1aacc54cf9e9f16af29ddad493b908a01ff5c329"}; // 293175

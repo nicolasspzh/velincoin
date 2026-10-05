@@ -62,6 +62,38 @@ Der Genesis-Block ist der allererste Block der Kette. Er ist fest im Code eingeb
 Der Block wurde mit `contrib/velincoin/genesis.py` erzeugt. Das Skript prüft sich
 selbst, indem es die bekannten Bitcoin-Genesis-Blöcke nachbaut (`--selftest`).
 
+### Testnetz
+
+Velincoin hat ein eigenes Testnetz für Versuche ohne echten Wert. Es nutzt den
+Platz von `testnet4` aus Bitcoin Core und wird mit `-testnet4` gestartet
+(Datenordner `~/.velincoin/testnet4`).
+
+| Einstellung | Velincoin-Testnetz |
+|---|---|
+| Start | `velincoind -testnet4` |
+| Netzwerk-Kennung | `d7 e9 b3 f1` |
+| P2P-Port / RPC-Port | 29733 / 29732 |
+| Klassische Adressen / Script-Adressen | `t...` / `u...` |
+| SegWit-Adressen | `tvlc1...` |
+| Genesis-Block | `00000000e803ebf103aa707b7f6aa2b80a613e47ef46c9f77b8c969a1a8b3817` |
+| Genesis-Nachricht | `velincoin.com 05/Oct/2026 Velincoin Testnet` |
+
+Die Regeln sind wie beim Bitcoin-Testnet4: Wenn 20 Minuten lang kein Block
+gefunden wird, darf der nächste Block mit der niedrigsten Schwierigkeit gemined
+werden. So kann man das Testnetz auch mit normalen Computern betreiben.
+
+`-testnet` (Testnet3) und `-signet` sind weiterhin die Netze von Bitcoin. Ihre
+Bitcoin-Seed-Server sind entfernt, damit sich ein Velincoin-Node nie von selbst
+mit ihnen verbindet.
+
+Weitere Dokumente
+-----------------
+
+- [doc/velincoin/sha256-risiko.md](doc/velincoin/sha256-risiko.md): das Risiko
+  eines 51%-Angriffs mit SHA-256 und die Möglichkeiten dagegen
+- [doc/velincoin/seed-server.md](doc/velincoin/seed-server.md): Anleitung für
+  Seed-Server, damit neue Nodes das Netz finden
+
 Was noch nicht angepasst ist
 ----------------------------
 
@@ -71,11 +103,11 @@ Was noch nicht angepasst ist
   der Copyright-Hinweis von Bitcoin Core und interne Protokoll-Konstanten.
 - **Skripte und Anleitungen** in `contrib/`, `share/` und `doc/` (zum Beispiel
   systemd-Dienste, Shell-Vervollständigung, Man-Pages) nennen noch `bitcoind` usw.
-- **Testnetze:** `-testnet`, `-testnet4` und `-signet` sind noch die Bitcoin-Testnetze.
-  Nur das Hauptnetz und `-regtest` (lokales Testnetz) sind für Velincoin gedacht.
-  Im Regtest beginnen Adressen noch wie bei Bitcoin mit `bcrt1`.
+- **Regtest** (lokales Testnetz für Entwickler): Adressen beginnen noch wie bei
+  Bitcoin mit `bcrt1`.
 - **Seed-Nodes:** Es sind keine eingetragen. Nodes müssen sich im Moment manuell
-  verbinden, zum Beispiel mit `-addnode=<ip>:9733`.
+  verbinden, zum Beispiel mit `-addnode=<ip>:9733`. Siehe
+  [doc/velincoin/seed-server.md](doc/velincoin/seed-server.md).
 - **Mindest-Arbeit der Kette (`nMinimumChainWork`):** steht auf 0. Das ist für eine
   neue Kette nötig. Sobald das Netz läuft, muss der Wert regelmässig erhöht werden.
   Er schützt neue Nodes davor, einer gefälschten Kette mit wenig Arbeit zu folgen.
@@ -118,7 +150,8 @@ Sicherheitshinweis
 Velincoin nutzt SHA-256 wie Bitcoin. Für SHA-256 gibt es spezielle Mining-Maschinen
 (ASICs) mit sehr hoher Rechenleistung. Solange das Velincoin-Netz klein ist, könnte
 jemand mit gemieteter Rechenleistung die Kette übernehmen (51%-Angriff). Vor einem
-öffentlichen Start muss dieses Risiko neu beurteilt werden.
+öffentlichen Start muss dieses Risiko neu beurteilt werden. Details und
+Möglichkeiten: [doc/velincoin/sha256-risiko.md](doc/velincoin/sha256-risiko.md).
 
 Kompilieren (Linux)
 -------------------

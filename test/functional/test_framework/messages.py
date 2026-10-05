@@ -89,7 +89,7 @@ TX_MAX_STANDARD_VERSION = 3
 
 MAGIC_BYTES = {
     "mainnet": b"\xe4\xd2\xa7\xc9",  # Velincoin main network (Bitcoin: f9beb4d9)
-    "testnet4": b"\x1c\x16\x3f\x28",
+    "testnet4": b"\xd7\xe9\xb3\xf1",  # Velincoin test network (Bitcoin: 1c163f28)
     "regtest": b"\xfa\xbf\xb5\xda",
     "signet": b"\x0a\x03\xcf\x40",
 }
