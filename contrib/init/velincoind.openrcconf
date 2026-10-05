@@ -1,0 +1,33 @@
+# /etc/conf.d/velincoind: config file for /etc/init.d/velincoind
+
+# Config file location
+#VELINCOIND_CONFIGFILE="/etc/velincoin/velincoin.conf"
+
+# What directory to write pidfile to?  (created and owned by $VELINCOIND_USER)
+#VELINCOIND_PIDDIR="/var/run/velincoind"
+
+# What filename to give the pidfile
+#VELINCOIND_PIDFILE="${VELINCOIND_PIDDIR}/velincoind.pid"
+
+# Where to write velincoind data (be mindful that the blockchain is large)
+#VELINCOIND_DATADIR="/var/lib/velincoind"
+
+# User and group to own velincoind process
+#VELINCOIND_USER="velincoin"
+#VELINCOIND_GROUP="velincoin"
+
+# Path to velincoind executable
+#VELINCOIND_BIN="/usr/bin/velincoind"
+
+# Nice value to run velincoind under
+#VELINCOIND_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+#VELINCOIND_OPTS=""
+
+# The timeout in seconds OpenRC will wait for velincoind to terminate
+# after a SIGTERM has been raised.
+# Note that this will be mapped as argument to start-stop-daemon's
+# '--retry' option, which means you can specify a retry schedule
+# here. For more information see man 8 start-stop-daemon.
+VELINCOIND_SIGTERM_TIMEOUT=600

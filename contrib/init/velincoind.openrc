@@ -1,0 +1,93 @@
+#!/sbin/openrc-run
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/velincoin/.velincoin" ]; then
+	VELINCOIND_DEFAULT_DATADIR="/var/lib/velincoin/.velincoin"
+else
+	VELINCOIND_DEFAULT_DATADIR="/var/lib/velincoind"
+fi
+
+VELINCOIND_CONFIGFILE=${VELINCOIND_CONFIGFILE:-/etc/velincoin/velincoin.conf}
+VELINCOIND_PIDDIR=${VELINCOIND_PIDDIR:-/var/run/velincoind}
+VELINCOIND_PIDFILE=${VELINCOIND_PIDFILE:-${VELINCOIND_PIDDIR}/velincoind.pid}
+VELINCOIND_DATADIR=${VELINCOIND_DATADIR:-${VELINCOIND_DEFAULT_DATADIR}}
+VELINCOIND_USER=${VELINCOIND_USER:-${VELINCOIN_USER:-velincoin}}
+VELINCOIND_GROUP=${VELINCOIND_GROUP:-velincoin}
+VELINCOIND_BIN=${VELINCOIND_BIN:-/usr/bin/velincoind}
+VELINCOIND_NICE=${VELINCOIND_NICE:-${NICELEVEL:-0}}
+VELINCOIND_OPTS="${VELINCOIND_OPTS:-${VELINCOIN_OPTS}}"
+
+name="Velincoin Core Daemon"
+description="Velincoin cryptocurrency P2P network daemon"
+
+command="/usr/bin/velincoind"
+command_args="-pid=\"${VELINCOIND_PIDFILE}\" \
+		-conf=\"${VELINCOIND_CONFIGFILE}\" \
+		-datadir=\"${VELINCOIND_DATADIR}\" \
+		-daemon \
+		${VELINCOIND_OPTS}"
+
+required_files="${VELINCOIND_CONFIGFILE}"
+start_stop_daemon_args="-u ${VELINCOIND_USER} \
+			-N ${VELINCOIND_NICE} -w 2000"
+pidfile="${VELINCOIND_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${VELINCOIND_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${VELINCOIND_USER}:${VELINCOIND_GROUP}" \
+	"${VELINCOIND_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${VELINCOIND_USER}:${VELINCOIND_GROUP}" \
+	"${VELINCOIND_PIDDIR}"
+
+	checkpath -f \
+	-o "${VELINCOIND_USER}:${VELINCOIND_GROUP}" \
+	-m 0660 \
+	"${VELINCOIND_CONFIGFILE}"
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if grep -qs '^rpcuser=' "${VELINCOIND_CONFIGFILE}" && \
+		! grep -qs '^rpcpassword=' "${VELINCOIND_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run velincoind."
+		eerror "The setting must appear in ${VELINCOIND_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following "
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"Velincoin Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

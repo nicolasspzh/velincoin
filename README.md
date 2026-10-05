@@ -105,8 +105,11 @@ Was noch nicht angepasst ist
   GUI-Tests bestehen. Noch nicht angepasst: Logo und Symbole (noch Bitcoin),
   Übersetzungen in andere Sprachen und der Name des macOS-Programmpakets.
   Die Fenster wurden noch nicht von Hand angeschaut.
-- **Skripte und Anleitungen** in `contrib/`, `share/` und `doc/` (zum Beispiel
-  systemd-Dienste, Shell-Vervollständigung, Man-Pages) nennen noch `bitcoind` usw.
+- **Anleitungen und Hilfsskripte** in `doc/` und `contrib/` stammen von Bitcoin Core
+  und nennen oft noch `bitcoind` usw. Angepasst sind die Dienst-Vorlagen in
+  `contrib/init/` (zum Beispiel `velincoind.service` für systemd) und die
+  Shell-Vervollständigung in `contrib/completions/`. Die Man-Pages in `doc/man/`
+  beschreiben noch Bitcoin Core.
 - **Regtest** (lokales Testnetz für Entwickler): Adressen beginnen noch wie bei
   Bitcoin mit `bcrt1`.
 - **Seed-Nodes:** Es sind keine eingetragen. Nodes müssen sich im Moment manuell

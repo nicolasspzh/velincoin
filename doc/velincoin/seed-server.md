@@ -40,9 +40,10 @@ nicht von einem einzelnen Rechner abhängt. Ein kleiner gemieteter Linux-Server
 
    Den RPC-Zugang (Port 9732) **nicht** für das Internet öffnen.
 4. `velincoind -daemon` starten. Für einen automatischen Start nach einem Neustart
-   kann man die Vorlage `contrib/init/bitcoind.service` (systemd) verwenden.
-   Achtung: Sie nennt noch `bitcoind` und muss auf `velincoind` und
-   `~/.velincoin` angepasst werden.
+   gibt es die Vorlage `contrib/init/velincoind.service` (systemd). Sie erwartet
+   das Programm unter `/usr/bin/velincoind`, die Einstellungen unter
+   `/etc/velincoin/velincoin.conf` und einen Systembenutzer `velincoin`. Details
+   stehen in [doc/init.md](../init.md).
 5. Auf Seed-Servern **keine Wallet mit Guthaben** betreiben.
 
 Ab jetzt können sich andere mit `addnode=<IP-des-Servers>:9733` verbinden.
