@@ -89,6 +89,8 @@ mit ihnen verbindet.
 Weitere Dokumente
 -----------------
 
+- [doc/velincoin/erste-schritte.md](doc/velincoin/erste-schritte.md): Node starten,
+  Wallet anlegen, minen und senden, Schritt für Schritt
 - [doc/velincoin/sha256-risiko.md](doc/velincoin/sha256-risiko.md): das Risiko
   eines 51%-Angriffs mit SHA-256 und die Möglichkeiten dagegen
 - [doc/velincoin/seed-server.md](doc/velincoin/seed-server.md): Anleitung für
