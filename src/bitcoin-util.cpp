@@ -58,7 +58,7 @@ static int AppInitUtil(ArgsManager& args, int argc, char* argv[])
             strUsage += FormatParagraph(LicenseInfo());
         } else {
             strUsage += "\n"
-                "The velincoin-util tool provides bitcoin related functionality that does not rely on the ability to access a running node. Available [commands] are listed below.\n"
+                "The velincoin-util tool provides Velincoin related functionality that does not rely on the ability to access a running node. Available [commands] are listed below.\n"
                 "\n"
                 "Usage:  velincoin-util [options] [command]\n"
                 "or:     velincoin-util [options] grind <hex-block-header>\n";

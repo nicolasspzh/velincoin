@@ -39,7 +39,7 @@ Commands:
 static constexpr auto HELP_FULL = R"(
 Additional less commonly used commands:
   bench [ARGS]      Run bench command, equivalent to running 'bench_bitcoin [ARGS]'.
-  chainstate [ARGS] Run bitcoin kernel chainstate util, equivalent to running 'velincoin-chainstate [ARGS]'.
+  chainstate [ARGS] Run Velincoin kernel chainstate util, equivalent to running 'velincoin-chainstate [ARGS]'.
   test [ARGS]       Run unit tests, equivalent to running 'test_bitcoin [ARGS]'.
   test-gui [ARGS]   Run GUI unit tests, equivalent to running 'test_bitcoin-qt [ARGS]'.
 )";
@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
             args.emplace_back(UseMultiprocess(cmd) ? "velincoin-node" : "velincoind");
         } else if (cmd.command == "rpc") {
             args.emplace_back("velincoin-cli");
-            // Since "bitcoin rpc" is a new interface that doesn't need to be
+            // Since "velincoin rpc" is a new interface that doesn't need to be
             // backward compatible, enable -named by default so it is convenient
             // for callers to use a mix of named and unnamed parameters. Callers
             // can override this by specifying -nonamed, but it handles parameters

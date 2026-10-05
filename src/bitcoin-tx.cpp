@@ -113,8 +113,8 @@ static int AppInitRawTx(int argc, char* argv[])
             strUsage += FormatParagraph(LicenseInfo());
         } else {
             strUsage += "\n"
-                "The velincoin-tx tool is used for creating and modifying bitcoin transactions.\n\n"
-                "velincoin-tx can be used with \"<hex-tx> [commands]\" to update a hex-encoded bitcoin transaction, or with \"-create [commands]\" to create a hex-encoded bitcoin transaction.\n"
+                "The velincoin-tx tool is used for creating and modifying Velincoin transactions.\n\n"
+                "velincoin-tx can be used with \"<hex-tx> [commands]\" to update a hex-encoded Velincoin transaction, or with \"-create [commands]\" to create a hex-encoded Velincoin transaction.\n"
                 "\n"
                 "Usage: velincoin-tx [options] <hex-tx> [commands]\n"
                 "or:    velincoin-tx [options] -create [commands]\n"

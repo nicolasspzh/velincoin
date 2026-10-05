@@ -64,8 +64,10 @@ selbst, indem es die bekannten Bitcoin-Genesis-Blöcke nachbaut (`--selftest`).
 Was noch nicht angepasst ist
 ----------------------------
 
-- **Texte im Programm:** Viele Meldungen sprechen noch von "Bitcoin", zum Beispiel
-  "Invalid Bitcoin address".
+- **Texte in der grafischen Wallet (GUI):** sprechen noch von "Bitcoin". Die Texte
+  von Node, Kommandozeile und RPC-Befehlen sind angepasst. Bewusst unverändert
+  bleiben Links zu den Bitcoin-Standards (BIPs), Titel von Forschungsarbeiten,
+  der Copyright-Hinweis von Bitcoin Core und interne Protokoll-Konstanten.
 - **Skripte und Anleitungen** in `contrib/`, `share/` und `doc/` (zum Beispiel
   systemd-Dienste, Shell-Vervollständigung, Man-Pages) nennen noch `bitcoind` usw.
 - **Signierte Nachrichten:** Nutzen noch den Bitcoin-Text "Bitcoin Signed Message".
