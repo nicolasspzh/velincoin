@@ -276,3 +276,6 @@ ul.plain { padding-left: 18px; }
   .series-line, .crosshair { stroke: CanvasText; }
   .bar, .end-dot, .tip-key { fill: CanvasText; background: CanvasText; }
 }
+
+.nowrap { white-space: nowrap; overflow-wrap: normal; }
+.tile-value .unit { font-size: 15px; font-weight: 600; color: var(--text-2); }

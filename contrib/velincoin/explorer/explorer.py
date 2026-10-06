@@ -84,6 +84,17 @@ def fmt_vlc(sats, decimals=8):
     return f"{d:,.{decimals}f}".replace(",", "’")
 
 
+def fmt_vlc_short(sats):
+    """At least 2 decimals, more only when needed: 50.00, 0.00009536."""
+    text = fmt_vlc(sats)
+    whole, frac = text.split(".")
+    return f"{whole}.{frac.rstrip('0').ljust(2, '0')}"
+
+
+def vlc_html(sats):
+    return f'{h(fmt_vlc_short(sats))} <span class="unit">VLC</span>'
+
+
 def fmt_number(x):
     """Difficulty and similar values, from 4.657e-10 up to 1’234’567."""
     if x == 0:
@@ -500,7 +511,9 @@ def link_tx(txid, short=True):
     return f'<a class="mono" href="/tx/{h(txid)}">{h(short_hash(txid) if short else txid)}</a>'
 
 
-def link_address(address):
+def link_address(address, short=False):
+    if short:
+        return f'<a class="mono nowrap" href="/address/{h(address)}" title="{h(address)}">{h(short_hash(address, 10))}</a>'
     return f'<a class="mono" href="/address/{h(address)}">{h(address)}</a>'
 
 
@@ -647,9 +660,9 @@ class Explorer:
         tiles = [
             tile("Blockhöhe", link_block(tip["hash"], fmt_int(tip["height"])),
                  f"Letzter Block: {h(fmt_time(tip['time']))}"),
-            tile("Erzeugte Coins", f"{h(fmt_vlc(tip['supply'], 2))} VLC",
-                 f"von höchstens {h(fmt_vlc(max_supply(self.interval), 2))} VLC"),
-            tile("Belohnung pro Block", f"{h(fmt_vlc(reward, 2))} VLC",
+            tile("Erzeugte Coins", vlc_html(tip["supply"]),
+                 f"von höchstens {h(fmt_vlc_short(max_supply(self.interval)))} VLC"),
+            tile("Belohnung pro Block", vlc_html(reward),
                  f"Halbierung bei Block {fmt_int(next_halving)}, in {fmt_int(next_halving - next_height)} Blöcken"),
             tile("Schwierigkeit", h(fmt_number(tip["difficulty"])),
                  f"Hashrate geschätzt: {h(fmt_hashrate(float(hashps)))}" if hashps is not None else ""),
@@ -657,7 +670,7 @@ class Explorer:
         ]
         blocks = con.execute("SELECT * FROM blocks ORDER BY height DESC LIMIT 10").fetchall()
         rows = [(link_block(b["hash"], fmt_int(b["height"])), h(fmt_time(b["time"])), fmt_int(b["ntx"]),
-                 h(fmt_bytes(b["size"])), link_address(b["miner"]) if b["miner"] else "–")
+                 h(fmt_bytes(b["size"])), link_address(b["miner"], short=True) if b["miner"] else "–")
                 for b in blocks]
         body = [f'<h1>Velincoin {h(CHAINS[self.chain][3])}</h1>',
                 f'<section class="tiles">{"".join(tiles)}</section>',
@@ -681,7 +694,7 @@ class Explorer:
         blocks = con.execute("SELECT * FROM blocks WHERE height<=? ORDER BY height DESC LIMIT ?",
                              (start, BLOCKS_PER_PAGE)).fetchall()
         rows = [(link_block(b["hash"], fmt_int(b["height"])), h(fmt_time(b["time"])), fmt_int(b["ntx"]),
-                 h(fmt_bytes(b["size"])), h(fmt_vlc(b["reward"])), link_address(b["miner"]) if b["miner"] else "–")
+                 h(fmt_bytes(b["size"])), h(fmt_vlc(b["reward"])), link_address(b["miner"], short=True) if b["miner"] else "–")
                 for b in blocks]
         newer = start + BLOCKS_PER_PAGE if start < tip["height"] else None
         older = start - BLOCKS_PER_PAGE if start - BLOCKS_PER_PAGE >= 0 else None
@@ -822,9 +835,9 @@ class Explorer:
             rows.append((h(fmt_time(r["time"])), link_block(r["height"], fmt_int(r["height"])), link_tx(r["txid"]),
                          f'<span class="{"pos" if delta > 0 else "neg" if delta < 0 else ""}">{sign}{h(fmt_vlc(delta))}</span>'))
         tiles = "".join([
-            tile("Kontostand", f"{h(fmt_vlc(s['balance']))} VLC"),
-            tile("Erhalten", f"{h(fmt_vlc(s['received']))} VLC"),
-            tile("Gesendet", f"{h(fmt_vlc(s['sent']))} VLC"),
+            tile("Kontostand", vlc_html(s["balance"])),
+            tile("Erhalten", vlc_html(s["received"])),
+            tile("Gesendet", vlc_html(s["sent"])),
             tile("Transaktionen", fmt_int(s["tx_count"])),
         ])
         pages = max(1, math.ceil(s["tx_count"] / TXS_PER_PAGE))
