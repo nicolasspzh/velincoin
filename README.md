@@ -104,8 +104,12 @@ Was noch nicht angepasst ist
   Protokoll-Konstanten.
 - **Grafische Wallet (GUI):** Texte, Einheit (VLC), Zahlungs-Links (`velincoin:`)
   und Einstellungsordner (`~/.config/Velincoin/`) sind angepasst. Die automatischen
-  GUI-Tests bestehen. Noch nicht angepasst: Logo und Symbole (noch Bitcoin),
-  Übersetzungen in andere Sprachen und der Name des macOS-Programmpakets.
+  GUI-Tests bestehen. Das Velincoin-Logo ist als Programmsymbol und in den Bildern
+  des Windows-Installers eingebaut (Original in `doc/velincoin/logo/`). Die übrigen
+  Symbole der Oberfläche (Senden, Empfangen usw.) sind neutral. Noch nicht
+  angepasst: Übersetzungen in andere Sprachen und der Name des macOS-Programmpakets.
+  Für das Logo gibt es noch keine Vektordatei (SVG). Die alte Datei
+  `src/qt/res/src/bitcoin.svg` wird beim Kompilieren nicht verwendet.
   Die Fenster wurden noch nicht von Hand angeschaut.
 - **Anleitungen und Hilfsskripte** in `doc/` und `contrib/` stammen von Bitcoin Core
   und nennen oft noch `bitcoind` usw. Angepasst sind die Dienst-Vorlagen in
@@ -179,6 +183,26 @@ cmake --build build -j4
 ```
 
 Die Programme liegen danach in `build/bin/`, zum Beispiel `build/bin/velincoind`.
+
+### Windows-Installationsprogramm (auf Linux gebaut)
+
+```
+sudo apt-get install g++-mingw-w64-x86-64-posix nsis bison ninja-build xz-utils pkgconf
+make -C depends HOST=x86_64-w64-mingw32 -j4
+cmake -B build-win --toolchain depends/x86_64-w64-mingw32/toolchain.cmake
+cmake --build build-win -j4
+cmake --build build-win --target deploy
+```
+
+Ergebnis: `build-win/velincoin-win64-setup.exe`. Der erste Schritt lädt die
+Quellcodes von Qt, SQLite und weiteren Bibliotheken herunter (unter anderem von
+`download.qt.io`, `sqlite.org` und `fukuchi.org`) und kompiliert sie für Windows.
+Das Testprogramm `test_bitcoin.exe` wird nicht mit installiert.
+
+Das Installationsprogramm ist nicht digital signiert. Windows zeigt deshalb eine
+SmartScreen-Warnung. Jeder Windows-Benutzer bekommt seine eigenen Daten und
+Wallets in `%LOCALAPPDATA%\Velincoin`. Die Deinstallation lässt diese Daten
+bewusst stehen.
 
 Intern (im Build-System) heissen die Ziele weiterhin wie bei Bitcoin Core, zum
 Beispiel `bitcoind`. Nur die fertigen Dateien heissen `velincoind` usw. Das hält
