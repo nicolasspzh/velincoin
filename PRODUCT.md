@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Delegated: static HTML, CSS and JavaScript in `website/`, no build step. three.js is vendored next to the page for the 3D models. Fonts and icons are self-hosted.
+Delegated: static HTML, CSS and JavaScript in `website/`, no build step. three.js is vendored and bundled with the 3D scenes into one plain script (`assets/js/scenes.bundle.js`, rebuild command at the top of `scenes.js`), so `index.html` also opens straight from disk. Fonts and icons are self-hosted.
 
 ## Users
 

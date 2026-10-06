@@ -1,9 +1,16 @@
 // The three 3D models of the page: the crystal V (hero), the chain of blocks
 // (how a block is made) and the coin (supply). Each canvas renders only while
 // it is on screen; with reduced motion every scene shows still frames.
-import * as THREE from 'three';
-import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
-import { RoundedBoxGeometry } from 'three/addons/RoundedBoxGeometry.js';
+//
+// The page loads scenes.bundle.js, a plain script built from this file, so it
+// also works when index.html is opened straight from disk (browsers block
+// modules on file://). After a change, rebuild it from the website folder:
+//   npx esbuild@0.24.0 assets/js/scenes.js --bundle --minify --format=iife --target=es2020 --alias:three=./assets/vendor/three.module.min.js --loader:.png=dataurl --legal-comments=eof --outfile=assets/js/scenes.bundle.js
+import * as THREE from '../vendor/three.module.min.js';
+import { RoomEnvironment } from '../vendor/RoomEnvironment.js';
+import { RoundedBoxGeometry } from '../vendor/RoundedBoxGeometry.js';
+// inlined as a data URL: a file:// image would taint the coin's canvas texture
+import logoUrl from '../img/logo-mark.png';
 
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
@@ -316,7 +323,7 @@ const logoImage = new Promise((resolve) => {
   const img = new Image();
   img.onload = () => resolve(img);
   img.onerror = () => resolve(null);
-  img.src = 'assets/img/logo-mark.png';
+  img.src = logoUrl;
 });
 
 function buildCoin(radius) {
