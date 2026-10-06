@@ -749,8 +749,9 @@ class Explorer:
         tx, row, spent = self.get_tx(con, txid)
         tip = db_tip(con)
         if row is not None:
+            confirmations = tip["height"] - row["height"] + 1
             status = (f'Bestätigt in Block {link_block(row["blockhash"], fmt_int(row["height"]))}, '
-                      f'{fmt_int(tip["height"] - row["height"] + 1)} Bestätigungen')
+                      f'{fmt_int(confirmations)} {"Bestätigung" if confirmations == 1 else "Bestätigungen"}')
             when = fmt_time(row["blocktime"])
         elif tx.get("blockhash"):
             status = f'Bestätigt in Block {link_block(tx["blockhash"], tx["blockhash"])} (noch nicht im Explorer)'
