@@ -95,6 +95,8 @@ Weitere Dokumente
   eines 51%-Angriffs mit SHA-256 und die Möglichkeiten dagegen
 - [doc/velincoin/seed-server.md](doc/velincoin/seed-server.md): Anleitung für
   Seed-Server, damit neue Nodes das Netz finden
+- [contrib/velincoin/explorer/](contrib/velincoin/explorer/README.md): Block Explorer,
+  eine Webseite mit Blöcken, Transaktionen, Kontoständen und Charts
 
 Was noch nicht angepasst ist
 ----------------------------

@@ -1,0 +1,4 @@
+# Index files created by explorer.py
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm

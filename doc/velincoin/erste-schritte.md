@@ -137,6 +137,17 @@ build/bin/velincoin-qt -testnet4
 Statt `velincoind` könnt ihr auch die grafische Wallet starten. Sie enthält einen
 eigenen Node. Beide gleichzeitig mit demselben Datenordner geht nicht.
 
+### Testnetz-Adresse in der Windows-Wallet
+
+Jedes Netz hat eigene Wallets und eigene Adressen. Eine Adresse mit `vlc1` gehört
+zum Hauptnetz, eine mit `tvlc1` zum Testnetz.
+
+1. Im Startmenü **Velincoin Core (testnet)** öffnen, nicht "Velincoin Core". Im
+   Fenstertitel steht dann `[testnet4]`.
+2. Beim ersten Start gibt es im Testnetz noch keine Wallet: **File > Create
+   Wallet** wählen und einen Namen eingeben.
+3. **Receive > Create new receiving address**. Die Adresse beginnt mit `tvlc1`.
+
 
 3. Wo liegen die Daten?
 -----------------------
