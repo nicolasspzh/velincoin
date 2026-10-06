@@ -75,12 +75,19 @@ Platz von `testnet4` aus Bitcoin Core und wird mit `-testnet4` gestartet
 | P2P-Port / RPC-Port | 29733 / 29732 |
 | Klassische Adressen / Script-Adressen | `t...` / `u...` |
 | SegWit-Adressen | `tvlc1...` |
-| Genesis-Block | `00000000e803ebf103aa707b7f6aa2b80a613e47ef46c9f77b8c969a1a8b3817` |
+| Genesis-Block | `000000f91b6f17b7699c5018fa8fc70e2dc8e966629f5974066b22d51cf9c354` |
 | Genesis-Nachricht | `velincoin.com 05/Oct/2026 Velincoin Testnet` |
 
-Die Regeln sind wie beim Bitcoin-Testnet4: Wenn 20 Minuten lang kein Block
-gefunden wird, darf der nächste Block mit der niedrigsten Schwierigkeit gemined
-werden. So kann man das Testnetz auch mit normalen Computern betreiben.
+Die niedrigste Schwierigkeit ist im Testnetz 256-mal tiefer als im Hauptnetz.
+Ein normaler Computer findet einen Block deshalb in Sekunden statt in vielen
+Minuten. Sonst gelten die Regeln von Bitcoin-Testnet4: Wenn 20 Minuten lang
+kein Block gefunden wird, darf der nächste Block mit der niedrigsten
+Schwierigkeit gemined werden.
+
+Am 6. Oktober 2026 wurde das Testnetz mit dieser tieferen Schwierigkeit neu
+gestartet. Alte Testnetz-Blöcke sind ungültig. Wer schon Testnetz-Daten hat,
+löscht im Testnetz-Datenordner die Ordner `blocks` und `chainstate`. Der Ordner
+`wallets` kann bleiben.
 
 `-testnet` (Testnet3) und `-signet` sind weiterhin die Netze von Bitcoin. Ihre
 Bitcoin-Seed-Server sind entfernt, damit sich ein Velincoin-Node nie von selbst
@@ -95,6 +102,8 @@ Weitere Dokumente
   eines 51%-Angriffs mit SHA-256 und die Möglichkeiten dagegen
 - [doc/velincoin/seed-server.md](doc/velincoin/seed-server.md): Anleitung für
   Seed-Server, damit neue Nodes das Netz finden
+- [contrib/velincoin/explorer/](contrib/velincoin/explorer/README.md): Block Explorer,
+  eine Webseite mit Blöcken, Transaktionen, Kontoständen und Charts
 
 Was noch nicht angepasst ist
 ----------------------------

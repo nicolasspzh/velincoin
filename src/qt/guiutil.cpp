@@ -110,12 +110,16 @@ static std::string DummyAddress(const CChainParams &params)
 {
     std::string addr;
     switch (params.GetChainType()) {
+    // Velincoin: example addresses with the Velincoin prefixes. Like the
+    // Bitcoin ones, their checksums are deliberately invalid.
     case ChainType::MAIN:
-        addr = "bc1p35yvjel7srp783ztf8v6jdra7dhfzk5jaun8xz2qp6ws7z80n4tq2jku9f";
+        addr = "vlc1p35yvjel7srp783ztf8v6jdra7dhfzk5jaun8xz2qp6ws7z80n4tq2jku9f";
+        break;
+    case ChainType::TESTNET4:
+        addr = "tvlc1p35yvjel7srp783ztf8v6jdra7dhfzk5jaun8xz2qp6ws7z80n4tqa6qnlg";
         break;
     case ChainType::SIGNET:
     case ChainType::TESTNET:
-    case ChainType::TESTNET4:
         addr = "tb1p35yvjel7srp783ztf8v6jdra7dhfzk5jaun8xz2qp6ws7z80n4tqa6qnlg";
         break;
     case ChainType::REGTEST:
