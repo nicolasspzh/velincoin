@@ -458,7 +458,7 @@ function chainScene(canvas) {
     freshLink.scale.y = dock;
 
     // 2. verification: a pulse runs along the chain into the new block
-    const wave = range(p, 1.35, 2.25) * (count + 1.5) - 0.5;
+    const wave = range(p, 1.25, 2.05) * (count + 1.5) - 0.5;
     blocks.concat(fresh).forEach((b, i) => {
       const glow = Math.exp(-((wave - i) ** 2) * 1.6) * (p > 1.3 && p < 2.4 ? 1 : 0);
       if (b !== fresh || dock > 0.99) {
@@ -468,14 +468,14 @@ function chainScene(canvas) {
     });
 
     // 3. ownership: a coin rises out of the new block and turns to the viewer
-    const rise = smooth(range(p, 2.05, 2.75));
+    const rise = smooth(range(p, 1.85, 2.45));
     coin.visible = rise > 0.001;
     coin.position.set(spacing, 0.1 + rise * 1.55, rise * 0.9);
     coin.scale.setScalar(0.4 + rise * 0.6);
     coin.rotation.set(-0.15 * rise, (1 - rise) * Math.PI * 2.5 + Math.sin(t * 0.8) * 0.15 * rise, 0);
 
     // camera drifts along with the story
-    const focus = smooth(range(p, 1.9, 2.8));
+    const focus = smooth(range(p, 1.75, 2.6));
     camera.position.set(4.2 - focus * 1.2 + pointer.x * 0.25, 2.6 - focus * 0.6 - pointer.y * 0.15, 8.4 - focus * 2.2);
     look.set(-1.4 + focus * 2.6, 0.2 + focus * 0.7, 0);
     camera.lookAt(look);

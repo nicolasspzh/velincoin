@@ -158,7 +158,7 @@ generatetoaddress 1 YOUR-ADDRESS 2000000000</code></pre>
               <svg class="ico" aria-hidden="true"><use href="#i-copy"/></svg><span>Copy</span>
             </button>
           </div>
-          <p class="note">A block takes about 15 to 25 minutes on one processor core. If the console answers <code>[]</code>, no block was found in that round: run the command again. Mined coins become spendable after 100 more blocks.</p>
+          <p class="note">On the test network a block takes about 15 seconds. Mined coins become spendable after 100 more blocks, so put 110 in place of the 1 to free your first 500 test VLC.</p>
         </li>
         <li>
           <h3>Connect</h3>
@@ -228,8 +228,8 @@ generatetoaddress 1 YOUR-ADDRESS 2000000000</code></pre>
           <p>The wallet compares the newest block with the clock. Until someone mines a new block, or until you connect to someone who has newer blocks, it shows that it is behind. Connect with <code>addnode</code> and mine a block.</p>
         </details>
         <details>
-          <summary>Why does mining take so long?<svg class="ico" aria-hidden="true"><use href="#i-caret-down"/></svg></summary>
-          <p>A block needs about 4.3 billion attempts on average, and the built-in miner uses one processor core. Leave the console running; it shows nothing until a block is found.</p>
+          <summary>How long does mining take?<svg class="ico" aria-hidden="true"><use href="#i-caret-down"/></svg></summary>
+          <p>On the test network about 15 seconds per block, because mining there is 256 times easier. On the main network a block takes one processor core about 15 to 20 minutes. The console shows nothing until a block is found; if it answers <code>[]</code>, run the command again.</p>
         </details>
         <details>
           <summary>Is there a version for Mac or Linux?<svg class="ico" aria-hidden="true"><use href="#i-caret-down"/></svg></summary>
