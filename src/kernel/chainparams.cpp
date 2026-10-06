@@ -311,7 +311,9 @@ public:
         consensus.CSVHeight = 1;
         consensus.SegwitHeight = 1;
         consensus.MinBIP9WarningHeight = 0;
-        consensus.powLimit = uint256{"00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
+        // Velincoin: the lowest difficulty is 256 times lower than on the main
+        // network, so that a normal computer finds a test block in seconds.
+        consensus.powLimit = uint256{"000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
         consensus.nPowTargetSpacing = 10 * 60;
         consensus.fPowAllowMinDifficultyBlocks = true;
@@ -351,12 +353,12 @@ public:
         genesis = CreateGenesisBlock(testnet4_genesis_msg,
                 testnet4_genesis_script,
                 1791201250,
-                779260034,
-                0x1d00ffff,
+                47970045,
+                0x1e00ffff,
                 1,
                 50 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256{"00000000e803ebf103aa707b7f6aa2b80a613e47ef46c9f77b8c969a1a8b3817"});
+        assert(consensus.hashGenesisBlock == uint256{"000000f91b6f17b7699c5018fa8fc70e2dc8e966629f5974066b22d51cf9c354"});
         assert(genesis.hashMerkleRoot == uint256{"c82407bd2296a5651dac226c8a1b7122b015b20570c3e145237a238b89df8bc2"});
 
         // No seed nodes yet. Add DNS seeds (for example "testnet-seed.velincoin.com.")

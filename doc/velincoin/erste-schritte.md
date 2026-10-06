@@ -117,16 +117,18 @@ build/bin/velincoin-cli -testnet4 generatetoaddress 1 <adresse> 100000000000
 Die grosse Zahl am Ende ist die maximale Anzahl Versuche. Ohne sie gibt der
 Befehl schon nach einer Million Versuchen auf, und das reicht fast nie.
 
-**Wie lange dauert das?** Ein Block braucht im Durchschnitt etwa 4,3 Milliarden
-Versuche. Der eingebaute Miner nutzt nur einen Prozessorkern. Bei einer Messung
-schaffte er rund 3,4 Millionen Versuche pro Sekunde (auf einem Server, der
-gleichzeitig andere Arbeit hatte). Das ergibt grob **15 bis 25 Minuten pro Block**.
-Es ist Glückssache: Manchmal geht es viel schneller, manchmal viel länger. Auf
-eurem Computer kann es schneller oder langsamer sein.
+**Wie lange dauert das?** Bei der niedrigsten Schwierigkeit braucht ein Block im
+Durchschnitt etwa 17 Millionen Versuche. Der eingebaute Miner nutzt nur einen
+Prozessorkern. Bei einer Messung auf einem Server fand er 20 Blöcke in gut
+5 Minuten, also etwa **15 Sekunden pro Block**. Es ist Glückssache: Manchmal geht
+es schneller, manchmal länger. Auf eurem Computer kann es schneller oder
+langsamer sein.
 
-Wichtig: Gemined Coins sind erst nach 100 weiteren Blöcken ausgebbar. Im
-Testnetz mit einem einzigen Computer dauert das also mehr als einen Tag. Senden
-übt ihr deshalb am besten zuerst im Regtest.
+Wichtig: Gemined Coins sind erst nach 100 weiteren Blöcken ausgebbar. Mined also
+zum Beispiel 110 Blöcke, dann sind die ersten 10 Belohnungen (500 VLC) frei.
+
+Wenn viele Blöcke schnell hintereinander kommen, steigt die Schwierigkeit alle
+2016 Blöcke automatisch an.
 
 ### Grafische Wallet
 
