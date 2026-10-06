@@ -95,6 +95,8 @@ Weitere Dokumente
   eines 51%-Angriffs mit SHA-256 und die Möglichkeiten dagegen
 - [doc/velincoin/seed-server.md](doc/velincoin/seed-server.md): Anleitung für
   Seed-Server, damit neue Nodes das Netz finden
+- [doc/velincoin/startplan.md](doc/velincoin/startplan.md): Plan und Checkliste
+  für den Start bis Freitag, 9. Oktober 2026
 - [doc/velincoin/seed-windows.md](doc/velincoin/seed-windows.md): Seed-Server auf
   einem Windows-11-PC zu Hause, Schritt für Schritt
 - [contrib/velincoin/explorer/](contrib/velincoin/explorer/README.md): Block Explorer,
