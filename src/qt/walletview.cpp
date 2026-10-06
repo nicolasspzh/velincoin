@@ -25,9 +25,26 @@
 #include <QAction>
 #include <QFileDialog>
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QProgressDialog>
 #include <QPushButton>
 #include <QVBoxLayout>
+
+#include <algorithm>
+
+namespace {
+//! Give a page the same title and margins as the overview page.
+void AddPageTitle(QWidget* page, const QString& title)
+{
+    auto* layout = qobject_cast<QBoxLayout*>(page->layout());
+    if (!layout) return;
+    QLabel* label = new QLabel(title, page);
+    label->setObjectName(QStringLiteral("pageTitle"));
+    layout->insertWidget(0, label);
+    layout->setContentsMargins(32, 26, 32, 24);
+    layout->setSpacing(std::max(layout->spacing(), 14));
+}
+} // namespace
 
 WalletView::WalletView(WalletModel* wallet_model, const PlatformStyle* _platformStyle, QWidget* parent)
     : QStackedWidget(parent),
@@ -69,6 +86,10 @@ WalletView::WalletView(WalletModel* wallet_model, const PlatformStyle* _platform
     usedReceivingAddressesPage = new AddressBookPage(platformStyle, AddressBookPage::ForEditing, AddressBookPage::ReceivingTab, this);
     usedReceivingAddressesPage->setModel(walletModel->getAddressTableModel());
 
+    AddPageTitle(sendCoinsPage, tr("Send"));
+    AddPageTitle(receiveCoinsPage, tr("Receive"));
+    AddPageTitle(transactionsPage, tr("Transactions"));
+
     addWidget(overviewPage);
     addWidget(transactionsPage);
     addWidget(receiveCoinsPage);
@@ -79,6 +100,9 @@ WalletView::WalletView(WalletModel* wallet_model, const PlatformStyle* _platform
     connect(overviewPage, &OverviewPage::transactionClicked, transactionView, qOverload<const QModelIndex&>(&TransactionView::focusTransaction));
 
     connect(overviewPage, &OverviewPage::outOfSyncWarningClicked, this, &WalletView::outOfSyncWarningClicked);
+    connect(overviewPage, &OverviewPage::sendCoinsClicked, this, &WalletView::sendCoinsClicked);
+    connect(overviewPage, &OverviewPage::receiveCoinsClicked, this, &WalletView::receiveCoinsClicked);
+    connect(overviewPage, &OverviewPage::showHistoryClicked, this, &WalletView::showHistoryClicked);
 
     connect(sendCoinsPage, &SendCoinsDialog::coinsSent, this, &WalletView::coinsSent);
     // Highlight transaction after send

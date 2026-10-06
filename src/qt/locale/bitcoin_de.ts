@@ -890,6 +890,10 @@ Das Signieren ist nur mit Adressen vom Typ 'Legacy' möglich.</translation>
         <source>Original message:</source>
         <translation type="unfinished">Original-Nachricht:</translation>
     </message>
+    <message>
+        <source>Wallet</source>
+        <translation>Wallet</translation>
+    </message>
 </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
@@ -1896,6 +1900,46 @@ Der Migrationsprozess erstellt vor der Migration ein Backup der Wallet. Diese Si
     <message>
         <source>Privacy mode activated for the Overview tab. To unmask the values, uncheck Settings-&gt;Mask values.</source>
         <translation type="unfinished">Datenschutz-Modus aktiviert für den Übersichtsreiter. Um die Werte einzublenden, deaktiviere Einstellungen-&gt;Werte ausblenden.</translation>
+    </message>
+    <message>
+        <source>Overview</source>
+        <translation>Übersicht</translation>
+    </message>
+    <message>
+        <source>Not synchronized</source>
+        <translation>Nicht synchronisiert</translation>
+    </message>
+    <message>
+        <source>Total balance</source>
+        <translation>Gesamtguthaben</translation>
+    </message>
+    <message>
+        <source>Send</source>
+        <translation>Überweisen</translation>
+    </message>
+    <message>
+        <source>Receive</source>
+        <translation>Empfangen</translation>
+    </message>
+    <message>
+        <source>Available</source>
+        <translation>Verfügbar</translation>
+    </message>
+    <message>
+        <source>Pending</source>
+        <translation>Ausstehend</translation>
+    </message>
+    <message>
+        <source>Mined, not yet spendable</source>
+        <translation>Gemined, noch nicht ausgebbar</translation>
+    </message>
+    <message>
+        <source>View all</source>
+        <translation>Alle anzeigen</translation>
+    </message>
+    <message>
+        <source>No transactions yet. Payments you send or receive will show up here.</source>
+        <translation>Noch keine Transaktionen. Gesendete und empfangene Zahlungen erscheinen hier.</translation>
     </message>
 </context>
 <context>
@@ -3980,6 +4024,18 @@ Gehen Sie zu Datei &gt; Wallet Öffnen, um eine Wallet zu laden.
         <source>Cancel</source>
         <translation type="unfinished">Abbrechen</translation>
     </message>
+    <message>
+        <source>Send</source>
+        <translation>Überweisen</translation>
+    </message>
+    <message>
+        <source>Receive</source>
+        <translation>Empfangen</translation>
+    </message>
+    <message>
+        <source>Transactions</source>
+        <translation>Transaktionen</translation>
+    </message>
 </context>
 <context>
     <name>bitcoin-core</name>
@@ -5047,6 +5103,28 @@ Bitte mit der neuesten Softwareversion ausführen.
     <message>
         <source>Settings file could not be written</source>
         <translation type="unfinished">Einstellungsdatei kann nicht geschrieben werden</translation>
+    </message>
+</context>
+<context>
+    <name>TxViewDelegate</name>
+    <message>
+        <source>Pending</source>
+        <translation>Ausstehend</translation>
+    </message>
+</context>
+<context>
+    <name>VelincoinTheme</name>
+    <message>
+        <source>Main network</source>
+        <translation>Hauptnetz</translation>
+    </message>
+    <message>
+        <source>Test network</source>
+        <translation>Testnetz</translation>
+    </message>
+    <message>
+        <source>Regtest</source>
+        <translation>Regtest</translation>
     </message>
 </context>
 </TS>

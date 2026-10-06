@@ -22,6 +22,11 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *_platformStyle, QWidget *par
 {
     ui->setupUi(this);
 
+    // Each recipient is drawn as a card by the theme style sheet
+    setAttribute(Qt::WA_StyledBackground, true);
+    ui->gridLayout->setContentsMargins(20, 18, 20, 18);
+    ui->line->hide();
+
     ui->addressBookButton->setIcon(platformStyle->SingleColorIcon(":/icons/address-book"));
     ui->pasteButton->setIcon(platformStyle->SingleColorIcon(":/icons/editpaste"));
     ui->deleteButton->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));

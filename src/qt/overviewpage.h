@@ -44,6 +44,9 @@ public Q_SLOTS:
 Q_SIGNALS:
     void transactionClicked(const QModelIndex &index);
     void outOfSyncWarningClicked();
+    void sendCoinsClicked();
+    void receiveCoinsClicked();
+    void showHistoryClicked();
 
 protected:
     void changeEvent(QEvent* e) override;
@@ -61,6 +64,7 @@ private:
 
 private Q_SLOTS:
     void LimitTransactionRows();
+    void updateIcons();
     void updateDisplayUnit();
     void handleTransactionClicked(const QModelIndex &index);
     void updateAlerts(const QString &warnings);

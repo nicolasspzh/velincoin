@@ -20,6 +20,7 @@
 #include <qt/platformstyle.h>
 #include <qt/rpcconsole.h>
 #include <qt/utilitydialog.h>
+#include <qt/velincointheme.h>
 
 #ifdef ENABLE_WALLET
 #include <qt/walletcontroller.h>
@@ -48,8 +49,10 @@
 #include <QCursor>
 #include <QDateTime>
 #include <QDragEnterEvent>
+#include <QHBoxLayout>
 #include <QInputDialog>
 #include <QKeySequence>
+#include <QLabel>
 #include <QListWidget>
 #include <QMenu>
 #include <QMenuBar>
@@ -97,7 +100,8 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
 {
     QSettings settings;
     if (!restoreGeometry(settings.value("MainWindowGeometry").toByteArray())) {
-        // Restore failed (perhaps missing setting), center the window
+        // Restore failed (perhaps missing setting), use a comfortable default size and center the window
+        resize(1120, 720);
         move(QGuiApplication::primaryScreen()->availableGeometry().center() - frameGeometry().center());
     }
 
@@ -197,14 +201,7 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
     progressBar->setAlignment(Qt::AlignCenter);
     progressBar->setVisible(false);
 
-    // Override style sheet for progress bar for styles that have a segmented progress bar,
-    // as they make the text unreadable (workaround for issue #1071)
-    // See https://doc.qt.io/qt-5/gallery.html
-    QString curStyle = QApplication::style()->metaObject()->className();
-    if(curStyle == "QWindowsStyle" || curStyle == "QWindowsXPStyle")
-    {
-        progressBar->setStyleSheet("QProgressBar { background-color: #e8e8e8; border: 1px solid grey; border-radius: 7px; padding: 1px; text-align: center; } QProgressBar::chunk { background: QLinearGradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #FF8000, stop: 1 orange); border-radius: 7px; margin: 0px; }");
-    }
+    // The progress bar is styled by the Velincoin theme (qt/velincointheme.cpp)
 
     statusBar()->addWidget(progressBarLabel);
     statusBar()->addWidget(progressBar);
@@ -629,10 +626,41 @@ void BitcoinGUI::createToolBars()
 {
     if(walletFrame)
     {
-        QToolBar *toolbar = addToolBar(tr("Tabs toolbar"));
+        // Navigation lives in a sidebar on the left
+        QToolBar *toolbar = new QToolBar(tr("Tabs toolbar"), this);
+        toolbar->setObjectName(QStringLiteral("appToolBar"));
+        addToolBar(Qt::LeftToolBarArea, toolbar);
         appToolBar = toolbar;
         toolbar->setMovable(false);
+        toolbar->setFloatable(false);
         toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+        toolbar->setIconSize(QSize(18, 18));
+        toolbar->toggleViewAction()->setVisible(false);
+
+        QWidget* header = new QWidget();
+        header->setObjectName(QStringLiteral("sidebarHeader"));
+        QVBoxLayout* header_layout = new QVBoxLayout(header);
+        header_layout->setContentsMargins(6, 0, 0, 22);
+        header_layout->setSpacing(12);
+        QHBoxLayout* brand_row = new QHBoxLayout();
+        brand_row->setSpacing(10);
+        QLabel* logo = new QLabel();
+        logo->setPixmap(m_network_style->getAppIcon().pixmap(QSize(30, 30)));
+        QLabel* brand = new QLabel(QStringLiteral("Velincoin"));
+        brand->setObjectName(QStringLiteral("sidebarBrand"));
+        brand_row->addWidget(logo);
+        brand_row->addWidget(brand);
+        brand_row->addStretch();
+        header_layout->addLayout(brand_row);
+        // Which network this window runs on, so main network and test network are never confused
+        const bool is_main = m_network_style->getTitleAddText().isEmpty();
+        QLabel* network_label = new QLabel(VelincoinTheme::NetworkLabel(m_network_style->getTitleAddText()));
+        network_label->setObjectName(QStringLiteral("sidebarNetwork"));
+        network_label->setProperty("test", !is_main);
+        network_label->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+        header_layout->addWidget(network_label, 0, Qt::AlignLeft);
+        toolbar->addWidget(header);
+
         toolbar->addAction(overviewAction);
         toolbar->addAction(sendCoinsAction);
         toolbar->addAction(receiveCoinsAction);
@@ -645,11 +673,14 @@ void BitcoinGUI::createToolBars()
         toolbar->addWidget(spacer);
 
         m_wallet_selector = new QComboBox();
-        m_wallet_selector->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+        m_wallet_selector->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+        m_wallet_selector->setMinimumWidth(190);
+        m_wallet_selector->setMaximumWidth(190);
         connect(m_wallet_selector, qOverload<int>(&QComboBox::currentIndexChanged), this, &BitcoinGUI::setCurrentWalletBySelectorIndex);
 
         m_wallet_selector_label = new QLabel();
-        m_wallet_selector_label->setText(tr("Wallet:") + " ");
+        m_wallet_selector_label->setObjectName(QStringLiteral("sidebarSection"));
+        m_wallet_selector_label->setText(tr("Wallet"));
         m_wallet_selector_label->setBuddy(m_wallet_selector);
 
         m_wallet_selector_label_action = appToolBar->addWidget(m_wallet_selector_label);
@@ -788,6 +819,9 @@ void BitcoinGUI::addWallet(WalletModel* walletModel)
     }
 
     connect(wallet_view, &WalletView::outOfSyncWarningClicked, this, &BitcoinGUI::showModalOverlay);
+    connect(wallet_view, &WalletView::sendCoinsClicked, this, [this] { gotoSendCoinsPage(); });
+    connect(wallet_view, &WalletView::receiveCoinsClicked, this, &BitcoinGUI::gotoReceiveCoinsPage);
+    connect(wallet_view, &WalletView::showHistoryClicked, this, &BitcoinGUI::gotoHistoryPage);
     connect(wallet_view, &WalletView::transactionClicked, this, &BitcoinGUI::gotoHistoryPage);
     connect(wallet_view, &WalletView::coinsSent, this, &BitcoinGUI::gotoHistoryPage);
     connect(wallet_view, &WalletView::message, [this](const QString& title, const QString& message, unsigned int style) {
