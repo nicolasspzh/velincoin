@@ -48,6 +48,9 @@ nicht von einem einzelnen Rechner abhängt. Ein kleiner gemieteter Linux-Server
 
 Ab jetzt können sich andere mit `addnode=<IP-des-Servers>:9733` verbinden.
 
+Für einen Windows-11-PC zu Hause gibt es eine eigene Anleitung mit Autostart,
+Firewall, Router und DynDNS: [seed-windows.md](seed-windows.md).
+
 
 Schritt 2: Feste Seeds ins Programm eintragen
 ---------------------------------------------
