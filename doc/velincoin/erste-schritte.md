@@ -111,18 +111,29 @@ lokale IP-Adresse, zum Beispiel `192.168.1.20`.
 ```
 build/bin/velincoin-cli -testnet4 createwallet "test"
 build/bin/velincoin-cli -testnet4 getnewaddress
-build/bin/velincoin-cli -testnet4 generatetoaddress 1 <adresse> 100000000000
+build/bin/velincoin-cli -testnet4 -rpcclienttimeout=0 generatetoaddress 1 <adresse> 100000000000
 ```
 
 Die grosse Zahl am Ende ist die maximale Anzahl Versuche. Ohne sie gibt der
 Befehl schon nach einer Million Versuchen auf, und das reicht fast nie.
+`-rpcclienttimeout=0` braucht es, weil `velincoin-cli` sonst nach 15 Minuten
+aufgibt.
+
+Kommt `[]` zurück, wurde kein Block gefunden. Das passiert, wenn alle Nonces
+eines Blocks durchprobiert sind oder die Versuche aufgebraucht sind. Dann den
+Befehl einfach nochmals starten.
 
 **Wie lange dauert das?** Ein Block braucht im Durchschnitt etwa 4,3 Milliarden
-Versuche. Der eingebaute Miner nutzt nur einen Prozessorkern. Bei einer Messung
-schaffte er rund 3,4 Millionen Versuche pro Sekunde (auf einem Server, der
-gleichzeitig andere Arbeit hatte). Das ergibt grob **15 bis 25 Minuten pro Block**.
-Es ist Glückssache: Manchmal geht es viel schneller, manchmal viel länger. Auf
-eurem Computer kann es schneller oder langsamer sein.
+Versuche. Ein Prozessorkern schaffte bei einer Messung rund 3,4 Millionen
+Versuche pro Sekunde (auf einem Server, der gleichzeitig andere Arbeit hatte).
+Das ergibt mit einem Kern grob 15 bis 25 Minuten pro Block. Velincoin verteilt
+die Suche auf alle Prozessorkerne. Mit mehr Kernen geht es entsprechend
+schneller. Es bleibt Glückssache: Manchmal geht es viel schneller, manchmal viel
+länger.
+
+Die Zahl der Kerne lässt sich mit `-minerthreads=<n>` festlegen, zum Beispiel
+`-minerthreads=4`. Der Standard `0` nutzt alle Kerne. Weniger Kerne sind
+sinnvoll, wenn der Computer nebenbei noch gut bedienbar sein soll.
 
 Wichtig: Gemined Coins sind erst nach 100 weiteren Blöcken ausgebbar. Im
 Testnetz mit einem einzigen Computer dauert das also mehr als einen Tag. Senden
@@ -136,6 +147,14 @@ build/bin/velincoin-qt -testnet4
 
 Statt `velincoind` könnt ihr auch die grafische Wallet starten. Sie enthält einen
 eigenen Node. Beide gleichzeitig mit demselben Datenordner geht nicht.
+
+Unter Windows startet die Verknüpfung "Velincoin Core (testnet)" im Startmenü die
+grafische Wallet im Testnetz. Minen geht dort in der Konsole (Menü Fenster →
+Konsole), ohne `velincoin-cli` davor:
+
+```
+generatetoaddress 1 <adresse> 100000000000
+```
 
 
 3. Wo liegen die Daten?

@@ -28,8 +28,12 @@
 #include <validation.h>
 
 #include <algorithm>
+#include <atomic>
+#include <limits>
+#include <thread>
 #include <utility>
 #include <numeric>
+#include <vector>
 
 namespace node {
 
@@ -524,4 +528,70 @@ std::optional<BlockRef> WaitTipChanged(ChainstateManager& chainman, KernelNotifi
     return GetTip(chainman);
 }
 
+unsigned int MinerThreads(int64_t requested)
+{
+    if (requested > 0) return static_cast<unsigned int>(std::min<int64_t>(requested, 1024));
+    return std::max(1U, std::thread::hardware_concurrency());
+}
+
+bool FindNonce(CBlockHeader& header, uint64_t& max_tries, const Consensus::Params& params,
+               const util::SignalInterrupt& interrupt, unsigned int threads, uint64_t serial_tries)
+{
+    // Nonces in [start, end) are tried. The largest uint32 value is never
+    // tried, like in the original one-by-one loop of the generate RPCs.
+    const uint64_t start{header.nNonce};
+    const uint64_t nonce_limit{std::numeric_limits<uint32_t>::max()};
+    const uint64_t end{start >= nonce_limit ? start : std::min(nonce_limit, start + std::min(max_tries, nonce_limit - start))};
+
+    // Lowest valid nonce found so far, end if none.
+    std::atomic<uint64_t> best{end};
+
+    // Try the nonces in [from, to) and stop at the first valid one, or as
+    // soon as a lower valid nonce is known.
+    auto scan{[&](CBlockHeader h, uint64_t from, uint64_t to) {
+        for (uint64_t n{from}; n < to && n < best.load(std::memory_order_relaxed) && !interrupt; ++n) {
+            h.nNonce = static_cast<uint32_t>(n);
+            if (CheckProofOfWork(h.GetHash(), h.nBits, params)) {
+                uint64_t prev{best.load()};
+                while (n < prev && !best.compare_exchange_weak(prev, n)) {}
+                return;
+            }
+        }
+    }};
+
+    // The first nonces on this thread. With easy targets (regtest) a valid
+    // nonce is almost always found here, without starting threads.
+    const uint64_t serial_end{std::min(end, start + std::min(serial_tries, end - start))};
+    scan(header, start, serial_end);
+
+    if (best.load() == end && serial_end < end) {
+        if (threads <= 1) {
+            scan(header, serial_end, end);
+        } else {
+            // Each thread takes the next chunk of nonces. Chunks are handed out
+            // in increasing order, so every nonce below the final best value
+            // has been tried when all threads are done.
+            static constexpr uint64_t CHUNK{1 << 16};
+            std::atomic<uint64_t> next{serial_end};
+            auto worker{[&] {
+                while (!interrupt) {
+                    const uint64_t from{next.fetch_add(CHUNK)};
+                    if (from >= end || from >= best.load()) return;
+                    scan(header, from, std::min(end, from + CHUNK));
+                }
+            }};
+            std::vector<std::thread> pool;
+            pool.reserve(threads - 1);
+            for (unsigned int i{1}; i < threads; ++i) pool.emplace_back(worker);
+            worker();
+            for (auto& t : pool) t.join();
+        }
+    }
+
+    if (interrupt) return false;
+    const uint64_t result{best.load()};
+    max_tries -= result - start;
+    header.nNonce = static_cast<uint32_t>(result);
+    return result < end;
+}
 } // namespace node

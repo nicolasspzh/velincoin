@@ -31,6 +31,7 @@ class Chainstate;
 class ChainstateManager;
 
 namespace Consensus { struct Params; };
+namespace util { class SignalInterrupt; }
 
 using interfaces::BlockRef;
 
@@ -184,6 +185,30 @@ std::optional<BlockRef> WaitTipChanged(ChainstateManager& chainman, KernelNotifi
  * @returns false if interrupted.
  */
 bool CooldownIfHeadersAhead(ChainstateManager& chainman, KernelNotifications& kernel_notifications, const BlockRef& last_tip, bool& interrupt_mining);
+
+/** Velincoin: default for -minerthreads. 0 means one thread per CPU core. */
+static constexpr int DEFAULT_MINER_THREADS{0};
+
+/** Number of threads to use for FindNonce(), from the -minerthreads value. */
+unsigned int MinerThreads(int64_t requested);
+
+/**
+ * Velincoin: search for a nonce that gives the header enough proof of work.
+ *
+ * Tries the nonces from header.nNonce upwards, but never more than max_tries
+ * nonces and never the largest uint32 value. The first serial_tries nonces are
+ * tried on the calling thread. The rest is split over the given number of
+ * threads. The result is the same as trying the nonces one by one: always the
+ * lowest valid nonce.
+ *
+ * On return header.nNonce is the valid nonce, or the first nonce that was not
+ * tried. max_tries is reduced by the number of nonces before it.
+ *
+ * @returns true if a valid nonce was found. False if none was found or the
+ *          search was interrupted.
+ */
+bool FindNonce(CBlockHeader& header, uint64_t& max_tries, const Consensus::Params& params,
+               const util::SignalInterrupt& interrupt, unsigned int threads, uint64_t serial_tries = 1 << 16);
 } // namespace node
 
 #endif // BITCOIN_NODE_MINER_H
