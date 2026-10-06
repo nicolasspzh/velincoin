@@ -44,7 +44,7 @@ Its own proof-of-work blockchain with a fixed supply of 21 million VLC, no premi
 - Logo: a faceted crystal "V" in blue, violet and pink (`doc/velincoin/logo/`).
 - The website follows the desktop wallet's look: near-black surfaces, white type, violet as the single accent, Inter.
 - The site never names the people behind the project.
-- Language: English.
+- Language: German with Swiss spelling (ss, never ß); visitors are addressed with «du». Wallet menu names follow the German wallet (Fenster, Konsole, Empfangen).
 
 ## Evidence on Hand
 

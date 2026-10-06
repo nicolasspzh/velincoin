@@ -31,13 +31,13 @@
     var label = btn.querySelector('span');
     navigator.clipboard.writeText(text).then(function () {
       btn.classList.add('is-done');
-      if (label) label.textContent = 'Copied';
+      if (label) label.textContent = 'Kopiert';
       setTimeout(function () {
         btn.classList.remove('is-done');
-        if (label) label.textContent = 'Copy';
+        if (label) label.textContent = 'Kopieren';
       }, 1600);
     }, function () {
-      if (label) label.textContent = 'Select and copy';
+      if (label) label.textContent = 'Markieren und kopieren';
     });
   });
 })();
