@@ -36,7 +36,8 @@ ReceiveCoinsDialog::ReceiveCoinsDialog(const PlatformStyle *_platformStyle, QWid
         ui->removeRequestButton->setIcon(QIcon());
     } else {
         ui->clearButton->setIcon(_platformStyle->SingleColorIcon(":/icons/remove"));
-        ui->receiveButton->setIcon(_platformStyle->SingleColorIcon(":/icons/receiving_addresses"));
+        // the primary button is white and carries no icon
+        ui->receiveButton->setIcon(QIcon());
         ui->showRequestButton->setIcon(_platformStyle->SingleColorIcon(":/icons/eye"));
         ui->removeRequestButton->setIcon(_platformStyle->SingleColorIcon(":/icons/remove"));
     }

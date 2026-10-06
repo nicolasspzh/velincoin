@@ -856,10 +856,10 @@ void RPCConsole::clear(bool keep_prompt)
                 "table { }"
                 "td.time { color: #808080; font-size: %2; padding-top: 3px; } "
                 "td.message { font-family: %1; font-size: %2; white-space:pre-wrap; } "
-                "td.cmd-request { color: #006060; } "
-                "td.cmd-error { color: red; } "
-                ".secwarning { color: red; }"
-                "b { color: #006060; } "
+                "td.cmd-request { color: #a78bfa; } "
+                "td.cmd-error { color: #f87171; } "
+                ".secwarning { color: #f87171; }"
+                "b { color: #a78bfa; } "
             ).arg(fixedFontInfo.family(), QString("%1pt").arg(consoleFontSize))
         );
 

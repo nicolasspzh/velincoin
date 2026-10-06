@@ -159,21 +159,14 @@
     </widget>
    </item>
    <item row="2" column="1">
-    <layout class="QHBoxLayout" name="horizontalLayoutAmount" stretch="0,1,0">
+    <layout class="QHBoxLayout" name="horizontalLayoutAmount" stretch="0,0,1">
+     <property name="spacing">
+      <number>10</number>
+     </property>
      <item>
       <widget class="BitcoinAmountField" name="payAmount" native="true">
        <property name="toolTip">
         <string>The amount to send in the selected unit</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="checkboxSubtractFeeFromAmount">
-       <property name="toolTip">
-        <string>The fee will be deducted from the amount being sent. The recipient will receive less velincoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</string>
-       </property>
-       <property name="text">
-        <string>S&amp;ubtract fee from amount</string>
        </property>
       </widget>
      </item>
@@ -184,9 +177,32 @@
        </property>
       </widget>
      </item>
+     <item>
+      <spacer name="horizontalSpacerAmount">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
     </layout>
    </item>
-   <item row="3" column="0">
+   <item row="3" column="1">
+    <widget class="QCheckBox" name="checkboxSubtractFeeFromAmount">
+     <property name="toolTip">
+      <string>The fee will be deducted from the amount being sent. The recipient will receive less velincoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</string>
+     </property>
+     <property name="text">
+      <string>S&amp;ubtract fee from amount</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
     <widget class="QLabel" name="messageLabel">
      <property name="text">
       <string>Message:</string>
@@ -196,7 +212,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item row="4" column="1">
     <widget class="QLabel" name="messageTextLabel">
      <property name="toolTip">
       <string>A message that was attached to the velincoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Velincoin network.</string>
@@ -206,7 +222,7 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="0" colspan="2">
+   <item row="5" column="0" colspan="2">
     <widget class="Line" name="line">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>

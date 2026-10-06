@@ -112,14 +112,22 @@ Was noch nicht angepasst ist
   von Forschungsarbeiten, der Copyright-Hinweis von Bitcoin Core und interne
   Protokoll-Konstanten.
 - **Grafische Wallet (GUI):** Texte, Einheit (VLC), Zahlungs-Links (`velincoin:`)
-  und Einstellungsordner (`~/.config/Velincoin/`) sind angepasst. Die automatischen
-  GUI-Tests bestehen. Das Velincoin-Logo ist als Programmsymbol und in den Bildern
-  des Windows-Installers eingebaut (Original in `doc/velincoin/logo/`). Die übrigen
-  Symbole der Oberfläche (Senden, Empfangen usw.) sind neutral. Noch nicht
-  angepasst: Übersetzungen in andere Sprachen und der Name des macOS-Programmpakets.
-  Für das Logo gibt es noch keine Vektordatei (SVG). Die alte Datei
-  `src/qt/res/src/bitcoin.svg` wird beim Kompilieren nicht verwendet.
-  Die Fenster wurden noch nicht von Hand angeschaut.
+  und Einstellungsordner (`~/.config/Velincoin/`) sind angepasst. Das Velincoin-Logo
+  ist als Programmsymbol und in den Bildern des Windows-Installers eingebaut
+  (Original in `doc/velincoin/logo/`). Für das Logo gibt es noch keine Vektordatei
+  (SVG). Die alte Datei `src/qt/res/src/bitcoin.svg` wird beim Kompilieren nicht
+  verwendet. Noch nicht angepasst: Übersetzungen in andere Sprachen als Deutsch und
+  der Name des macOS-Programmpakets.
+- **Design der Wallet:** dunkles Design passend zur Website. Navigation in einer
+  Seitenleiste links mit Anzeige des Netzes (Hauptnetz, Testnetz, Regtest),
+  neue Übersicht mit Gesamtguthaben, Knöpfen zum Überweisen und Empfangen und den
+  letzten Zahlungen, neuer Startbildschirm. Farben und Formen stehen in
+  `src/qt/res/styles/velincoin.qss`, Schrift und Farbpalette in
+  `src/qt/velincointheme.cpp`. Die Schrift ist Inter (SIL Open Font License,
+  `src/qt/res/fonts/Inter-LICENSE.txt`). Die Oberfläche nutzt auf allen Systemen den
+  Qt-Stil „Fusion“, damit sie unter Windows, macOS und Linux gleich aussieht.
+  Getestet unter Linux (Bildschirmfotos, automatische GUI-Tests), unter Windows noch
+  nicht von Hand angeschaut.
 - **Anleitungen und Hilfsskripte** in `doc/` und `contrib/` stammen von Bitcoin Core
   und nennen oft noch `bitcoind` usw. Angepasst sind die Dienst-Vorlagen in
   `contrib/init/` (zum Beispiel `velincoind.service` für systemd) und die

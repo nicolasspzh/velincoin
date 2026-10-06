@@ -125,6 +125,8 @@ add_library(bitcoinqt STATIC EXCLUDE_FROM_ALL
   trafficgraphwidget.h
   utilitydialog.cpp
   utilitydialog.h
+  velincointheme.cpp
+  velincointheme.h
   $<$<PLATFORM_ID:Windows>:winshutdownmonitor.cpp>
   $<$<PLATFORM_ID:Windows>:winshutdownmonitor.h>
   ${BITCOIN_QRC}

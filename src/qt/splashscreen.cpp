@@ -13,6 +13,7 @@
 #include <interfaces/wallet.h>
 #include <qt/guiutil.h>
 #include <qt/networkstyle.h>
+#include <qt/velincointheme.h>
 #include <qt/walletmodel.h>
 #include <util/translation.h>
 
@@ -28,15 +29,7 @@
 SplashScreen::SplashScreen(const NetworkStyle* networkStyle)
     : QWidget()
 {
-    // set reference point, paddings
-    int paddingRight            = 50;
-    int paddingTop              = 50;
-    int titleVersionVSpace      = 17;
-    int titleCopyrightVSpace    = 40;
-
-    float fontFactor            = 1.0;
-    float devicePixelRatio      = 1.0;
-    devicePixelRatio = static_cast<QGuiApplication*>(QCoreApplication::instance())->devicePixelRatio();
+    float devicePixelRatio = static_cast<QGuiApplication*>(QCoreApplication::instance())->devicePixelRatio();
 
     // define text to place
     QString titleText       = CLIENT_NAME;
@@ -44,7 +37,7 @@ SplashScreen::SplashScreen(const NetworkStyle* networkStyle)
     QString copyrightText   = QString::fromUtf8(CopyrightHolders(strprintf("\xc2\xA9 %u-%u ", 2009, COPYRIGHT_YEAR)).c_str());
     const QString& titleAddText    = networkStyle->getTitleAddText();
 
-    QString font            = QApplication::font().toString();
+    const QString font = QApplication::font().family();
 
     // create a bitmap according to device pixelratio
     QSize splashSize(480*devicePixelRatio,320*devicePixelRatio);
@@ -54,64 +47,56 @@ SplashScreen::SplashScreen(const NetworkStyle* networkStyle)
     pixmap.setDevicePixelRatio(devicePixelRatio);
 
     QPainter pixPaint(&pixmap);
-    pixPaint.setPen(QColor(100,100,100));
+    pixPaint.setRenderHint(QPainter::Antialiasing);
+    pixPaint.setRenderHint(QPainter::TextAntialiasing);
 
-    // draw a slightly radial gradient
-    QRadialGradient gradient(QPoint(0,0), splashSize.width()/devicePixelRatio);
-    gradient.setColorAt(0, Qt::white);
-    gradient.setColorAt(1, QColor(247,247,247));
-    QRect rGradient(QPoint(0,0), splashSize);
-    pixPaint.fillRect(rGradient, gradient);
+    // dark background with a faint violet glow behind the logo
+    const QRect area(0, 0, 480, 320);
+    pixPaint.fillRect(area, QColor(0x09, 0x09, 0x0b));
+    QRadialGradient glow(QPointF(96, 112), 240);
+    glow.setColorAt(0, QColor(139, 92, 246, 60));
+    glow.setColorAt(1, QColor(139, 92, 246, 0));
+    pixPaint.fillRect(area, glow);
 
-    // draw the bitcoin icon, expected size of PNG: 1024x1024
-    QRect rectIcon(QPoint(-150,-122), QSize(430,430));
+    // the Velincoin logo
+    const int paddingLeft = 48;
+    QPixmap icon(networkStyle->getAppIcon().pixmap(QSize(1024, 1024)));
+    pixPaint.drawPixmap(QRect(paddingLeft, 52, 88, 88), icon);
 
-    const QSize requiredSize(1024,1024);
-    QPixmap icon(networkStyle->getAppIcon().pixmap(requiredSize));
+    QFont titleFont(font, 22);
+    titleFont.setWeight(QFont::DemiBold);
+    pixPaint.setFont(titleFont);
+    pixPaint.setPen(QColor(0xff, 0xff, 0xff));
+    pixPaint.drawText(paddingLeft, 186, titleText);
 
-    pixPaint.drawPixmap(rectIcon, icon);
-
-    // check font size and drawing with
-    pixPaint.setFont(QFont(font, 33*fontFactor));
-    QFontMetrics fm = pixPaint.fontMetrics();
-    int titleTextWidth = GUIUtil::TextWidth(fm, titleText);
-    if (titleTextWidth > 176) {
-        fontFactor = fontFactor * 176 / titleTextWidth;
-    }
-
-    pixPaint.setFont(QFont(font, 33*fontFactor));
-    fm = pixPaint.fontMetrics();
-    titleTextWidth  = GUIUtil::TextWidth(fm, titleText);
-    pixPaint.drawText(pixmap.width()/devicePixelRatio-titleTextWidth-paddingRight,paddingTop,titleText);
-
-    pixPaint.setFont(QFont(font, 15*fontFactor));
-
-    // if the version string is too long, reduce size
-    fm = pixPaint.fontMetrics();
-    int versionTextWidth  = GUIUtil::TextWidth(fm, versionText);
-    if(versionTextWidth > titleTextWidth+paddingRight-10) {
-        pixPaint.setFont(QFont(font, 10*fontFactor));
-        titleVersionVSpace -= 5;
-    }
-    pixPaint.drawText(pixmap.width()/devicePixelRatio-titleTextWidth-paddingRight+2,paddingTop+titleVersionVSpace,versionText);
+    QFont versionFont(font, 10);
+    pixPaint.setFont(versionFont);
+    pixPaint.setPen(QColor(0x9a, 0x9a, 0xa5));
+    pixPaint.drawText(paddingLeft, 212, versionText);
 
     // draw copyright stuff
     {
-        pixPaint.setFont(QFont(font, 10*fontFactor));
-        const int x = pixmap.width()/devicePixelRatio-titleTextWidth-paddingRight;
-        const int y = paddingTop+titleCopyrightVSpace;
-        QRect copyrightRect(x, y, pixmap.width() - x - paddingRight, pixmap.height() - y);
+        QFont smallFont(font, 8);
+        pixPaint.setFont(smallFont);
+        pixPaint.setPen(QColor(0x6b, 0x6b, 0x75));
+        QRect copyrightRect(paddingLeft, 228, 480 - 2 * paddingLeft, 50);
         pixPaint.drawText(copyrightRect, Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap, copyrightText);
     }
 
-    // draw additional text if special network
+    // network badge if this is not the main network
     if(!titleAddText.isEmpty()) {
-        QFont boldFont = QFont(font, 10*fontFactor);
-        boldFont.setWeight(QFont::Bold);
-        pixPaint.setFont(boldFont);
-        fm = pixPaint.fontMetrics();
-        int titleAddTextWidth  = GUIUtil::TextWidth(fm, titleAddText);
-        pixPaint.drawText(pixmap.width()/devicePixelRatio-titleAddTextWidth-10,15,titleAddText);
+        const QString badgeText = VelincoinTheme::NetworkLabel(titleAddText);
+        QFont badgeFont(font, 9);
+        badgeFont.setWeight(QFont::DemiBold);
+        pixPaint.setFont(badgeFont);
+        const QFontMetrics fm = pixPaint.fontMetrics();
+        const int w = GUIUtil::TextWidth(fm, badgeText) + 20;
+        const QRect badge(480 - w - 20, 20, w, 24);
+        pixPaint.setPen(QColor(0x3a, 0x32, 0x20));
+        pixPaint.setBrush(QColor(0x17, 0x14, 0x0c));
+        pixPaint.drawRoundedRect(badge, 12, 12);
+        pixPaint.setPen(QColor(0xfb, 0xbf, 0x24));
+        pixPaint.drawText(badge, Qt::AlignCenter, badgeText);
     }
 
     pixPaint.end();
@@ -164,8 +149,8 @@ static void InitMessage(SplashScreen *splash, const std::string &message)
     bool invoked = QMetaObject::invokeMethod(splash, "showMessage",
         Qt::QueuedConnection,
         Q_ARG(QString, QString::fromStdString(message)),
-        Q_ARG(int, Qt::AlignBottom|Qt::AlignHCenter),
-        Q_ARG(QColor, QColor(55,55,55)));
+        Q_ARG(int, Qt::AlignBottom|Qt::AlignLeft),
+        Q_ARG(QColor, QColor(154,154,165)));
     assert(invoked);
 }
 
@@ -226,7 +211,7 @@ void SplashScreen::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     painter.drawPixmap(0, 0, pixmap);
-    QRect r = rect().adjusted(5, 5, -5, -5);
+    QRect r = rect().adjusted(48, 5, -48, -18);
     painter.setPen(curColor);
     painter.drawText(r, curAlignment, curMessage);
 }

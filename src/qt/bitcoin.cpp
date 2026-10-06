@@ -29,6 +29,7 @@
 #include <qt/platformstyle.h>
 #include <qt/splashscreen.h>
 #include <qt/utilitydialog.h>
+#include <qt/velincointheme.h>
 #include <qt/winshutdownmonitor.h>
 #include <uint256.h>
 #include <util/exception.h>
@@ -503,6 +504,7 @@ int GuiMain(int argc, char* argv[])
 
     BitcoinApplication app;
     GUIUtil::LoadFont(QStringLiteral(":/fonts/monospace"));
+    VelincoinTheme::Apply(app);
 
     /// 2. Parse command-line options. We do this after qt in order to show an error if there are problems parsing these
     // Command-line options take precedence:

@@ -1,5 +1,8 @@
 <!DOCTYPE RCC><RCC version="1.0">
     <qresource prefix="/icons">
+        <file alias="chevron_down">res/icons/chevron_down.png</file>
+        <file alias="chevron_up">res/icons/chevron_up.png</file>
+        <file alias="check">res/icons/check.png</file>
         <file alias="bitcoin">res/icons/bitcoin.png</file>
         <file alias="address-book">res/icons/address-book.png</file>
         <file alias="send">res/icons/send.png</file>
@@ -85,5 +88,12 @@
     </qresource>
     <qresource prefix="/fonts">
         <file alias="monospace">res/fonts/RobotoMono-Bold.ttf</file>
+        <file alias="inter-regular">res/fonts/Inter-Regular.otf</file>
+        <file alias="inter-medium">res/fonts/Inter-Medium.otf</file>
+        <file alias="inter-semibold">res/fonts/Inter-SemiBold.otf</file>
+        <file alias="inter-bold">res/fonts/Inter-Bold.otf</file>
+    </qresource>
+    <qresource prefix="/styles">
+        <file alias="velincoin">res/styles/velincoin.qss</file>
     </qresource>
 </RCC>

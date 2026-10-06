@@ -14,21 +14,38 @@
 #include <qt/transactionfilterproxy.h>
 #include <qt/transactionoverviewwidget.h>
 #include <qt/transactiontablemodel.h>
+#include <qt/velincointheme.h>
 #include <qt/walletmodel.h>
 
 #include <QAbstractItemDelegate>
 #include <QApplication>
 #include <QDateTime>
+#include <QImage>
 #include <QPainter>
+#include <QPixmap>
 #include <QStatusTipEvent>
 
 #include <algorithm>
 #include <map>
 
-#define DECORATION_SIZE 54
-#define NUM_ITEMS 5
+#define DECORATION_SIZE 60
+#define NUM_ITEMS 6
 
 Q_DECLARE_METATYPE(interfaces::WalletBalances)
+
+namespace {
+//! Recolor a single-color icon, keeping its shape (alpha channel).
+QIcon TintedIcon(const QString& filename, const QColor& color)
+{
+    QImage img(filename);
+    img = img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    QPainter p(&img);
+    p.setCompositionMode(QPainter::CompositionMode_SourceIn);
+    p.fillRect(img.rect(), color);
+    p.end();
+    return QIcon(QPixmap::fromImage(img));
+}
+} // namespace
 
 class TxViewDelegate : public QAbstractItemDelegate
 {
@@ -44,17 +61,30 @@ public:
                       const QModelIndex &index ) const override
     {
         painter->save();
+        painter->setRenderHint(QPainter::Antialiasing);
 
+        const QRect mainRect = option.rect;
+        const int circle = 38;
+        const QRect circleRect(mainRect.left(), mainRect.center().y() - circle / 2 + 1, circle, circle);
+        const int xspace = circle + 14;
+        const int ypad = 11;
+        const int halfheight = (mainRect.height() - 2 * ypad) / 2;
+        const QRect topRect(mainRect.left() + xspace, mainRect.top() + ypad, mainRect.width() - xspace, halfheight);
+        const QRect bottomRect(mainRect.left() + xspace, mainRect.top() + ypad + halfheight, mainRect.width() - xspace, halfheight);
+
+        // icon in a round tile
+        painter->setPen(Qt::NoPen);
+        painter->setBrush(VelincoinTheme::RAISED);
+        painter->drawEllipse(circleRect);
         QIcon icon = qvariant_cast<QIcon>(index.data(TransactionTableModel::RawDecorationRole));
-        QRect mainRect = option.rect;
-        QRect decorationRect(mainRect.topLeft(), QSize(DECORATION_SIZE, DECORATION_SIZE));
-        int xspace = DECORATION_SIZE + 8;
-        int ypad = 6;
-        int halfheight = (mainRect.height() - 2*ypad)/2;
-        QRect amountRect(mainRect.left() + xspace, mainRect.top()+ypad, mainRect.width() - xspace, halfheight);
-        QRect addressRect(mainRect.left() + xspace, mainRect.top()+ypad+halfheight, mainRect.width() - xspace, halfheight);
         icon = platformStyle->SingleColorIcon(icon);
-        icon.paint(painter, decorationRect);
+        icon.paint(painter, circleRect.adjusted(10, 10, -10, -10));
+
+        // divider under every row but the last visible one
+        if (index.row() + 1 < std::min(index.model()->rowCount(), NUM_ITEMS)) {
+            painter->setPen(VelincoinTheme::BORDER);
+            painter->drawLine(topRect.left(), mainRect.bottom(), mainRect.right(), mainRect.bottom());
+        }
 
         QDateTime date = index.data(TransactionTableModel::DateRole).toDateTime();
         QString address = index.data(Qt::DisplayRole).toString();
@@ -68,35 +98,34 @@ public:
             foreground = brush.color();
         }
 
+        QFont titleFont = option.font;
+        titleFont.setWeight(QFont::Medium);
+        painter->setFont(titleFont);
         painter->setPen(foreground);
         QRect boundingRect;
-        painter->drawText(addressRect, Qt::AlignLeft | Qt::AlignVCenter, address, &boundingRect);
+        const QString elided = painter->fontMetrics().elidedText(address, Qt::ElideMiddle, topRect.width() * 6 / 10);
+        painter->drawText(topRect, Qt::AlignLeft | Qt::AlignVCenter, elided, &boundingRect);
 
-        if(amount < 0)
-        {
-            foreground = COLOR_NEGATIVE;
-        }
-        else if(!confirmed)
-        {
-            foreground = COLOR_UNCONFIRMED;
-        }
-        else
-        {
+        if (!confirmed) {
+            foreground = VelincoinTheme::TEXT_DIM;
+        } else if (amount < 0) {
             foreground = option.palette.color(QPalette::Text);
+        } else {
+            foreground = VelincoinTheme::POSITIVE;
         }
         painter->setPen(foreground);
         QString amountText = BitcoinUnits::formatWithUnit(unit, amount, true, BitcoinUnits::SeparatorStyle::ALWAYS);
-        if(!confirmed)
-        {
-            amountText = QString("[") + amountText + QString("]");
-        }
-
         QRect amount_bounding_rect;
-        painter->drawText(amountRect, Qt::AlignRight | Qt::AlignVCenter, amountText, &amount_bounding_rect);
+        painter->drawText(topRect, Qt::AlignRight | Qt::AlignVCenter, amountText, &amount_bounding_rect);
 
-        painter->setPen(option.palette.color(QPalette::Text));
+        painter->setFont(option.font);
+        painter->setPen(VelincoinTheme::TEXT_DIM);
         QRect date_bounding_rect;
-        painter->drawText(amountRect, Qt::AlignLeft | Qt::AlignVCenter, GUIUtil::dateTimeStr(date), &date_bounding_rect);
+        painter->drawText(bottomRect, Qt::AlignLeft | Qt::AlignVCenter, GUIUtil::dateTimeStr(date), &date_bounding_rect);
+        if (!confirmed) {
+            painter->setPen(VelincoinTheme::PENDING);
+            painter->drawText(bottomRect, Qt::AlignRight | Qt::AlignVCenter, tr("Pending"));
+        }
 
         // 0.4*date_bounding_rect.width() is used to visually distinguish a date from an amount.
         const int minimum_width = 1.4 * date_bounding_rect.width() + amount_bounding_rect.width();
@@ -113,7 +142,7 @@ public:
     {
         const auto search = m_minimum_width.find(index.row());
         const int minimum_text_width = search == m_minimum_width.end() ? 0 : search->second;
-        return {DECORATION_SIZE + 8 + minimum_text_width, DECORATION_SIZE};
+        return {38 + 14 + minimum_text_width, DECORATION_SIZE};
     }
 
     BitcoinUnit unit{BitcoinUnit::BTC};
@@ -137,18 +166,19 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
 {
     ui->setupUi(this);
 
-    // use a SingleColorIcon for the "out of sync warning" icon
-    QIcon icon = m_platform_style->SingleColorIcon(QStringLiteral(":/icons/warning"));
-    ui->labelTransactionsStatus->setIcon(icon);
-    ui->labelWalletStatus->setIcon(icon);
+    updateIcons();
 
     // Recent transactions
     ui->listTransactions->setItemDelegate(txdelegate);
     ui->listTransactions->setIconSize(QSize(DECORATION_SIZE, DECORATION_SIZE));
-    ui->listTransactions->setMinimumHeight(NUM_ITEMS * (DECORATION_SIZE + 2));
+    ui->listTransactions->setMinimumHeight(3 * DECORATION_SIZE);
     ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
+    ui->listTransactions->setCursor(Qt::PointingHandCursor);
 
     connect(ui->listTransactions, &TransactionOverviewWidget::clicked, this, &OverviewPage::handleTransactionClicked);
+    connect(ui->sendButton, &QPushButton::clicked, this, &OverviewPage::sendCoinsClicked);
+    connect(ui->receiveButton, &QPushButton::clicked, this, &OverviewPage::receiveCoinsClicked);
+    connect(ui->showAllButton, &QPushButton::clicked, this, &OverviewPage::showHistoryClicked);
 
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
@@ -171,7 +201,7 @@ void OverviewPage::setPrivacy(bool privacy)
         setBalance(balances);
     }
 
-    ui->listTransactions->setVisible(!m_privacy);
+    LimitTransactionRows();
 
     const QString status_tip = m_privacy ? tr("Privacy mode activated for the Overview tab. To unmask the values, uncheck Settings->Mask values.") : "";
     setStatusTip(status_tip);
@@ -187,10 +217,20 @@ OverviewPage::~OverviewPage()
 void OverviewPage::setBalance(const interfaces::WalletBalances& balances)
 {
     BitcoinUnit unit = walletModel->getOptionsModel()->getDisplayUnit();
-    ui->labelBalance->setText(BitcoinUnits::formatWithPrivacy(unit, balances.balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
-    ui->labelUnconfirmed->setText(BitcoinUnits::formatWithPrivacy(unit, balances.unconfirmed_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
-    ui->labelImmature->setText(BitcoinUnits::formatWithPrivacy(unit, balances.immature_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
-    ui->labelTotal->setText(BitcoinUnits::formatWithPrivacy(unit, balances.balance + balances.unconfirmed_balance + balances.immature_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
+    // formatWithPrivacy pads amounts to a common width for column layouts; this page stacks them, so trim
+    ui->labelBalance->setText(BitcoinUnits::formatWithPrivacy(unit, balances.balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy).trimmed());
+    ui->labelUnconfirmed->setText(BitcoinUnits::formatWithPrivacy(unit, balances.unconfirmed_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy).trimmed());
+    ui->labelImmature->setText(BitcoinUnits::formatWithPrivacy(unit, balances.immature_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy).trimmed());
+    // Large total: the number in full size, the unit smaller and dimmed
+    QString total = BitcoinUnits::formatWithPrivacy(unit, balances.balance + balances.unconfirmed_balance + balances.immature_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy).trimmed();
+    const QString unit_suffix = QStringLiteral(" ") + BitcoinUnits::shortName(unit);
+    if (total.endsWith(unit_suffix)) {
+        total = total.left(total.size() - unit_suffix.size()).toHtmlEscaped() +
+                QStringLiteral("<span style=\"font-size:15pt; font-weight:500; color:#8e8e98;\">&nbsp;%1</span>").arg(BitcoinUnits::shortName(unit).toHtmlEscaped());
+    } else {
+        total = total.toHtmlEscaped();
+    }
+    ui->labelTotal->setText(total);
     // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
     // for the non-mining users
     bool showImmature = balances.immature_balance != 0;
@@ -246,22 +286,36 @@ void OverviewPage::setWalletModel(WalletModel *model)
 void OverviewPage::changeEvent(QEvent* e)
 {
     if (e->type() == QEvent::PaletteChange) {
-        QIcon icon = m_platform_style->SingleColorIcon(QStringLiteral(":/icons/warning"));
-        ui->labelTransactionsStatus->setIcon(icon);
-        ui->labelWalletStatus->setIcon(icon);
+        updateIcons();
     }
 
     QWidget::changeEvent(e);
 }
 
+void OverviewPage::updateIcons()
+{
+    // use a SingleColorIcon for the "out of sync warning" icon
+    const QIcon warning = TintedIcon(QStringLiteral(":/icons/warning"), VelincoinTheme::PENDING);
+    ui->labelTransactionsStatus->setIcon(warning);
+    ui->labelWalletStatus->setIcon(warning);
+    // the primary button is white, so its icon is drawn dark
+    ui->sendButton->setIcon(TintedIcon(QStringLiteral(":/icons/send"), QColor(0x05, 0x05, 0x05)));
+    ui->receiveButton->setIcon(TintedIcon(QStringLiteral(":/icons/receiving_addresses"), VelincoinTheme::TEXT));
+}
+
 // Only show most recent NUM_ITEMS rows
 void OverviewPage::LimitTransactionRows()
 {
+    int rows = 0;
     if (filter && ui->listTransactions && ui->listTransactions->model() && filter.get() == ui->listTransactions->model()) {
-        for (int i = 0; i < filter->rowCount(); ++i) {
+        rows = filter->rowCount();
+        for (int i = 0; i < rows; ++i) {
             ui->listTransactions->setRowHidden(i, i >= NUM_ITEMS);
         }
     }
+    ui->listTransactions->setVisible(!m_privacy && rows > 0);
+    ui->labelNoTransactions->setVisible(!m_privacy && rows == 0);
+    ui->showAllButton->setVisible(rows > NUM_ITEMS);
 }
 
 void OverviewPage::updateDisplayUnit()
@@ -293,8 +347,10 @@ void OverviewPage::showOutOfSyncWarning(bool fShow)
 
 void OverviewPage::setMonospacedFont(const QFont& f)
 {
-    ui->labelBalance->setFont(f);
-    ui->labelUnconfirmed->setFont(f);
-    ui->labelImmature->setFont(f);
-    ui->labelTotal->setFont(f);
+    // Sizes come from the theme style sheet, which takes precedence over setFont(), so the
+    // chosen family is passed the same way. The large total always uses the interface font.
+    const QString family = QStringLiteral("font-family: \"%1\";").arg(f.family());
+    ui->labelBalance->setStyleSheet(family);
+    ui->labelUnconfirmed->setStyleSheet(family);
+    ui->labelImmature->setStyleSheet(family);
 }
