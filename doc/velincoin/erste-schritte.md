@@ -111,7 +111,7 @@ lokale IP-Adresse, zum Beispiel `192.168.1.20`.
 ```
 build/bin/velincoin-cli -testnet4 createwallet "test"
 build/bin/velincoin-cli -testnet4 getnewaddress
-build/bin/velincoin-cli -testnet4 generatetoaddress 1 <adresse> 100000000000
+build/bin/velincoin-cli -testnet4 generatetoaddress 1 <adresse> 2000000000
 ```
 
 Die grosse Zahl am Ende ist die maximale Anzahl Versuche. Ohne sie gibt der
