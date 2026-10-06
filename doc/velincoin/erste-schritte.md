@@ -127,9 +127,10 @@ Befehl einfach nochmals starten.
 Versuche. Ein Prozessorkern schaffte bei einer Messung rund 3,4 Millionen
 Versuche pro Sekunde (auf einem Server, der gleichzeitig andere Arbeit hatte).
 Das ergibt mit einem Kern grob 15 bis 25 Minuten pro Block. Velincoin verteilt
-die Suche auf alle Prozessorkerne. Mit mehr Kernen geht es entsprechend
-schneller. Es bleibt Glückssache: Manchmal geht es viel schneller, manchmal viel
-länger.
+die Suche auf alle Prozessorkerne. Bei einer Messung auf einem Server mit 4
+Kernen waren es rund 11 Millionen Versuche pro Sekunde statt 3,5 Millionen mit
+einem Kern, also gut 3-mal schneller. Es bleibt Glückssache: Manchmal geht es
+viel schneller, manchmal viel länger.
 
 Die Zahl der Kerne lässt sich mit `-minerthreads=<n>` festlegen, zum Beispiel
 `-minerthreads=4`. Der Standard `0` nutzt alle Kerne. Weniger Kerne sind
