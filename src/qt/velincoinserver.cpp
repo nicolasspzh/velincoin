@@ -31,6 +31,15 @@ bool ConnectNow(interfaces::Node& node, QString& error)
     return any_ok;
 }
 
+QString ExplorerUrl()
+{
+    switch (Params().GetChainType()) {
+    case ChainType::TESTNET4: return QStringLiteral("http://%1/").arg(HOSTS.front());
+    case ChainType::MAIN: return QStringLiteral("http://%1:8080/").arg(HOSTS.front());
+    default: return {};
+    }
+}
+
 void ConnectAtStart(interfaces::Node& node)
 {
     const ChainType chain{Params().GetChainType()};

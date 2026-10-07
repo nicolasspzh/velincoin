@@ -25,6 +25,12 @@ inline const QStringList HOSTS{QStringLiteral("159.195.4.228"), QStringLiteral("
 bool ConnectNow(interfaces::Node& node, QString& error);
 
 /**
+ * The server's live block explorer for the active network ("http://.../"),
+ * empty on networks the server does not run (regtest, signet).
+ */
+QString ExplorerUrl();
+
+/**
  * Keep the wallet connected to the server from the start (addnode "add"): the
  * node connects within seconds instead of waiting a minute for the fixed seeds,
  * and connects again by itself whenever the connection drops. Only on the main

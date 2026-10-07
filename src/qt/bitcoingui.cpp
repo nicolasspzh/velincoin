@@ -21,6 +21,7 @@
 #include <qt/platformstyle.h>
 #include <qt/rpcconsole.h>
 #include <qt/utilitydialog.h>
+#include <qt/velincoinserver.h>
 #include <qt/velincointheme.h>
 
 #ifdef ENABLE_WALLET
@@ -49,6 +50,7 @@
 #include <QComboBox>
 #include <QCursor>
 #include <QDateTime>
+#include <QDesktopServices>
 #include <QDragEnterEvent>
 #include <QHBoxLayout>
 #include <QInputDialog>
@@ -69,6 +71,7 @@
 #include <QSystemTrayIcon>
 #include <QTimer>
 #include <QToolBar>
+#include <QUrl>
 #include <QUrlQuery>
 #include <QVBoxLayout>
 #include <QWindow>
@@ -383,6 +386,11 @@ void BitcoinGUI::createActions()
     m_migrate_wallet_action->setStatusTip(tr("Migrate a wallet"));
     m_migrate_wallet_menu = new QMenu(this);
 
+    m_open_explorer_action = new QAction(tr("Open &block explorer"), this);
+    m_open_explorer_action->setStatusTip(tr("Show all blocks and transactions of this network in the browser"));
+    m_open_explorer_action->setVisible(!VelincoinServer::ExplorerUrl().isEmpty());
+    connect(m_open_explorer_action, &QAction::triggered, [] { QDesktopServices::openUrl(QUrl(VelincoinServer::ExplorerUrl())); });
+
     showHelpMessageAction = new QAction(tr("&Command-line options"), this);
     showHelpMessageAction->setMenuRole(QAction::NoRole);
     showHelpMessageAction->setStatusTip(tr("Show the %1 help message to get a list with possible Velincoin command-line options").arg(CLIENT_NAME));
@@ -639,6 +647,7 @@ void BitcoinGUI::createMenuBar()
     }
 
     QMenu *help = appMenuBar->addMenu(tr("&Help"));
+    help->addAction(m_open_explorer_action);
     help->addAction(showHelpMessageAction);
     help->addSeparator();
     help->addAction(aboutAction);

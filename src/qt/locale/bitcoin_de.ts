@@ -910,6 +910,14 @@ Das Signieren ist nur mit Adressen vom Typ 'Legacy' möglich.</translation>
         <source>Mine test VLC with this computer</source>
         <translation>Test-VLC mit diesem Computer minen</translation>
     </message>
+    <message>
+        <source>Open &amp;block explorer</source>
+        <translation>&amp;Block Explorer öffnen</translation>
+    </message>
+    <message>
+        <source>Show all blocks and transactions of this network in the browser</source>
+        <translation>Alle Blöcke und Transaktionen dieses Netzes im Browser anzeigen</translation>
+    </message>
 </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>

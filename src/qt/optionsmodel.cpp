@@ -9,6 +9,7 @@
 #include <qt/bitcoinunits.h>
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
+#include <qt/velincoinserver.h>
 
 #include <common/args.h>
 #include <interfaces/node.h>
@@ -198,8 +199,11 @@ bool OptionsModel::Init(bilingual_str& error)
         settings.setValue("DisplayBitcoinUnit", QVariant::fromValue(m_display_bitcoin_unit));
     }
 
-    if (!settings.contains("strThirdPartyTxUrls"))
-        settings.setValue("strThirdPartyTxUrls", "");
+    // Transactions open in the Velincoin server's live explorer by default
+    if (!settings.contains("strThirdPartyTxUrls")) {
+        const QString explorer{VelincoinServer::ExplorerUrl()};
+        settings.setValue("strThirdPartyTxUrls", explorer.isEmpty() ? QString() : explorer + QStringLiteral("tx/%s"));
+    }
     strThirdPartyTxUrls = settings.value("strThirdPartyTxUrls", "").toString();
 
     if (!settings.contains("fCoinControlFeatures"))
