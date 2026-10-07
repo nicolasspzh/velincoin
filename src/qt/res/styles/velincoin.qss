@@ -141,6 +141,8 @@ QLabel#labelTotalText, QLabel#labelBalanceText, QLabel#labelPendingText, QLabel#
     color: #8e8e98; font-size: 9.5pt; font-weight: 500;
 }
 QLabel#labelTotal { color: #ffffff; font-size: 30pt; font-weight: 600; }
+QLabel#labelTotalDemo { color: #9a9aa5; font-size: 10.5pt; }
+QLabel#labelBalanceDemo, QLabel#labelUnconfirmedDemo { color: #9a9aa5; font-size: 9pt; }
 QLabel#labelBalance, QLabel#labelUnconfirmed, QLabel#labelImmature { color: #f4f4f6; font-size: 11.5pt; font-weight: 600; }
 QLabel#label_4 { color: #ffffff; font-size: 11.5pt; font-weight: 600; }
 QLabel#labelNoTransactions { color: #6b6b75; padding: 28px 8px; }
