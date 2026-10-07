@@ -19,7 +19,7 @@ Es gibt drei Netze. Für den Anfang empfehle ich Regtest.
 | Netz | Start mit | Wofür |
 |---|---|---|
 | Regtest | `-regtest` | Üben auf dem eigenen Computer. Blöcke entstehen sofort, nur ihr seid im Netz. |
-| Testnetz | `-testnet4` | Ein echtes Netz mit mehreren Computern, aber ohne Wert. Minen geht schnell, etwa 15 Sekunden pro Block (siehe unten). |
+| Testnetz | `-testnet4` | Ein echtes Netz mit mehreren Computern, aber ohne Wert. Ein Block dauert etwa 1 bis 2 Minuten (siehe unten). |
 | Hauptnetz | (nichts) | Das echte Velincoin-Netz. Noch nicht öffentlich gestartet. |
 
 
@@ -117,18 +117,23 @@ build/bin/velincoin-cli -testnet4 generatetoaddress 1 <adresse> 2000000000
 Die grosse Zahl am Ende ist die maximale Anzahl Versuche. Ohne sie gibt der
 Befehl schon nach einer Million Versuchen auf, und das reicht fast nie.
 
-**Wie lange dauert das?** Bei der niedrigsten Schwierigkeit braucht ein Block im
-Durchschnitt etwa 17 Millionen Versuche. Der eingebaute Miner nutzt nur einen
-Prozessorkern. Bei einer Messung auf einem Server fand er 20 Blöcke in gut
-5 Minuten, also etwa **15 Sekunden pro Block**. Es ist Glückssache: Manchmal geht
-es schneller, manchmal länger. Auf eurem Computer kann es schneller oder
-langsamer sein.
+**Wie lange dauert das?** Das Testnetz ist auf einen Block alle 90 Sekunden
+eingestellt. Am Anfang braucht ein Block im Durchschnitt etwa 270 Millionen
+Versuche. Der eingebaute Miner nutzt nur einen Prozessorkern und braucht dafür
+etwa **1 bis 2 Minuten**. Es ist Glückssache: Manchmal geht es schneller,
+manchmal länger. Auf eurem Computer kann es schneller oder langsamer sein.
 
-Wichtig: Gemined Coins sind erst nach 100 weiteren Blöcken ausgebbar. Mined also
-zum Beispiel 110 Blöcke, dann sind die ersten 10 Belohnungen (500 VLC) frei.
+Hat 3 Minuten lang niemand einen Block gefunden, darf der nächste Block mit
+der niedrigsten Schwierigkeit gemined werden. Der erste Block nach einer Pause
+geht deshalb meist in wenigen Sekunden.
 
-Wenn viele Blöcke schnell hintereinander kommen, steigt die Schwierigkeit alle
-2016 Blöcke automatisch an.
+Wichtig: Geminte Coins sind erst nach 100 weiteren Blöcken ausgebbar. Mined also
+zum Beispiel 110 Blöcke, dann sind die ersten 10 Belohnungen (500 VLC) frei. Mit
+einem Prozessorkern dauert das etwa zwei bis drei Stunden.
+
+Die Schwierigkeit passt sich alle 2016 Blöcke automatisch an: Kommen die Blöcke
+schneller als alle 90 Sekunden, wird es schwieriger, kommen sie langsamer,
+wird es leichter.
 
 ### Grafische Wallet
 

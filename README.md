@@ -75,19 +75,31 @@ Platz von `testnet4` aus Bitcoin Core und wird mit `-testnet4` gestartet
 | P2P-Port / RPC-Port | 29733 / 29732 |
 | Klassische Adressen / Script-Adressen | `t...` / `u...` |
 | SegWit-Adressen | `tvlc1...` |
-| Genesis-Block | `000000f91b6f17b7699c5018fa8fc70e2dc8e966629f5974066b22d51cf9c354` |
+| Genesis-Block | `000000075657e9777f2b51a6e28cbb0accf71ea826173207ab369d344859b903` |
 | Genesis-Nachricht | `velincoin.com 05/Oct/2026 Velincoin Testnet` |
 
-Die niedrigste Schwierigkeit ist im Testnetz 256-mal tiefer als im Hauptnetz.
-Ein normaler Computer findet einen Block deshalb in Sekunden statt in vielen
-Minuten. Sonst gelten die Regeln von Bitcoin-Testnet4: Wenn 20 Minuten lang
-kein Block gefunden wird, darf der nächste Block mit der niedrigsten
-Schwierigkeit gemined werden.
+Im Testnetz kommt im Durchschnitt alle **90 Sekunden** ein Block (im Hauptnetz
+alle 10 Minuten). Der erste Block startet mit einer Schwierigkeit, bei der ein
+Prozessorkern etwa **1 bis 2 Minuten** pro Block braucht. Danach passt sich die
+Schwierigkeit wie bei Bitcoin alle 2016 Blöcke an, mit 90 Sekunden als Ziel.
+Die niedrigste erlaubte Schwierigkeit ist 256-mal tiefer als im Hauptnetz: Wenn
+3 Minuten lang (2 × 90 Sekunden) kein Block gefunden wird, darf der nächste
+Block mit dieser niedrigsten Schwierigkeit gemined werden. So bleibt das
+Testnetz nie lange stehen.
 
-Am 6. Oktober 2026 wurde das Testnetz mit dieser tieferen Schwierigkeit neu
-gestartet. Alte Testnetz-Blöcke sind ungültig. Wer schon Testnetz-Daten hat,
-löscht im Testnetz-Datenordner die Ordner `blocks` und `chainstate`. Der Ordner
-`wallets` kann bleiben.
+| Einstellung | Wert im Testnetz |
+|---|---|
+| Ziel-Blockzeit | 90 Sekunden (`nPowTargetSpacing`) |
+| Anpassung der Schwierigkeit | alle 2016 Blöcke (etwa 2.1 Tage) |
+| Schwierigkeit des Genesis-Blocks | `0x1d0ffff0` (16-mal die niedrigste) |
+| Niedrigste Schwierigkeit | `0x1e00ffff` (`powLimit`), nach 3 Minuten ohne Block |
+
+Neustarts des Testnetzes: am 6. Oktober 2026 mit der tieferen Schwierigkeit und
+am 7. Oktober 2026 mit 90 Sekunden Blockzeit. Alte Testnetz-Blöcke sind jeweils
+ungültig. Wer schon Testnetz-Daten hat, löscht im Testnetz-Datenordner die
+Ordner `blocks` und `chainstate`. Der Ordner `wallets` kann bleiben; Test-Coins
+aus dem alten Testnetz sind aber weg. Der Block Explorer muss nach einem
+Neustart neu exportiert werden.
 
 `-testnet` (Testnet3) und `-signet` sind weiterhin die Netze von Bitcoin. Ihre
 Bitcoin-Seed-Server sind entfernt, damit sich ein Velincoin-Node nie von selbst

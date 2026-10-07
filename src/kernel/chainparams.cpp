@@ -311,11 +311,16 @@ public:
         consensus.CSVHeight = 1;
         consensus.SegwitHeight = 1;
         consensus.MinBIP9WarningHeight = 0;
-        // Velincoin: the lowest difficulty is 256 times lower than on the main
-        // network, so that a normal computer finds a test block in seconds.
+        // Velincoin: test blocks come every 90 seconds instead of every 10
+        // minutes. The genesis block starts at 16 times the lowest difficulty,
+        // about 1 to 2 minutes per block on one processor core. The lowest
+        // difficulty stays 256 times lower than on the main network: when no
+        // block was found for 2 * 90 seconds, the next block may use it
+        // (fPowAllowMinDifficultyBlocks). The difficulty is adjusted every
+        // 2016 blocks (2016 * 90 seconds = 2.1 days), as before.
         consensus.powLimit = uint256{"000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
-        consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
-        consensus.nPowTargetSpacing = 10 * 60;
+        consensus.nPowTargetSpacing = 90;
+        consensus.nPowTargetTimespan = 2016 * consensus.nPowTargetSpacing;
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.enforce_BIP94 = true;
         consensus.fPowNoRetargeting = false;
@@ -353,12 +358,12 @@ public:
         genesis = CreateGenesisBlock(testnet4_genesis_msg,
                 testnet4_genesis_script,
                 1791201250,
-                47970045,
-                0x1e00ffff,
+                538747823,
+                0x1d0ffff0,
                 1,
                 50 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256{"000000f91b6f17b7699c5018fa8fc70e2dc8e966629f5974066b22d51cf9c354"});
+        assert(consensus.hashGenesisBlock == uint256{"000000075657e9777f2b51a6e28cbb0accf71ea826173207ab369d344859b903"});
         assert(genesis.hashMerkleRoot == uint256{"c82407bd2296a5651dac226c8a1b7122b015b20570c3e145237a238b89df8bc2"});
 
         // No seed nodes yet. Add DNS seeds (for example "testnet-seed.velincoin.com.")
