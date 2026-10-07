@@ -163,6 +163,22 @@ Beenden mit Ctrl+C. `py explorer_sync.py --once` aktualisiert nur einmal.
   Stand werden im Browser aus `search-index.js` berechnet.
 - Getestet mit `test_explorer_sync.py` gegen eine nachgebaute GitHub-API.
 
+### Auf dem Seed-Server
+
+Statt auf einem eigenen Computer kann `explorer_sync.py` auf dem Seed-Server
+laufen. Dann zeigt die Website die Kette des Servers, mit dem alle Wallets
+verbunden sind, und sie bleibt aktuell, auch wenn kein eigener Computer läuft.
+Nachdem `contrib/velincoin/setup-seed-node.sh` gelaufen ist, als root:
+
+```
+bash setup-explorer-sync.sh
+```
+
+Das Skript fragt einmal nach dem GitHub-Token, speichert ihn in
+`/etc/velincoin/github-token.txt` und startet den Dienst
+`velincoin-explorer-sync`. Meldungen: `journalctl -u velincoin-explorer-sync -f`.
+Läuft der Sync auf dem Server, auf dem eigenen Computer nicht mehr starten.
+
 
 JSON-API
 --------
