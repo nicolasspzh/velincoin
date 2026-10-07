@@ -22,6 +22,7 @@ namespace Ui {
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;
+class QPushButton;
 QT_END_NAMESPACE
 
 /** Overview ("home") page widget */
@@ -56,6 +57,8 @@ private:
     ClientModel* clientModel{nullptr};
     WalletModel* walletModel{nullptr};
     bool m_privacy{false};
+    QPushButton* m_sync_button{nullptr};
+    bool m_sync_requested{false};
 
     const PlatformStyle* m_platform_style;
 
@@ -63,6 +66,8 @@ private:
     std::unique_ptr<TransactionFilterProxy> filter;
 
 private Q_SLOTS:
+    void syncClicked();
+    void updateSyncButton();
     void LimitTransactionRows();
     void updateIcons();
     void updateDisplayUnit();

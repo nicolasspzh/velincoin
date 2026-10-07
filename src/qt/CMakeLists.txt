@@ -127,6 +127,8 @@ add_library(bitcoinqt STATIC EXCLUDE_FROM_ALL
   trafficgraphwidget.h
   utilitydialog.cpp
   utilitydialog.h
+  velincoinserver.cpp
+  velincoinserver.h
   velincointheme.cpp
   velincointheme.h
   $<$<PLATFORM_ID:Windows>:winshutdownmonitor.cpp>

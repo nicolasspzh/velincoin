@@ -15,6 +15,7 @@
 #include <qt/transactionfilterproxy.h>
 #include <qt/transactionoverviewwidget.h>
 #include <qt/transactiontablemodel.h>
+#include <qt/velincoinserver.h>
 #include <qt/velincointheme.h>
 #include <qt/walletmodel.h>
 
@@ -24,6 +25,7 @@
 #include <QImage>
 #include <QPainter>
 #include <QPixmap>
+#include <QPushButton>
 #include <QStatusTipEvent>
 
 #include <algorithm>
@@ -186,6 +188,14 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     connect(ui->receiveButton, &QPushButton::clicked, this, &OverviewPage::receiveCoinsClicked);
     connect(ui->showAllButton, &QPushButton::clicked, this, &OverviewPage::showHistoryClicked);
 
+    // Sync button: connect to the Velincoin server now, the node then fetches new blocks by itself
+    m_sync_button = new QPushButton(tr("Sync"), this);
+    m_sync_button->setObjectName(QStringLiteral("syncButton"));
+    m_sync_button->setCursor(Qt::PointingHandCursor);
+    m_sync_button->setToolTip(tr("Connect to the Velincoin server now and fetch new blocks."));
+    ui->headerLayout->addWidget(m_sync_button);
+    connect(m_sync_button, &QPushButton::clicked, this, &OverviewPage::syncClicked);
+
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
     connect(ui->labelWalletStatus, &QPushButton::clicked, this, &OverviewPage::outOfSyncWarningClicked);
@@ -254,10 +264,43 @@ void OverviewPage::setBalance(const interfaces::WalletBalances& balances)
     ui->labelUnconfirmedDemo->setVisible(show_demo);
 }
 
+void OverviewPage::syncClicked()
+{
+    if (!clientModel) return;
+    QString error;
+    if (!VelincoinServer::ConnectNow(clientModel->node(), error)) {
+        m_sync_button->setToolTip(tr("Could not connect: %1").arg(error));
+    }
+    m_sync_requested = true;
+    updateSyncButton();
+}
+
+void OverviewPage::updateSyncButton()
+{
+    if (!clientModel || !m_sync_button) return;
+    const int connections{clientModel->getNumConnections()};
+    const int height{clientModel->getNumBlocks()};
+    const int headers{clientModel->getHeaderTipHeight()};
+    if (m_sync_requested && connections == 0) {
+        m_sync_button->setText(tr("Connecting…"));
+    } else if (connections > 0 && headers > height) {
+        m_sync_button->setText(tr("Loading blocks… %1 of %2").arg(height).arg(headers));
+    } else if (m_sync_requested && connections > 0) {
+        m_sync_button->setText(tr("Up to date · block %1").arg(height));
+    } else {
+        m_sync_button->setText(tr("Sync"));
+    }
+    m_sync_button->setToolTip(tr("Connect to the Velincoin server now and fetch new blocks.") + QStringLiteral("\n") +
+                              tr("%n connection(s), block %1", "", connections).arg(height));
+}
+
 void OverviewPage::setClientModel(ClientModel *model)
 {
     this->clientModel = model;
     if (model) {
+        connect(model, &ClientModel::numConnectionsChanged, this, &OverviewPage::updateSyncButton);
+        connect(model, &ClientModel::numBlocksChanged, this, &OverviewPage::updateSyncButton);
+        updateSyncButton();
         // Show warning, for example if this is a prerelease version
         connect(model, &ClientModel::alertsChanged, this, &OverviewPage::updateAlerts);
         updateAlerts(model->getStatusBarWarnings());

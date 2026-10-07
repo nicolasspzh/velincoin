@@ -1949,6 +1949,37 @@ Der Migrationsprozess erstellt vor der Migration ein Backup der Wallet. Diese Si
         <source>No transactions yet. Payments you send or receive will show up here.</source>
         <translation>Noch keine Transaktionen. Gesendete und empfangene Zahlungen erscheinen hier.</translation>
     </message>
+    <message>
+        <source>Sync</source>
+        <translation>Synchronisieren</translation>
+    </message>
+    <message>
+        <source>Connect to the Velincoin server now and fetch new blocks.</source>
+        <translation>Jetzt mit dem Velincoin-Server verbinden und neue Blöcke laden.</translation>
+    </message>
+    <message>
+        <source>Could not connect: %1</source>
+        <translation>Verbindung nicht möglich: %1</translation>
+    </message>
+    <message>
+        <source>Connecting…</source>
+        <translation>Verbinde…</translation>
+    </message>
+    <message>
+        <source>Loading blocks… %1 of %2</source>
+        <translation>Lade Blöcke… %1 von %2</translation>
+    </message>
+    <message>
+        <source>Up to date · block %1</source>
+        <translation>Aktuell · Block %1</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n connection(s), block %1</source>
+        <translation>
+            <numerusform>%n Verbindung, Block %1</numerusform>
+            <numerusform>%n Verbindungen, Block %1</numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>PSBTOperationsDialog</name>
