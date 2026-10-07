@@ -1871,6 +1871,22 @@ Der Migrationsprozess erstellt vor der Migration ein Backup der Wallet. Diese Si
         <source>Fixed value, not a market price. VLC is not traded anywhere yet.</source>
         <translation>Fester Wert, kein Marktpreis. VLC wird noch nirgends gehandelt.</translation>
     </message>
+    <message>
+        <source>&amp;Appearance:</source>
+        <translation>&amp;Darstellung:</translation>
+    </message>
+    <message>
+        <source>Dark or light colors for all networks. This setting will take effect after restarting %1.</source>
+        <translation>Dunkle oder helle Farben, für alle Netze. Diese Einstellung wird nach einem Neustart von %1 wirksam.</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Dunkel</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <translation>Hell</translation>
+    </message>
 </context>
 <context>
     <name>OptionsModel</name>

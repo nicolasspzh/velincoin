@@ -2,6 +2,8 @@
     <qresource prefix="/icons">
         <file alias="chevron_down">res/icons/chevron_down.png</file>
         <file alias="chevron_up">res/icons/chevron_up.png</file>
+        <file alias="chevron_down_on_light">res/icons/chevron_down_on_light.png</file>
+        <file alias="chevron_up_on_light">res/icons/chevron_up_on_light.png</file>
         <file alias="check">res/icons/check.png</file>
         <file alias="bitcoin">res/icons/bitcoin.png</file>
         <file alias="address-book">res/icons/address-book.png</file>

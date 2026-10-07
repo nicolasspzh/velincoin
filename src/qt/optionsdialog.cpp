@@ -155,6 +155,10 @@ OptionsDialog::OptionsDialog(QWidget* parent, bool enableWallet)
     ui->openBitcoinConfButton->setToolTip(ui->openBitcoinConfButton->toolTip().arg(CLIENT_NAME));
 
     ui->lang->setToolTip(ui->lang->toolTip().arg(CLIENT_NAME));
+    ui->theme->setToolTip(ui->theme->toolTip().arg(CLIENT_NAME));
+    ui->theme->addItem(tr("Dark"), QStringLiteral("dark"));
+    ui->theme->addItem(tr("Light"), QStringLiteral("light"));
+    ui->theme->setCurrentIndex(VelincoinTheme::StoredMode() == VelincoinTheme::Mode::LIGHT ? 1 : 0);
     ui->lang->addItem(QString("(") + tr("default") + QString(")"), QVariant(""));
     for (const QString &langStr : translations.entryList())
     {
@@ -263,6 +267,7 @@ void OptionsDialog::setModel(OptionsModel *_model)
     connect(ui->connectSocksTor, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     /* Display */
     connect(ui->lang, qOverload<>(&QValueComboBox::valueChanged), [this]{ showRestartWarning(); });
+    connect(ui->theme, qOverload<int>(&QComboBox::currentIndexChanged), [this]{ showRestartWarning(); });
     connect(ui->thirdPartyTxUrls, &QLineEdit::textChanged, [this]{ showRestartWarning(); });
 }
 
@@ -383,6 +388,8 @@ void OptionsDialog::on_okButton_clicked()
     model->setData(model->index(OptionsModel::FontForMoney, 0), ui->moneyFont->itemData(ui->moneyFont->currentIndex()));
 
     mapper->submit();
+    // The theme is not a node option: it is the same for all networks, see VelincoinTheme
+    VelincoinTheme::SetStoredMode(ui->theme->currentData().toString() == QLatin1String("light") ? VelincoinTheme::Mode::LIGHT : VelincoinTheme::Mode::DARK);
     accept();
     updateDefaultProxyNets();
 }
