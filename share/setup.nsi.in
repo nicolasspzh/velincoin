@@ -46,6 +46,7 @@ Var StartMenuGroup
 
 # Installer pages
 !insertmacro MUI_PAGE_WELCOME
+!insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_STARTMENU Application $StartMenuGroup
 !insertmacro MUI_PAGE_INSTFILES
@@ -60,6 +61,10 @@ Var StartMenuGroup
 
 LangString MSG_NOT_64BIT ${LANG_ENGLISH} "Cannot install 64-bit version on a 32-bit system."
 LangString MSG_NOT_64BIT ${LANG_GERMAN} "Die 64-Bit-Version lässt sich nicht auf einem 32-Bit-System installieren."
+LangString SEC_DESKTOP_NAME ${LANG_ENGLISH} "Desktop shortcut"
+LangString SEC_DESKTOP_NAME ${LANG_GERMAN} "Desktop-Verknüpfung"
+LangString SEC_DESKTOP_DESC ${LANG_ENGLISH} "Puts a shortcut to $(^Name) on the desktop."
+LangString SEC_DESKTOP_DESC ${LANG_GERMAN} "Legt eine Verknüpfung zu $(^Name) auf den Desktop."
 
 # Installer attributes
 InstallDir $PROGRAMFILES64\Velincoin
@@ -98,6 +103,16 @@ Section -Main SEC0000
     SetOutPath $INSTDIR
     WriteRegStr HKCU "${REGKEY}\Components" Main 1
 SectionEnd
+
+# Velincoin: optional desktop shortcut, ticked by default
+Section "$(SEC_DESKTOP_NAME)" SEC_DESKTOP
+    CreateShortcut "$DESKTOP\$(^Name).lnk" $INSTDIR\@BITCOIN_GUI_NAME@@EXEEXT@
+    WriteRegStr HKCU "${REGKEY}\Components" Desktop 1
+SectionEnd
+
+!insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+    !insertmacro MUI_DESCRIPTION_TEXT ${SEC_DESKTOP} $(SEC_DESKTOP_DESC)
+!insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 Section -post SEC0001
     WriteRegStr HKCU "${REGKEY}" Path $INSTDIR
@@ -171,6 +186,8 @@ Section -un.post UNSEC0001
     Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\@CLIENT_NAME@ (testnet4).lnk"
     Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\@CLIENT_NAME@ (test signet).lnk"
     Delete /REBOOTOK "$SMSTARTUP\Velincoin.lnk"
+    Delete /REBOOTOK "$DESKTOP\$(^Name).lnk"
+    DeleteRegValue HKCU "${REGKEY}\Components" Desktop
     Delete /REBOOTOK $INSTDIR\uninstall.exe
     Delete /REBOOTOK $INSTDIR\debug.log
     Delete /REBOOTOK $INSTDIR\db.log
