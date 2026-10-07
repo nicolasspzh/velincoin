@@ -787,6 +787,16 @@
         </layout>
        </item>
        <item>
+        <widget class="QCheckBox" name="showDemoValue">
+         <property name="toolTip">
+          <string>Fixed demo value, not a market price. VLC is not traded anywhere yet.</string>
+         </property>
+         <property name="text">
+          <string>Show demo value in CHF</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer_Display">
          <property name="orientation">
           <enum>Qt::Vertical</enum>

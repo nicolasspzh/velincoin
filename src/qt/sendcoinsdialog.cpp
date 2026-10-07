@@ -11,6 +11,7 @@
 #include <qt/bitcoinunits.h>
 #include <qt/clientmodel.h>
 #include <qt/coincontroldialog.h>
+#include <qt/demovalue.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
 #include <qt/platformstyle.h>
@@ -298,11 +299,16 @@ bool SendCoinsDialog::PrepareSendText(QString& question_string, QString& informa
     }
 
     CAmount txFee = m_current_transaction->getTransactionFee();
+    // Fixed demo value in CHF next to the amounts, if switched on in the options
+    const bool show_demo{model->getOptionsModel()->getShowDemoValue()};
+    auto demo_html = [&](CAmount amount) {
+        return show_demo ? QStringLiteral(" (%1)").arg(GUIUtil::HtmlEscape(DemoValue::Label(amount))) : QString();
+    };
     QStringList formatted;
     for (const SendCoinsRecipient &rcp : m_current_transaction->getRecipients())
     {
         // generate amount string with wallet name in case of multiwallet
-        QString amount = BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), rcp.amount);
+        QString amount = BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), rcp.amount) + demo_html(rcp.amount);
         if (model->isMultiwallet()) {
             amount = tr("%1 from wallet '%2'").arg(amount, GUIUtil::HtmlEscape(model->getWalletName()));
         }
@@ -360,7 +366,9 @@ bool SendCoinsDialog::PrepareSendText(QString& question_string, QString& informa
         // append transaction fee value
         question_string.append("<span style='color:#aa0000; font-weight:bold;'>");
         question_string.append(BitcoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), txFee));
-        question_string.append("</span><br />");
+        question_string.append("</span>");
+        question_string.append(demo_html(txFee));
+        question_string.append("<br />");
 
         // append RBF message according to transaction's signalling
         question_string.append("<span style='font-size:10pt; font-weight:normal;'>");
@@ -380,8 +388,9 @@ bool SendCoinsDialog::PrepareSendText(QString& question_string, QString& informa
         if(u != model->getOptionsModel()->getDisplayUnit())
             alternativeUnits.append(BitcoinUnits::formatHtmlWithUnit(u, totalAmount));
     }
-    question_string.append(QString("<b>%1</b>: <b>%2</b>").arg(tr("Total Amount"))
-        .arg(BitcoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), totalAmount)));
+    question_string.append(QString("<b>%1</b>: <b>%2</b>%3").arg(tr("Total Amount"))
+        .arg(BitcoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), totalAmount))
+        .arg(demo_html(totalAmount)));
     question_string.append(QString("<br /><span style='font-size:10pt; font-weight:normal;'>(=%1)</span>")
         .arg(alternativeUnits.join(" " + tr("or") + " ")));
 

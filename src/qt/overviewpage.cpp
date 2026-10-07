@@ -7,6 +7,7 @@
 
 #include <qt/bitcoinunits.h>
 #include <qt/clientmodel.h>
+#include <qt/demovalue.h>
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
@@ -175,6 +176,11 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
     ui->listTransactions->setCursor(Qt::PointingHandCursor);
 
+    // The CHF value is a fixed demo rate, not a price; the tooltip says so
+    for (QLabel* label : {ui->labelTotalDemo, ui->labelBalanceDemo, ui->labelUnconfirmedDemo}) {
+        label->setToolTip(DemoValue::ToolTip());
+    }
+
     connect(ui->listTransactions, &TransactionOverviewWidget::clicked, this, &OverviewPage::handleTransactionClicked);
     connect(ui->sendButton, &QPushButton::clicked, this, &OverviewPage::sendCoinsClicked);
     connect(ui->receiveButton, &QPushButton::clicked, this, &OverviewPage::receiveCoinsClicked);
@@ -237,6 +243,15 @@ void OverviewPage::setBalance(const interfaces::WalletBalances& balances)
 
     ui->labelImmature->setVisible(showImmature);
     ui->labelImmatureText->setVisible(showImmature);
+
+    // Demo value in CHF, hidden together with the amounts when values are masked
+    const bool show_demo{walletModel->getOptionsModel()->getShowDemoValue() && !m_privacy};
+    ui->labelTotalDemo->setText(DemoValue::Label(balances.balance + balances.unconfirmed_balance + balances.immature_balance));
+    ui->labelBalanceDemo->setText(DemoValue::Label(balances.balance));
+    ui->labelUnconfirmedDemo->setText(DemoValue::Label(balances.unconfirmed_balance));
+    ui->labelTotalDemo->setVisible(show_demo);
+    ui->labelBalanceDemo->setVisible(show_demo);
+    ui->labelUnconfirmedDemo->setVisible(show_demo);
 }
 
 void OverviewPage::setClientModel(ClientModel *model)
@@ -277,6 +292,7 @@ void OverviewPage::setWalletModel(WalletModel *model)
         connect(model, &WalletModel::balanceChanged, this, &OverviewPage::setBalance);
 
         connect(model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &OverviewPage::updateDisplayUnit);
+        connect(model->getOptionsModel(), &OptionsModel::showDemoValueChanged, this, &OverviewPage::updateDisplayUnit);
     }
 
     // update the display unit, to not use the default ("BTC")

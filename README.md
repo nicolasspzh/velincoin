@@ -128,6 +128,13 @@ Was noch nicht angepasst ist
   Qt-Stil „Fusion“, damit sie unter Windows, macOS und Linux gleich aussieht.
   Getestet unter Linux (Bildschirmfotos, automatische GUI-Tests), unter Windows noch
   nicht von Hand angeschaut.
+- **Demo-Wert in CHF:** Die Übersicht und der Bestätigungsdialog beim Senden
+  zeigen neben den VLC-Beträgen einen Wert in Franken, zum Beispiel
+  „≈ 0.050 CHF · Demo-Wert“. Das ist ein **fester Demo-Wert** (1 VLC = 0.001 CHF)
+  und **kein Preis**: VLC wird nirgends gehandelt und hat keinen Marktwert. Der
+  Kurs steht an einer einzigen Stelle im Code (`MILLI_CHF_PER_COIN` in
+  `src/qt/demovalue.h`), gerechnet wird mit ganzen Zahlen. Ausschalten unter
+  *Einstellungen → Optionen → Anzeige → Demo-Wert in CHF anzeigen*.
 - **Anleitungen und Hilfsskripte** in `doc/` und `contrib/` stammen von Bitcoin Core
   und nennen oft noch `bitcoind` usw. Angepasst sind die Dienst-Vorlagen in
   `contrib/init/` (zum Beispiel `velincoind.service` für systemd) und die

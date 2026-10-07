@@ -9,6 +9,7 @@
 #include <qt/bitcoin.h>
 #include <qt/guiconstants.h>
 #include <qt/test/apptests.h>
+#include <qt/test/demovaluetests.h>
 #include <qt/test/optiontests.h>
 #include <qt/test/rpcnestedtests.h>
 #include <qt/test/uritests.h>
@@ -86,6 +87,9 @@ int main(int argc, char* argv[])
 
         URITests test1;
         num_test_failures += QTest::qExec(&test1);
+
+        DemoValueTests demo_value_tests;
+        num_test_failures += QTest::qExec(&demo_value_tests);
 
         RPCNestedTests test3(app.node());
         num_test_failures += QTest::qExec(&test3);
