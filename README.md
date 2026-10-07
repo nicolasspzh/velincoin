@@ -143,7 +143,8 @@ Was noch nicht angepasst ist
   (SVG). Die alte Datei `src/qt/res/src/bitcoin.svg` wird beim Kompilieren nicht
   verwendet. Noch nicht angepasst: der Name des macOS-Programmpakets.
 - **Übersetzungen:** Deutsch ist vollständig, in Schweizer Rechtschreibung (ss statt
-  ß). Französisch und Italienisch sind auf dem Stand des Codes (Bitcoin → Velincoin,
+  ß). Die Texte von Bitcoin Core sprechen die Benutzer mit «Sie» an (rund 80), die
+  neuen Velincoin-Texte mit «du». Das ist noch nicht vereinheitlicht. Französisch und Italienisch sind auf dem Stand des Codes (Bitcoin → Velincoin,
   BTC → VLC), die neuen Velincoin-Texte darin sind aber maschinell übersetzt und
   noch nicht von jemandem mit dieser Muttersprache geprüft (in den `.ts`-Dateien als
   «unfinished» markiert). Die übrigen rund 95 Sprachen stammen von Bitcoin Core,
