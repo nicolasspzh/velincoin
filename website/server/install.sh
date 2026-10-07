@@ -97,8 +97,8 @@ Velincoin läuft jetzt auf diesem Server und startet nach einem Neustart von sel
 
 Nützliche Befehle:
   systemctl status velincoind-test        Läuft der Testnetz-Node?
-  sudo -u velincoin velincoin-cli -datadir=$DATADIR -testnet4 getblockcount
-  sudo -u velincoin velincoin-cli -datadir=$DATADIR getconnectioncount
+  runuser -u velincoin -- velincoin-cli -datadir=$DATADIR -testnet4 getblockcount
+  runuser -u velincoin -- velincoin-cli -datadir=$DATADIR getconnectioncount
   journalctl -u velincoin-explorer-test   Meldungen des Explorers
 
 Erneut ausführen aktualisiert die Programme, die Blockchain bleibt erhalten.

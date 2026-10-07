@@ -80,7 +80,14 @@ wieder läuft:
 | Velincoin Testnetz | 29733 | Wallets im Testnetz verbinden sich hierher |
 | Block Explorer | 80 | Webseite mit allen Blöcken, live |
 
-Nach dem Anmelden (Schritt 2) diesen Befehl kopieren, im Terminal mit
+Auf einem Minimal-System (zum Beispiel «debian 13 minimal» bei Netcup) zuerst
+`curl` installieren:
+
+```
+apt-get update && apt-get install -y curl ca-certificates
+```
+
+Dann diesen Befehl kopieren, im Terminal mit
 Rechtsklick einfügen und Enter drücken. Es ist eine einzige Zeile:
 
 ```
@@ -102,7 +109,7 @@ Prüfen, ob alles läuft:
 
 ```
 systemctl status velincoind-test velincoind-main
-sudo -u velincoin velincoin-cli -datadir=/var/lib/velincoin -testnet4 getblockcount
+runuser -u velincoin -- velincoin-cli -datadir=/var/lib/velincoin -testnet4 getblockcount
 ```
 
 Im Browser zeigt `http://IP-ADRESSE/` den Explorer des Testnetzes und
