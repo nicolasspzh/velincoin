@@ -4767,6 +4767,18 @@ Note&#xa0;: Les frais étant calculés par octet, un taux de frais de « 100 sat
         <source>(no label)</source>
         <translation type="unfinished">(aucune étiquette)</translation>
     </message>
+    <message>
+        <source>A normal transfer costs about %1 with this fee.</source>
+        <translation type="unfinished">Avec ces frais, un virement normal coûte environ %1.</translation>
+    </message>
+    <message>
+        <source>The network has too few transfers for an estimate yet, so the wallet pays the lowest fee.</source>
+        <translation type="unfinished">Le réseau a encore trop peu de virements pour une estimation, le portefeuille paie donc les frais les plus bas.</translation>
+    </message>
+    <message>
+        <source>The fee goes to the miner who adds your transfer to a block, not to Velincoin. It depends on the size of the transfer in bytes, not on the amount. As long as blocks are not full, the lowest fee is enough. You see the exact fee before sending.</source>
+        <translation type="unfinished">Les frais vont au mineur qui ajoute votre virement à un bloc, pas à Velincoin. Ils dépendent de la taille du virement en octets, pas du montant. Tant que les blocs ne sont pas pleins, les frais les plus bas suffisent. Vous voyez les frais exacts avant l’envoi.</translation>
+    </message>
 </context>
 <context>
     <name>SendCoinsEntry</name>

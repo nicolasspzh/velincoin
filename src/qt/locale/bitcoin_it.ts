@@ -4770,6 +4770,18 @@ Nota: poiché la commissione è calcolata su base per byte, una commissione di &
         <source>(no label)</source>
         <translation type="unfinished">(nessuna etichetta)</translation>
     </message>
+    <message>
+        <source>A normal transfer costs about %1 with this fee.</source>
+        <translation type="unfinished">Con questa commissione un normale trasferimento costa circa %1.</translation>
+    </message>
+    <message>
+        <source>The network has too few transfers for an estimate yet, so the wallet pays the lowest fee.</source>
+        <translation type="unfinished">La rete ha ancora troppo pochi trasferimenti per una stima, quindi il portafoglio paga la commissione più bassa.</translation>
+    </message>
+    <message>
+        <source>The fee goes to the miner who adds your transfer to a block, not to Velincoin. It depends on the size of the transfer in bytes, not on the amount. As long as blocks are not full, the lowest fee is enough. You see the exact fee before sending.</source>
+        <translation type="unfinished">La commissione va al miner che aggiunge il tuo trasferimento a un blocco, non a Velincoin. Dipende dalla dimensione del trasferimento in byte, non dall’importo. Finché i blocchi non sono pieni, basta la commissione più bassa. Vedi la commissione esatta prima dell’invio.</translation>
+    </message>
 </context>
 <context>
     <name>SendCoinsEntry</name>

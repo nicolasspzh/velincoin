@@ -4295,7 +4295,7 @@ For more information on using this console, type %6.
     <name>SendCoinsDialog</name>
     <message>
         <location filename="../forms/sendcoinsdialog.ui" line="+14"/>
-        <location filename="../sendcoinsdialog.cpp" line="+769"/>
+        <location filename="../sendcoinsdialog.cpp" line="+780"/>
         <source>Send Coins</source>
         <translation>Send Coins</translation>
     </message>
@@ -4477,7 +4477,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of &quot;100 
         <translation>S&amp;end</translation>
     </message>
     <message>
-        <location filename="../sendcoinsdialog.cpp" line="-668"/>
+        <location filename="../sendcoinsdialog.cpp" line="-678"/>
         <source>Copy quantity</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4507,12 +4507,12 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of &quot;100 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+70"/>
+        <location line="+76"/>
         <source>%1 (%2 blocks)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+34"/>
         <source>Sign on device</source>
         <extracomment>&quot;device&quot; usually means a hardware wallet.</extracomment>
         <translation type="unfinished"></translation>
@@ -4712,7 +4712,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of &quot;100 
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location line="+14"/>
+        <location line="+18"/>
         <source>Estimated to begin confirmation within %n block(s).</source>
         <translation>
             <numerusform>Estimated to begin confirmation within %n block.</numerusform>
@@ -4720,7 +4720,22 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of &quot;100 
         </translation>
     </message>
     <message>
-        <location line="+99"/>
+        <location line="+22"/>
+        <source>A normal transfer costs about %1 with this fee.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>The network has too few transfers for an estimate yet, so the wallet pays the lowest fee.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>The fee goes to the miner who adds your transfer to a block, not to Velincoin. It depends on the size of the transfer in bytes, not on the amount. As long as blocks are not full, the lowest fee is enough. You see the exact fee before sending.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+98"/>
         <source>Warning: Invalid Velincoin address</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4832,7 +4847,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of &quot;100 
 <context>
     <name>SendConfirmationDialog</name>
     <message>
-        <location filename="../sendcoinsdialog.h" line="+151"/>
+        <location filename="../sendcoinsdialog.h" line="+160"/>
         <source>Send</source>
         <translation type="unfinished"></translation>
     </message>

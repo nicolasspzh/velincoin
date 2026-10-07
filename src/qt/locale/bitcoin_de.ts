@@ -4386,12 +4386,12 @@ Für weitere Informationen über diese Konsole, tippe %6.
     <message>
         <location line="+38"/>
         <source>Using the fallbackfee can result in sending a transaction that will take several hours or days (or never) to confirm. Consider choosing your fee manually or wait until you have validated the complete chain.</source>
-        <translation type="unfinished">Die Verwendung der &quot;fallbackfee&quot; kann dazu führen, dass eine gesendete Transaktion erst nach mehreren Stunden oder Tagen (oder nie) bestätigt wird. Erwägen Sie, Ihre Gebühr manuell auszuwählen oder warten Sie, bis Sie die gesamte Chain validiert haben.</translation>
+        <translation>Mit der Ersatzgebühr (-fallbackfee) kann es Stunden oder Tage dauern (oder nie geschehen), bis die Überweisung bestätigt wird. Wähle die Gebühr besser selbst oder warte, bis die ganze Blockchain geprüft ist.</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Warning: Fee estimation is currently not possible.</source>
-        <translation type="unfinished">Achtung: Berechnung der Gebühr ist momentan nicht möglich.</translation>
+        <translation>Achtung: Die Gebühr lässt sich im Moment nicht schätzen.</translation>
     </message>
     <message>
         <location line="+82"/>
@@ -4406,12 +4406,12 @@ Für weitere Informationen über diese Konsole, tippe %6.
     <message>
         <location line="+83"/>
         <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for velincoin transactions than the network can process.</source>
-        <translation type="unfinished">Nur die minimale Gebühr zu bezahlen ist so lange in Ordnung, wie weniger Transaktionsvolumen als Platz in den Blöcken vorhanden ist. Aber Vorsicht, diese Option kann dazu führen, dass Transaktionen nicht bestätigt werden, wenn mehr Bedarf an Velincoin-Transaktionen besteht als das Netzwerk verarbeiten kann.</translation>
+        <translation>Solange die Blöcke mehr Platz haben, als Überweisungen da sind, reicht die kleinste Gebühr. Wollen aber einmal mehr Leute überweisen, als das Netz verarbeiten kann, wird eine Überweisung mit der kleinsten Gebühr vielleicht nie bestätigt.</translation>
     </message>
     <message>
         <location line="+29"/>
         <source>Recommended:</source>
-        <translation type="unfinished">Empfehlungen:</translation>
+        <translation>Empfohlen:</translation>
     </message>
     <message>
         <location line="+30"/>
@@ -4460,12 +4460,12 @@ Hinweis: Da die Gebühr auf Basis der Bytes berechnet wird, führt eine Gebühre
     <message>
         <location line="+38"/>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
-        <translation type="unfinished">Eine niedrige Gebühr kann dazu führen das eine Transaktion niemals bestätigt wird (Lesen Sie die Anmerkung).</translation>
+        <translation>Eine zu tiefe Gebühr kann dazu führen, dass die Überweisung nie bestätigt wird (Details im Tooltip).</translation>
     </message>
     <message>
         <location line="+105"/>
         <source>(Smart fee not initialized yet. This usually takes a few blocks…)</source>
-        <translation type="unfinished">(Intelligente Gebühr noch nicht initialisiert. Das dauert normalerweise ein paar Blocks…)</translation>
+        <translation>(Noch keine Schätzung: Dafür braucht es mehr Überweisungen im Netz.)</translation>
     </message>
     <message>
         <location line="+26"/>
@@ -4475,12 +4475,12 @@ Hinweis: Da die Gebühr auf Basis der Bytes berechnet wird, führt eine Gebühre
     <message>
         <location line="+58"/>
         <source>Enable Replace-By-Fee</source>
-        <translation type="unfinished">Aktiviere Replace-By-Fee</translation>
+        <translation>Replace-By-Fee aktivieren</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>With Replace-By-Fee (BIP-125) you can increase a transaction&apos;s fee after it is sent. Without this, a higher fee may be recommended to compensate for increased transaction delay risk.</source>
-        <translation type="unfinished">Mit Replace-By-Fee (BIP-125) kann die Transaktionsgebühr nach dem Senden erhöht werden. Ohne dies wird eine höhere Gebühr empfohlen, um das Risiko einer hohen Transaktionszeit zu reduzieren.</translation>
+        <translation>Mit Replace-By-Fee (BIP-125) kannst du die Gebühr nach dem Senden erhöhen. Ohne diese Option wird eine höhere Gebühr empfohlen, damit die Überweisung nicht zu lange wartet.</translation>
     </message>
     <message>
         <location line="+65"/>
@@ -4769,6 +4769,18 @@ Hinweis: Da die Gebühr auf Basis der Bytes berechnet wird, führt eine Gebühre
         <location line="+21"/>
         <source>(no label)</source>
         <translation type="unfinished">(keine Bezeichnung)</translation>
+    </message>
+    <message>
+        <source>A normal transfer costs about %1 with this fee.</source>
+        <translation>Eine normale Überweisung kostet damit etwa %1.</translation>
+    </message>
+    <message>
+        <source>The network has too few transfers for an estimate yet, so the wallet pays the lowest fee.</source>
+        <translation>Für eine Schätzung hat das Netz noch zu wenige Überweisungen, darum zahlt die Wallet die kleinste Gebühr.</translation>
+    </message>
+    <message>
+        <source>The fee goes to the miner who adds your transfer to a block, not to Velincoin. It depends on the size of the transfer in bytes, not on the amount. As long as blocks are not full, the lowest fee is enough. You see the exact fee before sending.</source>
+        <translation>Die Gebühr geht an den Miner, der deine Überweisung in einen Block aufnimmt, nicht an Velincoin. Sie hängt von der Grösse der Überweisung in Bytes ab, nicht vom Betrag. Solange die Blöcke nicht voll sind, reicht die kleinste Gebühr. Die genaue Gebühr siehst du vor dem Senden.</translation>
     </message>
 </context>
 <context>
