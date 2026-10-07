@@ -138,6 +138,15 @@ def check_same_chain(explorer, remote_info):
     return None
 
 
+def without_time(data):
+    """The content of search-index.js without the time of the export."""
+    text = data.decode("utf-8")
+    index = json.loads(text[text.index("{"):text.rindex("}") + 1])
+    index.pop("time", None)
+    index.pop("time_text", None)
+    return index
+
+
 def sync_once(explorer, indexer, gh, branch, folder, replace=False, log=print):
     """Export and upload if something changed. Returns a short status text."""
     con = ex.open_db(explorer.db_path)
@@ -161,11 +170,20 @@ def sync_once(explorer, indexer, gh, branch, folder, replace=False, log=print):
         if problem:
             raise SyncError(problem)
 
+    changed_rels = [rel for rel, data in sorted(local.items()) if remote.get(rel) != git_blob_sha(data)]
+    removed = [rel for rel in remote if rel not in local]
+    if changed_rels == ["search-index.js"] and not removed and "search-index.js" in remote:
+        # Only the export time is new: no commit, otherwise every check would
+        # publish the website again (Vercel allows only so many deployments a day)
+        if without_time(local["search-index.js"]) == without_time(gh.read_blob(remote["search-index.js"])):
+            changed_rels = []
+    if not changed_rels and not removed:
+        return f"Website ist aktuell (Block {tip['tip_height']})"
+
     entries = []
     changed = 0
-    for rel, data in sorted(local.items()):
-        if remote.get(rel) == git_blob_sha(data):
-            continue
+    for rel in changed_rels:
+        data = local[rel]
         changed += 1
         entry = {"path": f"{folder}/{rel}", "mode": "100644", "type": "blob"}
         try:
@@ -174,11 +192,8 @@ def sync_once(explorer, indexer, gh, branch, folder, replace=False, log=print):
             entry["sha"] = gh.req("POST", "git/blobs", {"content": base64.b64encode(data).decode(),
                                                          "encoding": "base64"})["sha"]
         entries.append(entry)
-    removed = [rel for rel in remote if rel not in local]
     for rel in removed:
         entries.append({"path": f"{folder}/{rel}", "mode": "100644", "type": "blob", "sha": None})
-    if not entries:
-        return f"Website ist aktuell (Block {tip['tip_height']})"
 
     new_tree = gh.req("POST", "git/trees", {"base_tree": tree, "tree": entries})["sha"]
     message = f"Explorer: Blockhöhe {tip['tip_height']}"
