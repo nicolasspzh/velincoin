@@ -40,12 +40,14 @@ COIN = 100_000_000
 HERE = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(HERE, "static")
 
-# chain name -> (data directory subfolder, default RPC port, halving interval, label)
+# chain name -> (data directory subfolder, default RPC port, halving interval, label,
+#                target seconds per block (nPowTargetSpacing))
 CHAINS = {
-    "main": ("", 9732, 210000, "Hauptnetz"),
-    "testnet4": ("testnet4", 29732, 210000, "Testnetz"),
-    "regtest": ("regtest", 18443, 150, "Regtest"),
+    "main": ("", 9732, 210000, "Hauptnetz", 600),
+    "testnet4": ("testnet4", 29732, 210000, "Testnetz", 90),
+    "regtest": ("regtest", 18443, 150, "Regtest", 600),
 }
+BLOCK_TIME_BLOCKS = 100  # average block time over this many blocks
 
 BLOCKS_PER_PAGE = 25
 TXS_PER_PAGE = 50
@@ -118,6 +120,21 @@ def fmt_hashrate(hps):
 
 def fmt_time(ts):
     return time.strftime("%d.%m.%Y %H:%M", time.gmtime(ts)) + " UTC"
+
+
+def fmt_duration(seconds):
+    """Block times: 45 s, 1 Min. 32 s, 10 Min., 2 Std. 5 Min."""
+    seconds = max(0, round(seconds))
+    if seconds < 60:
+        return f"{seconds} s"
+    if seconds < 600:
+        m, s = divmod(seconds, 60)
+        return f"{m} Min. {s} s" if s else f"{m} Min."
+    minutes = round(seconds / 60)
+    if minutes < 60:
+        return f"{minutes} Min."
+    hours, rest = divmod(minutes, 60)
+    return f"{hours} Std. {rest} Min." if rest else f"{hours} Std."
 
 
 def fmt_bytes(n):
@@ -769,6 +786,18 @@ class Explorer:
 
     # -- pages --------------------------------------------------------------
 
+    def block_time_tile(self, con, tip):
+        """Average time between the last blocks, next to the network's target."""
+        target = f"Ziel: {fmt_duration(CHAINS[self.chain][4])} pro Block"
+        n = min(BLOCK_TIME_BLOCKS, tip["height"])
+        if n == 0:
+            return tile("Blockzeit", "–", target)
+        start = con.execute("SELECT time FROM blocks WHERE height=?", (tip["height"] - n,)).fetchone()
+        if start is None:
+            return tile("Blockzeit", "–", target)
+        return tile("Blockzeit", h(fmt_duration((tip["time"] - start["time"]) / n)),
+                    f"Durchschnitt der letzten {fmt_int(n)} Blöcke. {target}")
+
     def page_home(self, con, query):
         tip = db_tip(con)
         if tip is None:
@@ -785,6 +814,7 @@ class Explorer:
                  f"von höchstens {h(fmt_vlc_short(max_supply(self.interval)))} VLC"),
             tile("Belohnung pro Block", vlc_html(reward),
                  f"Halbierung bei Block {fmt_int(next_halving)}, in {fmt_int(next_halving - next_height)} Blöcken"),
+            self.block_time_tile(con, tip),
             tile("Schwierigkeit", h(fmt_number(tip["difficulty"])),
                  f"Hashrate geschätzt: {h(fmt_hashrate(float(hashps)))}" if hashps is not None else ""),
             tile("Unbestätigte Transaktionen", fmt_int(mempool["size"]) if mempool else "?", ""),
@@ -1293,7 +1323,7 @@ def log(msg):
 
 
 def build_rpc(args):
-    subdir, default_port, _, _ = CHAINS[args.chain]
+    subdir, default_port, _, _, _ = CHAINS[args.chain]
     datadir = args.datadir or default_datadir()
     cookie = args.rpccookiefile or os.path.join(datadir, subdir, ".cookie")
     url = f"http://{args.rpcconnect}:{args.rpcport or default_port}/"
