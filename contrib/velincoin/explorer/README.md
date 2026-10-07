@@ -123,6 +123,12 @@ hochladen.
 - Für sehr lange Ketten ist das nicht gedacht, weil jede Seite eine eigene Datei
   wird.
 
+Ist Vercel mit dem GitHub-Repository verbunden, veröffentlicht Vercel bei jedem
+Push auf den eingestellten Branch automatisch neu. Dann gehört der Export in
+ein Commit: Export ausführen, den Ordner `website/explorer` committen und
+pushen. In den Projekteinstellungen von Vercel muss dafür als Root Directory
+`website` eingestellt sein.
+
 
 JSON-API
 --------
