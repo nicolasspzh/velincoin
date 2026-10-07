@@ -240,6 +240,26 @@ SmartScreen-Warnung. Jeder Windows-Benutzer bekommt seine eigenen Daten und
 Wallets in `%LOCALAPPDATA%\Velincoin`. Die Deinstallation lässt diese Daten
 bewusst stehen.
 
+### Server-Programme für Linux (Seed-Node und Explorer)
+
+Für den Velincoin-Server (siehe
+[doc/velincoin/server-einrichten.md](doc/velincoin/server-einrichten.md))
+gibt es ein Paket mit `velincoind`, `velincoin-cli`, dem Block Explorer und den
+systemd-Diensten. Gebaut wird es ohne Wallet und ohne grafische Oberfläche:
+
+```
+make -C depends HOST=x86_64-pc-linux-gnu NO_QT=1 NO_ZMQ=1 NO_USDT=1 NO_QR=1 -j4
+cmake -B build-linux --toolchain depends/x86_64-pc-linux-gnu/toolchain.cmake \
+  -DBUILD_GUI=OFF -DENABLE_WALLET=OFF -DBUILD_TESTS=OFF -DBUILD_BENCH=OFF \
+  -DWITH_ZMQ=OFF -DENABLE_IPC=OFF -DBUILD_UTIL=OFF -DBUILD_TX=OFF -DBUILD_WALLET_TOOL=OFF
+cmake --build build-linux --target bitcoind bitcoin-cli -j4
+contrib/velincoin/server/package.sh
+```
+
+`package.sh` legt das Paket und `install.sh` (mit der Prüfsumme des Pakets) in
+`website/server/`. Die Programme brauchen glibc 2.38 oder neuer, also Ubuntu
+24.04 oder Debian 13.
+
 Intern (im Build-System) heissen die Ziele weiterhin wie bei Bitcoin Core, zum
 Beispiel `bitcoind`. Nur die fertigen Dateien heissen `velincoind` usw. Das hält
 den Unterschied zu Bitcoin Core klein, damit spätere Bitcoin-Updates leichter

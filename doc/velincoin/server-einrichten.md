@@ -80,8 +80,33 @@ wieder läuft:
 | Velincoin Testnetz | 29733 | Wallets im Testnetz verbinden sich hierher |
 | Block Explorer | 80 | Webseite mit allen Blöcken, live |
 
-Den genauen Befehl zum Einfügen ergänzt diese Anleitung, sobald das Skript und
-die Linux-Programme fertig auf der Website liegen.
+Nach dem Anmelden (Schritt 2) diesen Befehl kopieren, im Terminal mit
+Rechtsklick einfügen und Enter drücken. Es ist eine einzige Zeile:
+
+```
+curl -fsSL https://raw.githubusercontent.com/nicolasspzh/velincoin/claude/dazzling-maxwell-vld1af/website/server/install.sh | VELINCOIN_BASE_URL=https://raw.githubusercontent.com/nicolasspzh/velincoin/claude/dazzling-maxwell-vld1af/website/server bash
+```
+
+Sobald die Dateien auch auf der Website liegen (nach dem Zusammenführen in
+`main`), geht es kürzer:
+
+```
+curl -fsSL https://velincoin.vercel.app/server/install.sh | bash
+```
+
+Das Skript braucht etwa eine Minute. Am Ende zeigt es die Adressen der beiden
+Explorer und der beiden Nodes an. Danach ist der Server fertig: Er startet
+nach einem Neustart von selbst wieder, und die Blockchain bleibt erhalten.
+
+Prüfen, ob alles läuft:
+
+```
+systemctl status velincoind-test velincoind-main
+sudo -u velincoin velincoin-cli -datadir=/var/lib/velincoin -testnet4 getblockcount
+```
+
+Im Browser zeigt `http://IP-ADRESSE/` den Explorer des Testnetzes und
+`http://IP-ADRESSE:8080/` den des Hauptnetzes.
 
 
 Schritt 4: Server in die Wallet eintragen

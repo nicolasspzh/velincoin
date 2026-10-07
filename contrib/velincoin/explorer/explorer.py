@@ -498,6 +498,10 @@ class NotFound(Exception):
     pass
 
 
+# The Velincoin website, linked from the live explorer
+WEBSITE_URL = "https://velincoin.vercel.app/"
+
+
 class Redirect(Exception):
     def __init__(self, location):
         super().__init__(location)
@@ -662,7 +666,7 @@ class Explorer:
   <div class="wrap top-inner">
     <a class="brand" href="/"><img src="/static/logo.png" alt="" width="32" height="32"><span>Velincoin Explorer</span></a>
     <span class="net net-{h(self.chain)}">{h(label)}</span>
-    <nav class="nav"><a href="/">Übersicht</a><a href="/blocks">Blöcke</a><a href="/stats">Statistik</a></nav>
+    <nav class="nav"><a href="/">Übersicht</a><a href="/blocks">Blöcke</a><a href="/stats">Statistik</a><a href="{WEBSITE_URL}">Website</a></nav>
     <form class="search" action="/search" method="get" role="search">
       <input name="q" type="search" placeholder="Blockhöhe, Hash, Transaktion oder Adresse" aria-label="Suchbegriff" required>
       <button type="submit">Suchen</button>
@@ -673,7 +677,7 @@ class Explorer:
 {self.status_note(con)}
 {body}
 </main>
-<footer class="wrap foot">Daten direkt aus einem Velincoin-Core-Node. Alle Zeiten in UTC. <a href="https://velincoin.com/">velincoin.com</a></footer>
+<footer class="wrap foot">Daten direkt aus einem Velincoin-Core-Node. Alle Zeiten in UTC. <a href="{WEBSITE_URL}">velincoin.vercel.app</a></footer>
 </body>
 </html>
 """
