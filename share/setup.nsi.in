@@ -30,6 +30,11 @@ Unicode true
 !define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\modern-uninstall.ico"
 !define MUI_UNWELCOMEFINISHPAGE_BITMAP "@abs_top_srcdir@/share/pixmaps/nsis-wizard.bmp"
 !define MUI_UNFINISHPAGE_NOAUTOCLOSE
+# Velincoin: ask for the language (English or German) at the start and remember it for the uninstaller
+!define MUI_LANGDLL_REGISTRY_ROOT HKCU
+!define MUI_LANGDLL_REGISTRY_KEY ${REGKEY}
+!define MUI_LANGDLL_REGISTRY_VALUENAME "Installer Language"
+!define MUI_LANGDLL_ALLLANGUAGES
 
 # Included files
 !include Sections.nsh
@@ -41,6 +46,9 @@ Var StartMenuGroup
 
 # Installer pages
 !insertmacro MUI_PAGE_WELCOME
+# Velincoin: the MIT licence from COPYING
+!insertmacro MUI_PAGE_LICENSE "@abs_top_srcdir@/COPYING"
+!insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_STARTMENU Application $StartMenuGroup
 !insertmacro MUI_PAGE_INSTFILES
@@ -48,8 +56,17 @@ Var StartMenuGroup
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
 
-# Installer languages
+# Installer languages (the first one is the default)
 !insertmacro MUI_LANGUAGE English
+!insertmacro MUI_LANGUAGE German
+!insertmacro MUI_RESERVEFILE_LANGDLL
+
+LangString MSG_NOT_64BIT ${LANG_ENGLISH} "Cannot install 64-bit version on a 32-bit system."
+LangString MSG_NOT_64BIT ${LANG_GERMAN} "Die 64-Bit-Version lässt sich nicht auf einem 32-Bit-System installieren."
+LangString SEC_DESKTOP_NAME ${LANG_ENGLISH} "Desktop shortcut"
+LangString SEC_DESKTOP_NAME ${LANG_GERMAN} "Desktop-Verknüpfung"
+LangString SEC_DESKTOP_DESC ${LANG_ENGLISH} "Puts a shortcut to $(^Name) on the desktop."
+LangString SEC_DESKTOP_DESC ${LANG_GERMAN} "Legt eine Verknüpfung zu $(^Name) auf den Desktop."
 
 # Installer attributes
 InstallDir $PROGRAMFILES64\Velincoin
@@ -88,6 +105,16 @@ Section -Main SEC0000
     SetOutPath $INSTDIR
     WriteRegStr HKCU "${REGKEY}\Components" Main 1
 SectionEnd
+
+# Velincoin: optional desktop shortcut, ticked by default
+Section "$(SEC_DESKTOP_NAME)" SEC_DESKTOP
+    CreateShortcut "$DESKTOP\$(^Name).lnk" $INSTDIR\@BITCOIN_GUI_NAME@@EXEEXT@
+    WriteRegStr HKCU "${REGKEY}\Components" Desktop 1
+SectionEnd
+
+!insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+    !insertmacro MUI_DESCRIPTION_TEXT ${SEC_DESKTOP} $(SEC_DESKTOP_DESC)
+!insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 Section -post SEC0001
     WriteRegStr HKCU "${REGKEY}" Path $INSTDIR
@@ -161,11 +188,14 @@ Section -un.post UNSEC0001
     Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\@CLIENT_NAME@ (testnet4).lnk"
     Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\@CLIENT_NAME@ (test signet).lnk"
     Delete /REBOOTOK "$SMSTARTUP\Velincoin.lnk"
+    Delete /REBOOTOK "$DESKTOP\$(^Name).lnk"
+    DeleteRegValue HKCU "${REGKEY}\Components" Desktop
     Delete /REBOOTOK $INSTDIR\uninstall.exe
     Delete /REBOOTOK $INSTDIR\debug.log
     Delete /REBOOTOK $INSTDIR\db.log
     DeleteRegValue HKCU "${REGKEY}" StartMenuGroup
     DeleteRegValue HKCU "${REGKEY}" Path
+    DeleteRegValue HKCU "${REGKEY}" "Installer Language"
     DeleteRegKey /IfEmpty HKCU "${REGKEY}\Components"
     DeleteRegKey /IfEmpty HKCU "${REGKEY}"
     DeleteRegKey HKCR "@CLIENT_TARNAME@"
@@ -181,17 +211,19 @@ SectionEnd
 # Installer functions
 Function .onInit
     InitPluginsDir
+    !insertmacro MUI_LANGDLL_DISPLAY
     ${If} ${RunningX64}
       ; disable registry redirection (enable access to 64-bit portion of registry)
       SetRegView 64
     ${Else}
-      MessageBox MB_OK|MB_ICONSTOP "Cannot install 64-bit version on a 32-bit system."
+      MessageBox MB_OK|MB_ICONSTOP "$(MSG_NOT_64BIT)"
       Abort
     ${EndIf}
 FunctionEnd
 
 # Uninstaller functions
 Function un.onInit
+    !insertmacro MUI_UNGETLANGUAGE
     ReadRegStr $INSTDIR HKCU "${REGKEY}" Path
     !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuGroup
     !insertmacro SELECT_UNSECTION Main ${UNSEC0000}

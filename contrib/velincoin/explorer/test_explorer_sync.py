@@ -237,6 +237,23 @@ def main():
         check(json.loads(repo.files()["website/explorer/sync.json"])["tip_height"] == 120,
               f"mit --replace wird sie ersetzt: {result}")
 
+        print("Kette von vor einem Neustart des Testnetzes wird ersetzt")
+        flat = repo.flat(repo.commits[repo.head]["tree"])
+        old_info = {"chain": "regtest", "genesis": "00" * 32, "tip_height": 999, "tip_hash": "11" * 32}
+        flat["website/explorer/sync.json"] = repo.add_blob(json.dumps(old_info).encode())
+        repo.head = repo.add_commit(repo.build(flat), [repo.head], "alte Kette")
+        try:
+            sync.sync_once(explorer, indexer, gh, "main", "website/explorer", log=lambda m: None)
+            refused = False
+        except sync.SyncError as e:
+            refused = "anderes Netz" in str(e)
+        check(refused, "ein unbekanntes anderes Netz wird nicht ersetzt")
+        sync.RETIRED_GENESIS["regtest"] = {"00" * 32}
+        result = sync.sync_once(explorer, indexer, gh, "main", "website/explorer", log=lambda m: None)
+        info = json.loads(repo.files()["website/explorer/sync.json"])
+        check(info["genesis"] == a.rpc.call("getblockhash", 0), f"die alte Kette wird ohne --replace ersetzt: {result}")
+        del sync.RETIRED_GENESIS["regtest"]
+
         print("Falscher Token")
         try:
             sync.sync_once(explorer, indexer, sync.GitHub("o/r", "falsch", api), "main", "website/explorer")

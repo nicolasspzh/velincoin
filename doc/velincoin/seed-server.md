@@ -10,7 +10,7 @@ Für diesen ersten Kontakt gibt es drei Wege:
 | Weg | Wie es funktioniert | Stand bei Velincoin |
 |---|---|---|
 | **Manuell** | Man trägt die IP-Adresse eines Nodes selbst ein: `addnode=1.2.3.4:9733` in `velincoin.conf` | Funktioniert jetzt schon |
-| **Feste Seeds** (fixed seeds) | Eine Liste von IP-Adressen ist fest ins Programm kompiliert | Testnetz: `159.195.4.228:29733`, Hauptnetz: leer |
+| **Feste Seeds** (fixed seeds) | Eine Liste von IP-Adressen ist fest ins Programm kompiliert | Der Velincoin-Server `159.195.4.228` (Haupt- und Testnetz) |
 | **DNS-Seeds** | Ein Name wie `seed.velincoin.com` liefert die IP-Adressen von aktiven Nodes | Noch keiner |
 
 Ohne Seeds müssen alle Nutzer die IP-Adresse eines Nodes kennen. Für einen
@@ -25,7 +25,12 @@ Ihr braucht mindestens **zwei** Server an verschiedenen Orten, damit das Netz
 nicht von einem einzelnen Rechner abhängt. Ein kleiner gemieteter Linux-Server
 (VPS) reicht am Anfang, solange die Kette klein ist.
 
-**Schneller Weg (Testnetz, Debian):** Das Skript
+**Empfohlen:** `contrib/velincoin/server/install.sh`, Schritt für Schritt erklärt
+in [server-einrichten.md](server-einrichten.md). Es installiert fertige
+Programme (kein Kompilieren, 1 GB RAM reicht), beide Netze, die Live-Explorer
+und den Website-Explorer, und löst ein Setup mit `setup-seed-node.sh` ab.
+
+**Alternative (nur Testnetz, Debian):** Das Skript
 [`contrib/velincoin/setup-seed-node.sh`](../../contrib/velincoin/setup-seed-node.sh)
 erledigt die Punkte 1 bis 5 unten in einem Durchgang. Es kompiliert Velincoin Core
 auf dem Server (ohne Wallet), legt den Benutzer `velincoin` und

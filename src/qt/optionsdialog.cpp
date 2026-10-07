@@ -12,6 +12,7 @@
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
+#include <qt/velincointheme.h>
 
 #include <common/system.h>
 #include <interfaces/node.h>
@@ -99,7 +100,7 @@ OptionsDialog::OptionsDialog(QWidget* parent, bool enableWallet)
     ui->threadsScriptVerif->setMinimum(-GetNumCores());
     ui->threadsScriptVerif->setMaximum(MAX_SCRIPTCHECK_THREADS);
     ui->pruneWarning->setVisible(false);
-    ui->pruneWarning->setStyleSheet("QLabel { color: red; }");
+    ui->pruneWarning->setStyleSheet(QStringLiteral("QLabel { color: %1; }").arg(VelincoinTheme::NEGATIVE.name()));
 
     ui->pruneSize->setEnabled(false);
     connect(ui->prune, &QPushButton::toggled, ui->pruneSize, &QWidget::setEnabled);
@@ -154,6 +155,10 @@ OptionsDialog::OptionsDialog(QWidget* parent, bool enableWallet)
     ui->openBitcoinConfButton->setToolTip(ui->openBitcoinConfButton->toolTip().arg(CLIENT_NAME));
 
     ui->lang->setToolTip(ui->lang->toolTip().arg(CLIENT_NAME));
+    ui->theme->setToolTip(ui->theme->toolTip().arg(CLIENT_NAME));
+    ui->theme->addItem(tr("Dark"), QStringLiteral("dark"));
+    ui->theme->addItem(tr("Light"), QStringLiteral("light"));
+    ui->theme->setCurrentIndex(VelincoinTheme::StoredMode() == VelincoinTheme::Mode::LIGHT ? 1 : 0);
     ui->lang->addItem(QString("(") + tr("default") + QString(")"), QVariant(""));
     for (const QString &langStr : translations.entryList())
     {
@@ -262,6 +267,7 @@ void OptionsDialog::setModel(OptionsModel *_model)
     connect(ui->connectSocksTor, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     /* Display */
     connect(ui->lang, qOverload<>(&QValueComboBox::valueChanged), [this]{ showRestartWarning(); });
+    connect(ui->theme, qOverload<int>(&QComboBox::currentIndexChanged), [this]{ showRestartWarning(); });
     connect(ui->thirdPartyTxUrls, &QLineEdit::textChanged, [this]{ showRestartWarning(); });
 }
 
@@ -317,6 +323,7 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->lang, OptionsModel::Language);
     mapper->addMapping(ui->unit, OptionsModel::DisplayUnit);
     mapper->addMapping(ui->thirdPartyTxUrls, OptionsModel::ThirdPartyTxUrls);
+    mapper->addMapping(ui->showDemoValue, OptionsModel::ShowDemoValue);
 }
 
 void OptionsDialog::setOkButtonState(bool fState)
@@ -381,6 +388,8 @@ void OptionsDialog::on_okButton_clicked()
     model->setData(model->index(OptionsModel::FontForMoney, 0), ui->moneyFont->itemData(ui->moneyFont->currentIndex()));
 
     mapper->submit();
+    // The theme is not a node option: it is the same for all networks, see VelincoinTheme
+    VelincoinTheme::SetStoredMode(ui->theme->currentData().toString() == QLatin1String("light") ? VelincoinTheme::Mode::LIGHT : VelincoinTheme::Mode::DARK);
     accept();
     updateDefaultProxyNets();
 }
@@ -407,7 +416,7 @@ void OptionsDialog::togglePruneWarning(bool enabled)
 
 void OptionsDialog::showRestartWarning(bool fPersistent)
 {
-    ui->statusLabel->setStyleSheet("QLabel { color: red; }");
+    ui->statusLabel->setStyleSheet(QStringLiteral("QLabel { color: %1; }").arg(VelincoinTheme::NEGATIVE.name()));
 
     if(fPersistent)
     {
@@ -442,7 +451,7 @@ void OptionsDialog::updateProxyValidationState()
     else
     {
         setOkButtonState(false);
-        ui->statusLabel->setStyleSheet("QLabel { color: red; }");
+        ui->statusLabel->setStyleSheet(QStringLiteral("QLabel { color: %1; }").arg(VelincoinTheme::NEGATIVE.name()));
         ui->statusLabel->setText(tr("The supplied proxy address is invalid."));
     }
 }

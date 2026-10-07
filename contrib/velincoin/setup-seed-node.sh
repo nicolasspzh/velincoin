@@ -36,6 +36,12 @@ if [ "$(id -u)" -ne 0 ]; then
     echo "Bitte als root ausführen." >&2
     exit 1
 fi
+# Ein Server mit contrib/velincoin/server/install.sh nutzt dieselben Ports
+if [ -f /etc/systemd/system/velincoind-test.service ]; then
+    echo "Dieser Server ist mit install.sh eingerichtet (doc/velincoin/server-einrichten.md)." >&2
+    echo "Zum Aktualisieren install.sh nochmals ausführen." >&2
+    exit 1
+fi
 
 echo "==> 1/5 Pakete installieren"
 export DEBIAN_FRONTEND=noninteractive
@@ -96,7 +102,35 @@ echo "==> 5/5 Dienst velincoind einrichten und starten"
 install -m 0644 "$SRC_DIR/contrib/init/velincoind.service" /etc/systemd/system/velincoind.service
 systemctl daemon-reload
 systemctl enable velincoind
+# Nach einem Neustart des Testnetzes (neuer Genesis-Block oder höhere niedrigste
+# Schwierigkeit, siehe README) startet der Node mit den alten Blöcken nicht
+# mehr. Sie werden dann zur Seite gelegt, und der Node lädt die neue Kette.
+log_file="$DATA_DIR/testnet4/debug.log"
+log_start=$(stat -c %s "$log_file" 2>/dev/null || echo 0)
 systemctl restart velincoind
+for _ in $(seq 90); do
+    [ "$(stat -c %s "$log_file" 2>/dev/null || echo 0)" -lt "$log_start" ] && log_start=0
+    new_log=$(tail -c +"$((log_start + 1))" "$log_file" 2>/dev/null || true)
+    # Other genesis block, or blocks below today's lowest difficulty (older test network)
+    if grep -qE "Incorrect or no genesis block found|LoadBlockIndexGuts: CheckProofOfWork failed" <<<"$new_log"; then
+        old_dir="$DATA_DIR/testnet4-alte-kette-$(date +%Y%m%d-%H%M%S)"
+        echo "Das Testnetz wurde neu gestartet. Die Blöcke der alten Kette kommen nach $old_dir."
+        systemctl stop velincoind
+        mkdir -p "$old_dir"
+        for d in blocks chainstate indexes; do
+            if [ -e "$DATA_DIR/testnet4/$d" ]; then mv "$DATA_DIR/testnet4/$d" "$old_dir/"; fi
+        done
+        chown -R velincoin:velincoin "$old_dir"
+        systemctl start velincoind
+        break
+    fi
+    if grep -q "init message: Done loading" <<<"$new_log"; then break; fi
+    sleep 1
+done
+# Der Explorer-Sync (setup-explorer-sync.sh) soll mit dem neuen Code laufen
+if systemctl is-enabled --quiet velincoin-explorer-sync 2>/dev/null; then
+    systemctl restart velincoin-explorer-sync
+fi
 
 # Nur falls die Firewall ufw aktiv ist: Port öffnen. Ohne Firewall ist er offen.
 if command -v ufw >/dev/null 2>&1 && ufw status | grep -q "Status: active"; then

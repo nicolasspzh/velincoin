@@ -194,6 +194,16 @@
        </layout>
       </item>
       <item>
+       <widget class="QLabel" name="labelTotalDemo">
+        <property name="visible">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string notr="true">≈ 0.000 CHF</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QFrame" name="balanceDivider">
         <property name="divider" stdset="0">
          <bool>true</bool>
@@ -242,6 +252,16 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QLabel" name="labelBalanceDemo">
+            <property name="visible">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string notr="true">≈ 0.000 CHF</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
         <item>
@@ -269,6 +289,16 @@
             </property>
             <property name="textInteractionFlags">
              <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="labelUnconfirmedDemo">
+            <property name="visible">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string notr="true">≈ 0.000 CHF</string>
             </property>
            </widget>
           </item>

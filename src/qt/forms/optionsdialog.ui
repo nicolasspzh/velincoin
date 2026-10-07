@@ -711,6 +711,30 @@
         </layout>
        </item>
        <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_Theme">
+         <item>
+          <widget class="QLabel" name="themeLabel">
+           <property name="text">
+            <string>&amp;Appearance:</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::PlainText</enum>
+           </property>
+           <property name="buddy">
+            <cstring>theme</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="theme">
+           <property name="toolTip">
+            <string>Dark or light colors for all networks. This setting will take effect after restarting %1.</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2_Display">
          <item>
           <widget class="QLabel" name="unitLabel">
@@ -785,6 +809,16 @@
           </widget>
          </item>
         </layout>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="showDemoValue">
+         <property name="toolTip">
+          <string>Fixed value, not a market price. VLC is not traded anywhere yet.</string>
+         </property>
+         <property name="text">
+          <string>Show value in CHF</string>
+         </property>
+        </widget>
        </item>
        <item>
         <spacer name="verticalSpacer_Display">

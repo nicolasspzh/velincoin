@@ -134,10 +134,16 @@ Automatisch aktualisieren (explorer_sync.py)
 --------------------------------------------
 
 `explorer_sync.py` erledigt Export und Hochladen von selbst. Es läuft neben der
-Wallet, schaut alle 5 Minuten nach neuen Blöcken und Zahlungen und lädt nur die
+Wallet, schaut alle 20 Minuten nach neuen Blöcken und Zahlungen und lädt nur die
 geänderten Dateien mit der GitHub-API in den Ordner `website/explorer` auf dem
 Branch `main`. Vercel veröffentlicht danach automatisch. Git muss dafür nicht
 installiert sein.
+
+Warum nur alle 20 Minuten: Vercel veröffentlicht im Gratis-Plan höchstens 100-mal
+pro Tag, und im Testnetz kommt etwa alle 90 Sekunden ein Block. Alle 20 Minuten
+sind 72 Veröffentlichungen, so bleibt Platz für andere Änderungen an der Website.
+Jeden Block sofort zeigt der **Live-Explorer** auf dem Server
+(http://159.195.4.228/, siehe `doc/velincoin/server-einrichten.md`).
 
 Einmalig einrichten:
 
@@ -166,7 +172,9 @@ Beenden mit Ctrl+C. `py explorer_sync.py --once` aktualisiert nur einmal.
 ### Auf dem Seed-Server
 
 Statt auf einem eigenen Computer kann `explorer_sync.py` auf dem Seed-Server
-laufen. Dann zeigt die Website die Kette des Servers, mit dem alle Wallets
+laufen. `contrib/velincoin/server/install.sh` richtet das zusammen mit dem
+Live-Explorer ein (Dienst `velincoin-explorer-sync`, siehe
+`doc/velincoin/server-einrichten.md`). Mit dem älteren Setup ging es so: Dann zeigt die Website die Kette des Servers, mit dem alle Wallets
 verbunden sind, und sie bleibt aktuell, auch wenn kein eigener Computer läuft.
 Nachdem `contrib/velincoin/setup-seed-node.sh` gelaufen ist, als root:
 

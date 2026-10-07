@@ -123,6 +123,16 @@ def local_files(folder):
     return files
 
 
+# Genesis blocks of test networks that were started anew (README, "Neustarts des
+# Testnetzes"). An explorer that still shows one of them is replaced without --replace.
+RETIRED_GENESIS = {
+    "testnet4": {
+        "00000000e803ebf103aa707b7f6aa2b80a613e47ef46c9f77b8c969a1a8b3817",
+        "000000f91b6f17b7699c5018fa8fc70e2dc8e966629f5974066b22d51cf9c354",
+    },
+}
+
+
 def check_same_chain(explorer, remote_info):
     """Refuse to replace an explorer that shows a different chain."""
     rpc = explorer.rpc
@@ -136,6 +146,15 @@ def check_same_chain(explorer, remote_info):
         return ("Die Website zeigt eine andere Kette als dieser Node, zum Beispiel die eines anderen "
                 "Computers. Mit --replace wird sie trotzdem ersetzt.")
     return None
+
+
+def without_time(data):
+    """The content of search-index.js without the time of the export."""
+    text = data.decode("utf-8")
+    index = json.loads(text[text.index("{"):text.rindex("}") + 1])
+    index.pop("time", None)
+    index.pop("time_text", None)
+    return index
 
 
 def sync_once(explorer, indexer, gh, branch, folder, replace=False, log=print):
@@ -157,15 +176,29 @@ def sync_once(explorer, indexer, gh, branch, folder, replace=False, log=print):
     commit, tree = gh.head(branch)
     remote = gh.files_in(tree, folder)
     if "sync.json" in remote and not replace:
-        problem = check_same_chain(explorer, json.loads(gh.read_blob(remote["sync.json"])))
-        if problem:
-            raise SyncError(problem)
+        remote_info = json.loads(gh.read_blob(remote["sync.json"]))
+        if (remote_info.get("chain") == explorer.chain and
+                remote_info.get("genesis") in RETIRED_GENESIS.get(explorer.chain, ())):
+            log("Die Website zeigt noch die Kette von vor dem Neustart des Testnetzes, sie wird ersetzt.")
+        else:
+            problem = check_same_chain(explorer, remote_info)
+            if problem:
+                raise SyncError(problem)
+
+    changed_rels = [rel for rel, data in sorted(local.items()) if remote.get(rel) != git_blob_sha(data)]
+    removed = [rel for rel in remote if rel not in local]
+    if changed_rels == ["search-index.js"] and not removed and "search-index.js" in remote:
+        # Only the export time is new: no commit, otherwise every check would
+        # publish the website again (Vercel allows only so many deployments a day)
+        if without_time(local["search-index.js"]) == without_time(gh.read_blob(remote["search-index.js"])):
+            changed_rels = []
+    if not changed_rels and not removed:
+        return f"Website ist aktuell (Block {tip['tip_height']})"
 
     entries = []
     changed = 0
-    for rel, data in sorted(local.items()):
-        if remote.get(rel) == git_blob_sha(data):
-            continue
+    for rel in changed_rels:
+        data = local[rel]
         changed += 1
         entry = {"path": f"{folder}/{rel}", "mode": "100644", "type": "blob"}
         try:
@@ -174,11 +207,8 @@ def sync_once(explorer, indexer, gh, branch, folder, replace=False, log=print):
             entry["sha"] = gh.req("POST", "git/blobs", {"content": base64.b64encode(data).decode(),
                                                          "encoding": "base64"})["sha"]
         entries.append(entry)
-    removed = [rel for rel in remote if rel not in local]
     for rel in removed:
         entries.append({"path": f"{folder}/{rel}", "mode": "100644", "type": "blob", "sha": None})
-    if not entries:
-        return f"Website ist aktuell (Block {tip['tip_height']})"
 
     new_tree = gh.req("POST", "git/trees", {"base_tree": tree, "tree": entries})["sha"]
     message = f"Explorer: Blockhöhe {tip['tip_height']}"
@@ -204,7 +234,8 @@ def main():
     ap.add_argument("--branch", default="main", help="Branch, von dem die Website veröffentlicht wird (Standard main)")
     ap.add_argument("--folder", default="website/explorer", help="Ordner des Explorers im Repository")
     ap.add_argument("--token-file", default=os.path.join(HERE, "github-token.txt"), help="Datei mit dem GitHub-Token")
-    ap.add_argument("--interval", type=float, default=300, help="Sekunden zwischen zwei Prüfungen (Standard 300)")
+    # Vercel's free plan publishes at most 100 times a day; every 20 minutes are 72
+    ap.add_argument("--interval", type=float, default=1200, help="Sekunden zwischen zwei Prüfungen (Standard 1200)")
     ap.add_argument("--once", action="store_true", help="Nur einmal aktualisieren, dann beenden")
     ap.add_argument("--replace", action="store_true", help="Auch eine andere Kette auf der Website ersetzen")
     ap.add_argument("--github-api", default="https://api.github.com", help=argparse.SUPPRESS)

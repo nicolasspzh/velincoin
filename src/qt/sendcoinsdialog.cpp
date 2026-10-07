@@ -11,10 +11,12 @@
 #include <qt/bitcoinunits.h>
 #include <qt/clientmodel.h>
 #include <qt/coincontroldialog.h>
+#include <qt/demovalue.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
 #include <qt/platformstyle.h>
 #include <qt/sendcoinsentry.h>
+#include <qt/velincointheme.h>
 
 #include <chainparams.h>
 #include <interfaces/node.h>
@@ -34,6 +36,7 @@
 #include <memory>
 
 #include <QFontMetrics>
+#include <QLabel>
 #include <QScrollBar>
 #include <QSettings>
 #include <QTextDocument>
@@ -132,6 +135,12 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *_platformStyle, QWidget *p
     ui->customFee->setValue(settings.value("nTransactionFee").toLongLong());
     minimizeFeeSection(settings.value("fFeeSectionMinimized").toBool());
 
+    m_fee_hint = new QLabel(this);
+    m_fee_hint->setObjectName(QStringLiteral("feeHint"));
+    m_fee_hint->setWordWrap(true);
+    m_fee_hint->setTextFormat(Qt::RichText);
+    ui->verticalLayoutFee2->insertWidget(1, m_fee_hint);
+
     GUIUtil::ExceptionSafeConnect(ui->sendButton, &QPushButton::clicked, this, &SendCoinsDialog::sendButtonClicked);
 }
 
@@ -180,6 +189,10 @@ void SendCoinsDialog::setModel(WalletModel *_model)
         connect(ui->groupFee, &QButtonGroup::idClicked, this, &SendCoinsDialog::coinControlUpdateLabels);
 
         connect(ui->customFee, &BitcoinAmountField::valueChanged, this, &SendCoinsDialog::coinControlUpdateLabels);
+        connect(ui->customFee, &BitcoinAmountField::valueChanged, this, &SendCoinsDialog::updateFeeHint);
+        connect(ui->groupFee, &QButtonGroup::idClicked, this, &SendCoinsDialog::updateFeeHint);
+        connect(_model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &SendCoinsDialog::updateFeeHint);
+        connect(_model->getOptionsModel(), &OptionsModel::showDemoValueChanged, this, &SendCoinsDialog::updateFeeHint);
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 7, 0))
         connect(ui->optInRBF, &QCheckBox::checkStateChanged, this, &SendCoinsDialog::updateSmartFeeLabel);
         connect(ui->optInRBF, &QCheckBox::checkStateChanged, this, &SendCoinsDialog::coinControlUpdateLabels);
@@ -298,11 +311,16 @@ bool SendCoinsDialog::PrepareSendText(QString& question_string, QString& informa
     }
 
     CAmount txFee = m_current_transaction->getTransactionFee();
+    // Fixed demo value in CHF next to the amounts, if switched on in the options
+    const bool show_demo{model->getOptionsModel()->getShowDemoValue()};
+    auto demo_html = [&](CAmount amount) {
+        return show_demo ? QStringLiteral(" (%1)").arg(GUIUtil::HtmlEscape(DemoValue::Label(amount))) : QString();
+    };
     QStringList formatted;
     for (const SendCoinsRecipient &rcp : m_current_transaction->getRecipients())
     {
         // generate amount string with wallet name in case of multiwallet
-        QString amount = BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), rcp.amount);
+        QString amount = BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), rcp.amount) + demo_html(rcp.amount);
         if (model->isMultiwallet()) {
             amount = tr("%1 from wallet '%2'").arg(amount, GUIUtil::HtmlEscape(model->getWalletName()));
         }
@@ -358,9 +376,11 @@ bool SendCoinsDialog::PrepareSendText(QString& question_string, QString& informa
         question_string.append(" (" + tr("%1 kvB", "PSBT transaction creation").arg((double)m_current_transaction->getTransactionSize() / 1000, 0, 'g', 3) + "): ");
 
         // append transaction fee value
-        question_string.append("<span style='color:#aa0000; font-weight:bold;'>");
+        question_string.append(QStringLiteral("<span style='color:%1; font-weight:bold;'>").arg(VelincoinTheme::NEGATIVE.name()));
         question_string.append(BitcoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), txFee));
-        question_string.append("</span><br />");
+        question_string.append("</span>");
+        question_string.append(demo_html(txFee));
+        question_string.append("<br />");
 
         // append RBF message according to transaction's signalling
         question_string.append("<span style='font-size:10pt; font-weight:normal;'>");
@@ -380,8 +400,9 @@ bool SendCoinsDialog::PrepareSendText(QString& question_string, QString& informa
         if(u != model->getOptionsModel()->getDisplayUnit())
             alternativeUnits.append(BitcoinUnits::formatHtmlWithUnit(u, totalAmount));
     }
-    question_string.append(QString("<b>%1</b>: <b>%2</b>").arg(tr("Total Amount"))
-        .arg(BitcoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), totalAmount)));
+    question_string.append(QString("<b>%1</b>: <b>%2</b>%3").arg(tr("Total Amount"))
+        .arg(BitcoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), totalAmount))
+        .arg(demo_html(totalAmount)));
     question_string.append(QString("<br /><span style='font-size:10pt; font-weight:normal;'>(=%1)</span>")
         .arg(alternativeUnits.join(" " + tr("or") + " ")));
 
@@ -863,13 +884,17 @@ void SendCoinsDialog::updateSmartFeeLabel()
 
     ui->labelSmartFee->setText(tr("%1/kvB").arg(BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), feeRate.GetFeePerK())));
 
+    m_smart_fee_per_k = feeRate.GetFeePerK();
+    // A small network rarely has enough transactions for an estimate. The
+    // default fallback is then the lowest fee, which the fee hint explains,
+    // so the warning only shows for another -fallbackfee or none at all.
+    m_smart_fee_is_lowest_fallback = reason == FeeReason::FALLBACK && m_smart_fee_per_k > 0 &&
+                                     m_smart_fee_per_k <= model->wallet().getRequiredFee(1000);
     if (reason == FeeReason::FALLBACK) {
         ui->labelSmartFee2->show(); // (Smart fee not initialized yet. This usually takes a few blocks...)
         ui->labelFeeEstimation->setText("");
-        ui->fallbackFeeWarningLabel->setVisible(true);
-        int lightness = ui->fallbackFeeWarningLabel->palette().color(QPalette::WindowText).lightness();
-        QColor warning_colour(255 - (lightness / 5), 176 - (lightness / 3), 48 - (lightness / 14));
-        ui->fallbackFeeWarningLabel->setStyleSheet("QLabel { color: " + warning_colour.name() + "; }");
+        ui->fallbackFeeWarningLabel->setVisible(!m_smart_fee_is_lowest_fallback);
+        ui->fallbackFeeWarningLabel->setStyleSheet(QStringLiteral("QLabel { color: %1; }").arg(VelincoinTheme::PENDING.name()));
         ui->fallbackFeeWarningLabel->setIndent(GUIUtil::TextWidth(QFontMetrics(ui->fallbackFeeWarningLabel->font()), "x"));
     }
     else
@@ -880,6 +905,33 @@ void SendCoinsDialog::updateSmartFeeLabel()
     }
 
     updateFeeMinimizedLabel();
+    updateFeeHint();
+}
+
+void SendCoinsDialog::updateFeeHint()
+{
+    if (!model || !model->getOptionsModel()) return;
+    // One input and two outputs (payment and change), all native SegWit
+    static constexpr int32_t NORMAL_TRANSFER_VSIZE{141};
+    const bool custom{ui->radioCustomFee->isChecked()};
+    const CAmount fee_per_k{custom ? ui->customFee->value() : m_smart_fee_per_k};
+    // The cost on its own line in the text color, the explanation below it dimmed
+    QString cost_line;
+    if (fee_per_k > 0) {
+        const CAmount fee{CFeeRate{fee_per_k}.GetFee(NORMAL_TRANSFER_VSIZE)};
+        QString cost{BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), fee)};
+        if (model->getOptionsModel()->getShowDemoValue()) cost += QStringLiteral(" (%1)").arg(DemoValue::Label(fee));
+        cost_line = QStringLiteral("<span style='color:%1;'>%2</span><br>")
+                        .arg(VelincoinTheme::TEXT.name(), GUIUtil::HtmlEscape(tr("A normal transfer costs about %1 with this fee.").arg(cost)));
+    }
+    QStringList text;
+    if (!custom && m_smart_fee_is_lowest_fallback) {
+        text << tr("The network has too few transfers for an estimate yet, so the wallet pays the lowest fee.");
+    }
+    text << tr("The fee goes to the miner who adds your transfer to a block, not to Velincoin. It depends on the size "
+               "of the transfer in bytes, not on the amount. As long as blocks are not full, the lowest fee is enough. "
+               "You see the exact fee before sending.");
+    m_fee_hint->setText(cost_line + GUIUtil::HtmlEscape(text.join(QLatin1Char(' '))));
 }
 
 // Coin Control: copy label "Quantity" to clipboard

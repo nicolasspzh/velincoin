@@ -18,11 +18,13 @@
 #include <fstream>
 #include <string>
 
+#include <QAction>
 #include <QApplication>
 #include <QClipboard>
-#include <QGroupBox>
 #include <QHBoxLayout>
+#include <QIcon>
 #include <QLabel>
+#include <QMenu>
 #include <QPushButton>
 #include <QVBoxLayout>
 
@@ -38,21 +40,68 @@ WalletFrame::WalletFrame(const PlatformStyle* _platformStyle, QWidget* parent)
     walletFrameLayout->setContentsMargins(0,0,0,0);
     walletFrameLayout->addWidget(walletStack);
 
-    // hbox for no wallet
-    QGroupBox* no_wallet_group = new QGroupBox(walletStack);
-    QVBoxLayout* no_wallet_layout = new QVBoxLayout(no_wallet_group);
+    // Welcome page while no wallet is loaded: logo, a short text and the three ways to get a wallet
+    QWidget* welcome_page = new QWidget(walletStack);
+    welcome_page->setObjectName(QStringLiteral("welcomePage"));
+    QVBoxLayout* welcome_layout = new QVBoxLayout(welcome_page);
+    welcome_layout->setContentsMargins(32, 32, 32, 32);
+    welcome_layout->addStretch(2);
 
-    QLabel *noWallet = new QLabel(tr("No wallet has been loaded.\nGo to File > Open Wallet to load a wallet.\n- OR -"));
-    noWallet->setAlignment(Qt::AlignCenter);
-    no_wallet_layout->addWidget(noWallet, 0, Qt::AlignHCenter | Qt::AlignBottom);
+    QWidget* column = new QWidget(welcome_page);
+    column->setMaximumWidth(440);
+    QVBoxLayout* column_layout = new QVBoxLayout(column);
+    column_layout->setContentsMargins(0, 0, 0, 0);
+    column_layout->setSpacing(10);
 
-    // A button for create wallet dialog
-    QPushButton* create_wallet_button = new QPushButton(tr("Create a new wallet"), walletStack);
-    connect(create_wallet_button, &QPushButton::clicked, this, &WalletFrame::createWalletButtonClicked);
-    no_wallet_layout->addWidget(create_wallet_button, 0, Qt::AlignHCenter | Qt::AlignTop);
-    no_wallet_group->setLayout(no_wallet_layout);
+    QLabel* logo = new QLabel(column);
+    logo->setPixmap(QIcon(QStringLiteral(":/icons/bitcoin")).pixmap(QSize(72, 72)));
+    column_layout->addWidget(logo, 0, Qt::AlignHCenter);
+    column_layout->addSpacing(8);
 
-    walletStack->addWidget(no_wallet_group);
+    QLabel* title = new QLabel(tr("Welcome to Velincoin"), column);
+    title->setObjectName(QStringLiteral("welcomeTitle"));
+    title->setAlignment(Qt::AlignCenter);
+    column_layout->addWidget(title);
+
+    QLabel* text = new QLabel(tr("Create a wallet to receive and send VLC, or open one you already have. Your keys stay on this computer."), column);
+    text->setObjectName(QStringLiteral("welcomeText"));
+    text->setAlignment(Qt::AlignCenter);
+    text->setWordWrap(true);
+    column_layout->addWidget(text);
+    column_layout->addSpacing(14);
+
+    m_create_wallet_button = new QPushButton(tr("Create wallet"), column);
+    m_create_wallet_button->setProperty("primary", true);
+    connect(m_create_wallet_button, &QPushButton::clicked, this, &WalletFrame::createWalletButtonClicked);
+    m_open_wallet_button = new QPushButton(tr("Open wallet"), column);
+    m_restore_wallet_button = new QPushButton(tr("Restore wallet from backup"), column);
+    for (QPushButton* button : {m_create_wallet_button, m_open_wallet_button, m_restore_wallet_button}) {
+        button->setMinimumHeight(40);
+        button->setCursor(Qt::PointingHandCursor);
+        column_layout->addWidget(button);
+    }
+
+    welcome_layout->addWidget(column, 0, Qt::AlignHCenter);
+    welcome_layout->addStretch(3);
+
+    walletStack->addWidget(welcome_page);
+}
+
+void WalletFrame::setWelcomeActions(QAction* create_wallet, QAction* open_wallet, QMenu* open_wallet_menu, QAction* restore_wallet)
+{
+    // The buttons are only usable when the window's actions are (they are disabled until wallets can be loaded)
+    auto follow = [](QPushButton* button, QAction* action) {
+        button->setEnabled(action->isEnabled());
+        connect(action, &QAction::changed, button, [button, action] { button->setEnabled(action->isEnabled()); });
+    };
+    follow(m_create_wallet_button, create_wallet);
+    follow(m_open_wallet_button, open_wallet);
+    follow(m_restore_wallet_button, restore_wallet);
+    // The open menu lists the wallets on disk when it is shown, so it can drop down from the button
+    connect(m_open_wallet_button, &QPushButton::clicked, this, [this, open_wallet_menu] {
+        open_wallet_menu->popup(m_open_wallet_button->mapToGlobal(QPoint(0, m_open_wallet_button->height() + 4)));
+    });
+    connect(m_restore_wallet_button, &QPushButton::clicked, restore_wallet, &QAction::trigger);
 }
 
 WalletFrame::~WalletFrame() = default;
@@ -66,6 +115,14 @@ void WalletFrame::setClientModel(ClientModel *_clientModel)
     }
 }
 
+void WalletFrame::setMiner(CpuMiner* miner)
+{
+    m_miner = miner;
+    for (auto i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i) {
+        i.value()->setMiner(miner);
+    }
+}
+
 bool WalletFrame::addView(WalletView* walletView)
 {
     if (!clientModel) return false;
@@ -73,6 +130,7 @@ bool WalletFrame::addView(WalletView* walletView)
     if (mapWalletViews.contains(walletView->getWalletModel())) return false;
 
     walletView->setClientModel(clientModel);
+    walletView->setMiner(m_miner);
     walletView->showOutOfSyncWarning(bOutOfSync);
 
     WalletView* current_wallet_view = currentWalletView();
@@ -167,6 +225,13 @@ void WalletFrame::gotoReceiveCoinsPage()
     QMap<WalletModel*, WalletView*>::const_iterator i;
     for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
         i.value()->gotoReceiveCoinsPage();
+}
+
+void WalletFrame::gotoMiningPage()
+{
+    for (auto i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i) {
+        i.value()->gotoMiningPage();
+    }
 }
 
 void WalletFrame::gotoSendCoinsPage(QString addr)

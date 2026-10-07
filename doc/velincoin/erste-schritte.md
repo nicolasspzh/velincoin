@@ -19,7 +19,7 @@ Es gibt drei Netze. Für den Anfang empfehle ich Regtest.
 | Netz | Start mit | Wofür |
 |---|---|---|
 | Regtest | `-regtest` | Üben auf dem eigenen Computer. Blöcke entstehen sofort, nur ihr seid im Netz. |
-| Testnetz | `-testnet4` | Ein echtes Netz mit mehreren Computern, aber ohne Wert. Minen dauert echt lange. |
+| Testnetz | `-testnet4` | Ein echtes Netz mit mehreren Computern, aber ohne Wert. Ein Block dauert etwa 1 bis 2 Minuten (siehe unten). |
 | Hauptnetz | (nichts) | Das echte Velincoin-Netz. Noch nicht öffentlich gestartet. |
 
 
@@ -68,13 +68,18 @@ Zweite Wallet anlegen und etwas schicken:
 ```
 build/bin/velincoin-cli -regtest createwallet "ben"
 build/bin/velincoin-cli -regtest -rpcwallet=ben getnewaddress
-build/bin/velincoin-cli -regtest -rpcwallet=anna -named sendtoaddress address=<bens-adresse> amount=12.5 fee_rate=1
+build/bin/velincoin-cli -regtest -rpcwallet=anna sendtoaddress <bens-adresse> 12.5
 build/bin/velincoin-cli -regtest generatetoaddress 1 <annas-adresse>
 build/bin/velincoin-cli -regtest -rpcwallet=ben getbalance
 ```
 
 Sind mehrere Wallets geladen, muss man mit `-rpcwallet=` sagen, welche gemeint
 ist. Der Block nach dem Senden bestätigt die Zahlung. Danach hat Ben `12.50000000`.
+
+Die Gebühr zahlt Anna. Die Wallet wählt sie selbst: Solange es keine Schätzung gibt
+(wie in Regtest), die kleinste, 1 Satoshi pro vByte. Diese Überweisung kostet damit
+`0.00000141` VLC. Eine eigene Gebühr geht mit `-named sendtoaddress address=...
+amount=12.5 fee_rate=5` (Satoshi pro vByte).
 
 ### Node stoppen
 
@@ -118,18 +123,25 @@ build/bin/velincoin-cli -testnet4 generatetoaddress 1 <adresse> 2000000000
 Die grosse Zahl am Ende ist die maximale Anzahl Versuche. Ohne sie gibt der
 Befehl schon nach einer Million Versuchen auf, und das reicht fast nie.
 
-**Wie lange dauert das?** Bei der niedrigsten Schwierigkeit braucht ein Block im
-Durchschnitt etwa 17 Millionen Versuche. Der eingebaute Miner nutzt nur einen
-Prozessorkern. Bei einer Messung auf einem Server fand er 20 Blöcke in gut
-5 Minuten, also etwa **15 Sekunden pro Block**. Es ist Glückssache: Manchmal geht
-es schneller, manchmal länger. Auf eurem Computer kann es schneller oder
-langsamer sein.
+**Wie lange dauert das?** Das Testnetz ist auf einen Block alle 90 Sekunden
+eingestellt. Am Anfang braucht ein Block im Durchschnitt etwa 270 Millionen
+Versuche. Der eingebaute Miner nutzt nur einen Prozessorkern und braucht dafür
+etwa **1 bis 2 Minuten**. Es ist Glückssache: Manchmal geht es schneller,
+manchmal länger. Auf eurem Computer kann es schneller oder langsamer sein.
 
-Wichtig: Gemined Coins sind erst nach 100 weiteren Blöcken ausgebbar. Mined also
-zum Beispiel 110 Blöcke, dann sind die ersten 10 Belohnungen (500 VLC) frei.
+Die Start-Schwierigkeit ist auch die niedrigste. Schneller als etwa eine Minute
+pro Block wird es mit einem Prozessorkern also nicht. Ist die Schwierigkeit
+gestiegen, weil viele minen, und hat 3 Minuten lang niemand einen Block
+gefunden, darf der nächste Block wieder mit der niedrigsten Schwierigkeit
+gemined werden.
 
-Wenn viele Blöcke schnell hintereinander kommen, steigt die Schwierigkeit alle
-2016 Blöcke automatisch an.
+Wichtig: Geminte Coins sind erst nach 100 weiteren Blöcken ausgebbar. Mined also
+zum Beispiel 110 Blöcke, dann sind die ersten 10 Belohnungen (500 VLC) frei. Mit
+einem Prozessorkern dauert das etwa zwei bis drei Stunden.
+
+Die Schwierigkeit passt sich alle 2016 Blöcke automatisch an: Kommen die Blöcke
+schneller als alle 90 Sekunden, wird es schwieriger, kommen sie langsamer,
+wird es leichter.
 
 ### Grafische Wallet
 
@@ -150,6 +162,28 @@ zum Hauptnetz, eine mit `tvlc1` zum Testnetz.
 2. Beim ersten Start gibt es im Testnetz noch keine Wallet: **File > Create
    Wallet** wählen und einen Namen eingeben.
 3. **Receive > Create new receiving address**. Die Adresse beginnt mit `tvlc1`.
+
+### Transaktionen im eigenen Block Explorer öffnen
+
+Läuft der Block Explorer auf eurem Computer (siehe
+[contrib/velincoin/explorer/README.md](../../contrib/velincoin/explorer/README.md)),
+kann die Wallet jede Transaktion direkt darin öffnen:
+
+1. **Settings > Options** (Deutsch: **Einstellungen > Optionen**), Reiter
+   **Display** (**Anzeige**).
+2. Bei **Third-party transaction URLs** (**Transaktions-URLs von Drittparteien**) eintragen:
+
+   ```
+   http://127.0.0.1:8080/tx/%s
+   ```
+
+   `%s` ersetzt die Wallet durch die Transaktions-ID. `8080` ist der Port, auf
+   dem der Explorer läuft (Standard, änderbar mit `--port`).
+3. Mit **OK** bestätigen und die Wallet neu starten.
+
+Danach hat in der Liste der Transaktionen das Kontextmenü (Rechtsklick) einen
+Eintrag mit dieser Adresse. In der Wallet ist bewusst kein Explorer
+voreingestellt, weil es noch keinen öffentlichen Live-Explorer gibt.
 
 
 3. Wo liegen die Daten?

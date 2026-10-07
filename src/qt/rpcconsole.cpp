@@ -11,6 +11,7 @@
 #include <common/system.h>
 #include <interfaces/node.h>
 #include <node/connection_types.h>
+#include <qt/addnodedialog.h>
 #include <qt/bantablemodel.h>
 #include <qt/clientmodel.h>
 #include <qt/guiutil.h>
@@ -117,6 +118,7 @@ public:
 };
 
 #include <qt/rpcconsole.moc>
+#include <qt/velincointheme.h>
 
 /**
  * Split shell command line into a list of arguments and optionally execute the command(s).
@@ -441,6 +443,15 @@ RPCConsole::RPCConsole(interfaces::Node& node, const PlatformStyle *_platformSty
     platformStyle(_platformStyle)
 {
     ui->setupUi(this);
+
+    // Peers page: connect to another node by IP address or name
+    QPushButton* add_node_button = new QPushButton(tr("Add node…"), ui->tab_peers);
+    add_node_button->setToolTip(tr("Connect to another Velincoin node by IP address or name"));
+    ui->verticalLayout_7->insertWidget(1, add_node_button, 0, Qt::AlignLeft);
+    connect(add_node_button, &QPushButton::clicked, this, [this] {
+        AddNodeDialog dlg(m_node, Params().GetDefaultPort(), this);
+        dlg.exec();
+    });
     QSettings settings;
 #ifdef ENABLE_WALLET
     if (WalletModel::isWalletEnabled()) {
@@ -854,13 +865,14 @@ void RPCConsole::clear(bool keep_prompt)
     ui->messagesWidget->document()->setDefaultStyleSheet(
         QString(
                 "table { }"
-                "td.time { color: #808080; font-size: %2; padding-top: 3px; } "
+                "td.time { color: %3; font-size: %2; padding-top: 3px; } "
                 "td.message { font-family: %1; font-size: %2; white-space:pre-wrap; } "
-                "td.cmd-request { color: #a78bfa; } "
-                "td.cmd-error { color: #f87171; } "
-                ".secwarning { color: #f87171; }"
-                "b { color: #a78bfa; } "
-            ).arg(fixedFontInfo.family(), QString("%1pt").arg(consoleFontSize))
+                "td.cmd-request { color: %4; } "
+                "td.cmd-error { color: %5; } "
+                ".secwarning { color: %5; }"
+                "b { color: %4; } "
+            ).arg(fixedFontInfo.family(), QString("%1pt").arg(consoleFontSize), VelincoinTheme::TEXT_DIM.name(),
+                  VelincoinTheme::ACCENT_TEXT.name(), VelincoinTheme::NEGATIVE.name())
         );
 
     static const QString welcome_message =

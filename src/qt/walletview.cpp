@@ -5,10 +5,12 @@
 #include <qt/walletview.h>
 
 #include <qt/addressbookpage.h>
+#include <qt/backupreminder.h>
 #include <qt/askpassphrasedialog.h>
 #include <qt/clientmodel.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
+#include <qt/miningpage.h>
 #include <qt/overviewpage.h>
 #include <qt/platformstyle.h>
 #include <qt/receivecoinsdialog.h>
@@ -90,10 +92,14 @@ WalletView::WalletView(WalletModel* wallet_model, const PlatformStyle* _platform
     AddPageTitle(receiveCoinsPage, tr("Receive"));
     AddPageTitle(transactionsPage, tr("Transactions"));
 
+    miningPage = new MiningPage(walletModel);
+    AddPageTitle(miningPage, tr("Mining"));
+
     addWidget(overviewPage);
     addWidget(transactionsPage);
     addWidget(receiveCoinsPage);
     addWidget(sendCoinsPage);
+    addWidget(miningPage);
 
     connect(overviewPage, &OverviewPage::transactionClicked, this, &WalletView::transactionClicked);
     // Clicking on a transaction on the overview pre-selects the transaction on the transaction history page
@@ -103,6 +109,9 @@ WalletView::WalletView(WalletModel* wallet_model, const PlatformStyle* _platform
     connect(overviewPage, &OverviewPage::sendCoinsClicked, this, &WalletView::sendCoinsClicked);
     connect(overviewPage, &OverviewPage::receiveCoinsClicked, this, &WalletView::receiveCoinsClicked);
     connect(overviewPage, &OverviewPage::showHistoryClicked, this, &WalletView::showHistoryClicked);
+    connect(overviewPage, &OverviewPage::togglePrivacyClicked, this, &WalletView::togglePrivacyClicked);
+    connect(overviewPage, &OverviewPage::addNodeClicked, this, &WalletView::addNodeClicked);
+    connect(overviewPage, &OverviewPage::backupClicked, this, &WalletView::backupWallet);
 
     connect(sendCoinsPage, &SendCoinsDialog::coinsSent, this, &WalletView::coinsSent);
     // Highlight transaction after send
@@ -142,6 +151,7 @@ void WalletView::setClientModel(ClientModel *_clientModel)
     this->clientModel = _clientModel;
 
     overviewPage->setClientModel(_clientModel);
+    miningPage->setClientModel(_clientModel);
     sendCoinsPage->setClientModel(_clientModel);
     walletModel->setClientModel(_clientModel);
 }
@@ -180,6 +190,17 @@ void WalletView::gotoHistoryPage()
 void WalletView::gotoReceiveCoinsPage()
 {
     setCurrentWidget(receiveCoinsPage);
+}
+
+void WalletView::setMiner(CpuMiner* miner)
+{
+    miningPage->setMiner(miner);
+    if (!miner && currentWidget() == miningPage) gotoOverviewPage();
+}
+
+void WalletView::gotoMiningPage()
+{
+    setCurrentWidget(miningPage);
 }
 
 void WalletView::gotoSendCoinsPage(QString addr)
@@ -247,6 +268,8 @@ void WalletView::backupWallet()
             CClientUIInterface::MSG_ERROR);
         }
     else {
+        BackupReminder::MarkBackedUp(walletModel->getWalletName());
+        overviewPage->updateBackupHint();
         Q_EMIT message(tr("Backup Successful"), tr("The wallet data was successfully saved to %1.").arg(filename),
             CClientUIInterface::MSG_INFORMATION);
     }
