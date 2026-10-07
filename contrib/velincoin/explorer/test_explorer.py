@@ -249,7 +249,8 @@ def main():
               "Suchindex enthält Blöcke, Transaktionen und Adressen")
         with open(os.path.join(out, "index.html"), encoding="utf-8") as f:
             home = f.read()
-        check("Momentaufnahme vom" in home and 'href="/' not in home, "Export zeigt den Stand und nutzt nur relative Links")
+        check("data-snapshot" in home and 'href="/' not in home and index["tip"] == tip["height"],
+              "Export zeigt den Stand (über search-index.js) und nutzt nur relative Links")
         check(ex.URLS.static_site is False and get(base, "/")[0] == 200, "Webserver läuft nach dem Export normal weiter")
 
         print("Reorg: zwei Blöcke ersetzen")

@@ -5,8 +5,9 @@ Velincoin (Kürzel **VLC**) ist eine eigene Kryptowährung mit eigener Blockchai
 Der Code ist ein Fork von [Bitcoin Core](https://github.com/bitcoin/bitcoin) v31.1.
 Website: https://velincoin.com
 
-Status: **in Entwicklung, noch nicht öffentlich gestartet.** Es gibt noch keine
-Server (Seed-Nodes), keine Börse und keinen Block Explorer.
+Status: **in Entwicklung, noch nicht öffentlich gestartet.** Für das Testnetz läuft
+ein Seed-Server (`159.195.4.228`, Port 29733). Für das Hauptnetz gibt es noch keinen
+Server und keine Börse.
 
 Was ist gleich wie bei Bitcoin?
 -------------------------------
@@ -158,9 +159,9 @@ Was noch nicht angepasst ist
   `2a00:11c0:5f:4539:1448:c9ff:fe1d:3565` (IPv6), Port 9733 im Hauptnetz und
   29733 im Testnetz (`contrib/seeds/nodes_main.txt`, `nodes_testnet4.txt`,
   daraus erzeugt `src/chainparamsseeds.h`). Ein neuer Node ohne bekannte Adressen
-  verbindet sich nach etwa einer Minute von selbst damit. DNS-Seeds gibt es noch
-  keine. Siehe [doc/velincoin/seed-server.md](doc/velincoin/seed-server.md) und
-  [doc/velincoin/server-einrichten.md](doc/velincoin/server-einrichten.md).
+  verbindet sich nach etwa einer Minute von selbst damit, die grafische Wallet
+  gleich beim Start. Der Server betreibt im Moment nur das Testnetz. DNS-Seeds
+  gibt es noch keine. Siehe [doc/velincoin/seed-server.md](doc/velincoin/seed-server.md).
 - **Mindest-Arbeit der Kette (`nMinimumChainWork`):** steht auf 0. Das ist für eine
   neue Kette nötig. Sobald das Netz läuft, muss der Wert regelmässig erhöht werden.
   Er schützt neue Nodes davor, einer gefälschten Kette mit wenig Arbeit zu folgen.

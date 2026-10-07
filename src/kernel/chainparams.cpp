@@ -367,7 +367,8 @@ public:
         assert(consensus.hashGenesisBlock == uint256{"000000075657e9777f2b51a6e28cbb0accf71ea826173207ab369d344859b903"});
         assert(genesis.hashMerkleRoot == uint256{"c82407bd2296a5651dac226c8a1b7122b015b20570c3e145237a238b89df8bc2"});
 
-        // The fixed seed is the Velincoin server (contrib/seeds/nodes_testnet4.txt).
+        // Fixed seeds from contrib/seeds/nodes_testnet4.txt. No DNS seeds yet
+        // (for example "testnet-seed.velincoin.com.").
         vFixedSeeds = std::vector<uint8_t>(std::begin(chainparams_seed_testnet4), std::end(chainparams_seed_testnet4));
         vSeeds.clear();
 

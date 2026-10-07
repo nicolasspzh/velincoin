@@ -94,8 +94,9 @@ Im Testnetz könnt ihr mit mehreren Computern ein echtes kleines Netz bilden.
 build/bin/velincoind -testnet4 -daemon
 ```
 
-Es gibt noch keine Seed-Server. Ein Node findet den anderen nur, wenn ihr die
-Adresse angebt. Auf dem zweiten Computer:
+Im Testnetz verbindet sich ein Node nach etwa einer Minute von selbst mit dem
+Seed-Server `159.195.4.228:29733`. Über ihn findet ihr euch gegenseitig. Direkt
+verbinden könnt ihr euch zusätzlich so, auf dem zweiten Computer:
 
 ```
 build/bin/velincoin-cli -testnet4 addnode "<IP-des-ersten-Computers>:29733" "add"

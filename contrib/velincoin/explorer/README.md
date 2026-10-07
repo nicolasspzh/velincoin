@@ -130,6 +130,56 @@ pushen. In den Projekteinstellungen von Vercel muss dafür als Root Directory
 `website` eingestellt sein.
 
 
+Automatisch aktualisieren (explorer_sync.py)
+--------------------------------------------
+
+`explorer_sync.py` erledigt Export und Hochladen von selbst. Es läuft neben der
+Wallet, schaut alle 5 Minuten nach neuen Blöcken und Zahlungen und lädt nur die
+geänderten Dateien mit der GitHub-API in den Ordner `website/explorer` auf dem
+Branch `main`. Vercel veröffentlicht danach automatisch. Git muss dafür nicht
+installiert sein.
+
+Einmalig einrichten:
+
+1. Auf GitHub einen Token erstellen: **Settings > Developer settings > Personal
+   access tokens > Fine-grained tokens > Generate new token**. Bei
+   *Repository access* nur das Repository `velincoin` auswählen, bei
+   *Repository permissions* **Contents** auf **Read and write** stellen.
+2. Den Token in eine Datei `github-token.txt` neben `explorer_sync.py` speichern.
+   Diese Datei nie weitergeben und nie committen. Sie steht in `.gitignore`.
+
+Starten, während die Wallet mit RPC-Server läuft:
+
+```
+py explorer_sync.py
+```
+
+Beenden mit Ctrl+C. `py explorer_sync.py --once` aktualisiert nur einmal.
+
+- Die Website kann nur eine Blockchain zeigen. Zeigt sie bereits eine andere
+  Kette, zum Beispiel die eines anderen, nicht verbundenen Computers, bricht
+  das Programm ab. Mit `--replace` ersetzt es sie trotzdem.
+- Ein neuer Block ändert nur wenige Dateien. Die Zahl der Bestätigungen und der
+  Stand werden im Browser aus `search-index.js` berechnet.
+- Getestet mit `test_explorer_sync.py` gegen eine nachgebaute GitHub-API.
+
+### Auf dem Seed-Server
+
+Statt auf einem eigenen Computer kann `explorer_sync.py` auf dem Seed-Server
+laufen. Dann zeigt die Website die Kette des Servers, mit dem alle Wallets
+verbunden sind, und sie bleibt aktuell, auch wenn kein eigener Computer läuft.
+Nachdem `contrib/velincoin/setup-seed-node.sh` gelaufen ist, als root:
+
+```
+bash setup-explorer-sync.sh
+```
+
+Das Skript fragt einmal nach dem GitHub-Token, speichert ihn in
+`/etc/velincoin/github-token.txt` und startet den Dienst
+`velincoin-explorer-sync`. Meldungen: `journalctl -u velincoin-explorer-sync -f`.
+Läuft der Sync auf dem Server, auf dem eigenen Computer nicht mehr starten.
+
+
 JSON-API
 --------
 
