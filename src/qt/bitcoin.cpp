@@ -29,6 +29,7 @@
 #include <qt/platformstyle.h>
 #include <qt/splashscreen.h>
 #include <qt/utilitydialog.h>
+#include <qt/velincoinserver.h>
 #include <qt/velincointheme.h>
 #include <qt/winshutdownmonitor.h>
 #include <uint256.h>
@@ -393,6 +394,7 @@ void BitcoinApplication::initializeResult(bool success, interfaces::BlockAndHead
     qInfo() << "Platform customization:" << platformStyle->getName();
     clientModel = new ClientModel(node(), optionsModel);
     window->setClientModel(clientModel, &tip_info);
+    VelincoinServer::ConnectAtStart(node());
 
     // If '-min' option passed, start window minimized (iconified) or minimized to tray
     bool start_minimized = gArgs.GetBoolArg("-min", false);

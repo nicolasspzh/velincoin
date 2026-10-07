@@ -23,6 +23,15 @@ inline const QStringList HOSTS{QStringLiteral("159.195.4.228"), QStringLiteral("
  * text if the node refused every address.
  */
 bool ConnectNow(interfaces::Node& node, QString& error);
+
+/**
+ * Keep the wallet connected to the server from the start (addnode "add"): the
+ * node connects within seconds instead of waiting a minute for the fixed seeds,
+ * and connects again by itself whenever the connection drops. Only on the main
+ * and the test network (the server runs no other), and not when the peers were
+ * chosen with -connect.
+ */
+void ConnectAtStart(interfaces::Node& node);
 } // namespace VelincoinServer
 
 #endif // BITCOIN_QT_VELINCOINSERVER_H
