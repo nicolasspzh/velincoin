@@ -46,6 +46,8 @@ Var StartMenuGroup
 
 # Installer pages
 !insertmacro MUI_PAGE_WELCOME
+# Velincoin: the MIT licence from COPYING
+!insertmacro MUI_PAGE_LICENSE "@abs_top_srcdir@/COPYING"
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_STARTMENU Application $StartMenuGroup
