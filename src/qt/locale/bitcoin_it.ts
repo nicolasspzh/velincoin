@@ -1905,6 +1905,10 @@ Il processo di migrazione creerà un backup del portafoglio prima della migrazio
         <source>Not in the chain, another block was faster</source>
         <translation type="unfinished">Non nella catena, un altro blocco è stato più veloce</translation>
     </message>
+    <message>
+        <source>less than a second on this computer</source>
+        <translation type="unfinished">meno di un secondo su questo computer</translation>
+    </message>
 </context>
 <context>
     <name>ModalOverlay</name>

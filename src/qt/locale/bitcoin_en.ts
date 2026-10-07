@@ -1864,6 +1864,11 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+0"/>
+        <source>less than a second on this computer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+5"/>
         <source>A new address of this wallet</source>
         <translation type="unfinished"></translation>
@@ -2589,18 +2594,18 @@ The migration process will create a backup of the wallet before migrating. This 
     <message>
         <location filename="../overviewpage.cpp" line="+208"/>
         <location line="+16"/>
-        <location line="+138"/>
+        <location line="+142"/>
         <source>Sync</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-151"/>
-        <location line="+154"/>
+        <location line="-155"/>
+        <location line="+158"/>
         <source>Connect to the Velincoin server now and fetch new blocks.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-144"/>
+        <location line="-148"/>
         <source>Not connected to the Velincoin network. New blocks and payments only arrive when the wallet is connected.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2610,7 +2615,7 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+22"/>
+        <location line="+26"/>
         <source>This wallet is not backed up yet. If this computer breaks or gets lost, the VLC in it are gone. Save a copy, for example on a USB stick.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5614,7 +5619,7 @@ Your wallets and addresses stay. Test coins from the old test network are gone. 
 <context>
     <name>TxViewDelegate</name>
     <message>
-        <location filename="../overviewpage.cpp" line="-315"/>
+        <location filename="../overviewpage.cpp" line="-319"/>
         <source>Pending</source>
         <translation type="unfinished"></translation>
     </message>

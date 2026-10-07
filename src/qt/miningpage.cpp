@@ -243,7 +243,7 @@ void MiningPage::updateStatus()
     m_speed->setText(stats.running && stats.hashrate > 0 ? FormatHashrate(stats.hashrate) : QStringLiteral("–"));
     if (stats.running && stats.bits && stats.hashrate > 0) {
         const auto seconds{std::chrono::seconds{std::llround(CpuMiner::ExpectedHashes(stats.bits) / stats.hashrate)}};
-        m_expected->setText(tr("about %1 on this computer").arg(GUIUtil::formatDurationStr(seconds)));
+        m_expected->setText(seconds.count() < 1 ? tr("less than a second on this computer") : tr("about %1 on this computer").arg(GUIUtil::formatDurationStr(seconds)));
     } else {
         m_expected->setText(QStringLiteral("–"));
     }

@@ -1905,6 +1905,10 @@ Der Migrationsprozess erstellt vor der Migration ein Backup der Wallet. Diese Si
         <source>Not in the chain, another block was faster</source>
         <translation>Nicht in der Kette, ein anderer Block war schneller</translation>
     </message>
+    <message>
+        <source>less than a second on this computer</source>
+        <translation>unter einer Sekunde auf diesem Computer</translation>
+    </message>
 </context>
 <context>
     <name>ModalOverlay</name>
