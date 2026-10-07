@@ -5,6 +5,7 @@
 #include <qt/overviewpage.h>
 #include <qt/forms/ui_overviewpage.h>
 
+#include <qt/backupreminder.h>
 #include <qt/bitcoinunits.h>
 #include <qt/clientmodel.h>
 #include <qt/demovalue.h>
@@ -228,6 +229,30 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     m_connection_hint->setVisible(false);
     ui->topLayout->insertWidget(ui->topLayout->indexOf(ui->balanceCard), m_connection_hint);
 
+    // Reminder until the wallet is backed up: without a copy the coins are lost with the computer
+    m_backup_hint = new QFrame(this);
+    m_backup_hint->setObjectName(QStringLiteral("backupHint"));
+    QHBoxLayout* backup_layout = new QHBoxLayout(m_backup_hint);
+    backup_layout->setContentsMargins(16, 12, 12, 12);
+    backup_layout->setSpacing(10);
+    QLabel* backup_text = new QLabel(tr("This wallet is not backed up yet. If this computer breaks or gets lost, the VLC in it are gone. "
+                                        "Save a copy, for example on a USB stick."), m_backup_hint);
+    backup_text->setWordWrap(true);
+    backup_layout->addWidget(backup_text, 1);
+    QPushButton* backup_later = new QPushButton(tr("Later"), m_backup_hint);
+    backup_later->setToolTip(tr("Remind me again in %1 days").arg(BackupReminder::SNOOZE_DAYS));
+    connect(backup_later, &QPushButton::clicked, this, [this] {
+        if (walletModel) BackupReminder::Snooze(walletModel->getWalletName());
+        updateBackupHint();
+    });
+    backup_layout->addWidget(backup_later);
+    QPushButton* backup_now = new QPushButton(tr("Back up now"), m_backup_hint);
+    backup_now->setProperty("primary", true);
+    connect(backup_now, &QPushButton::clicked, this, &OverviewPage::backupClicked);
+    backup_layout->addWidget(backup_now);
+    m_backup_hint->setVisible(false);
+    ui->topLayout->insertWidget(ui->topLayout->indexOf(ui->balanceCard), m_backup_hint);
+
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
     connect(ui->labelWalletStatus, &QPushButton::clicked, this, &OverviewPage::outOfSyncWarningClicked);
@@ -376,9 +401,17 @@ void OverviewPage::setWalletModel(WalletModel *model)
         connect(model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &OverviewPage::updateDisplayUnit);
         connect(model->getOptionsModel(), &OptionsModel::showDemoValueChanged, this, &OverviewPage::updateDisplayUnit);
     }
+    updateBackupHint();
 
     // update the display unit, to not use the default ("BTC")
     updateDisplayUnit();
+}
+
+void OverviewPage::updateBackupHint()
+{
+    // A watch-only wallet has no keys to lose
+    m_backup_hint->setVisible(walletModel && !walletModel->wallet().privateKeysDisabled() &&
+                              BackupReminder::ShouldRemind(walletModel->getWalletName()));
 }
 
 void OverviewPage::changeEvent(QEvent* e)

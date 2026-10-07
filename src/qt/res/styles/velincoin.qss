@@ -150,6 +150,8 @@ QLabel#labelNoTransactions { color: #6b6b75; padding: 28px 8px; }
 QListView#listTransactions { background: transparent; border: none; }
 QFrame#connectionHint { background: #17140c; border: 1px solid #3a3220; border-radius: 12px; }
 QFrame#connectionHint QLabel { color: #fde68a; }
+QFrame#backupHint { background: #15121f; border: 1px solid #2f2750; border-radius: 12px; }
+QFrame#backupHint QLabel { color: #ddd6fe; }
 QLabel#labelAlerts, QLabel#label_alerts {
     background: #19150b; color: #fde68a; border: 1px solid #3a3220; border-radius: 10px; padding: 9px 12px;
 }

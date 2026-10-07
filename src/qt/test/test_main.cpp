@@ -10,6 +10,7 @@
 #include <qt/guiconstants.h>
 #include <qt/test/addnodetests.h>
 #include <qt/test/apptests.h>
+#include <qt/test/backupremindertests.h>
 #include <qt/test/demovaluetests.h>
 #include <qt/test/optiontests.h>
 #include <qt/test/rpcnestedtests.h>
@@ -95,6 +96,9 @@ int main(int argc, char* argv[])
 
         AddNodeTests add_node_tests;
         num_test_failures += QTest::qExec(&add_node_tests);
+
+        BackupReminderTests backup_reminder_tests;
+        num_test_failures += QTest::qExec(&backup_reminder_tests);
 
         TestnetResetTests testnet_reset_tests;
         num_test_failures += QTest::qExec(&testnet_reset_tests);

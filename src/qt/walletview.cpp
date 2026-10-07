@@ -5,6 +5,7 @@
 #include <qt/walletview.h>
 
 #include <qt/addressbookpage.h>
+#include <qt/backupreminder.h>
 #include <qt/askpassphrasedialog.h>
 #include <qt/clientmodel.h>
 #include <qt/guiutil.h>
@@ -110,6 +111,7 @@ WalletView::WalletView(WalletModel* wallet_model, const PlatformStyle* _platform
     connect(overviewPage, &OverviewPage::showHistoryClicked, this, &WalletView::showHistoryClicked);
     connect(overviewPage, &OverviewPage::togglePrivacyClicked, this, &WalletView::togglePrivacyClicked);
     connect(overviewPage, &OverviewPage::addNodeClicked, this, &WalletView::addNodeClicked);
+    connect(overviewPage, &OverviewPage::backupClicked, this, &WalletView::backupWallet);
 
     connect(sendCoinsPage, &SendCoinsDialog::coinsSent, this, &WalletView::coinsSent);
     // Highlight transaction after send
@@ -266,6 +268,8 @@ void WalletView::backupWallet()
             CClientUIInterface::MSG_ERROR);
         }
     else {
+        BackupReminder::MarkBackedUp(walletModel->getWalletName());
+        overviewPage->updateBackupHint();
         Q_EMIT message(tr("Backup Successful"), tr("The wallet data was successfully saved to %1.").arg(filename),
             CClientUIInterface::MSG_INFORMATION);
     }

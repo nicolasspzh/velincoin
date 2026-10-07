@@ -2020,6 +2020,22 @@ Der Migrationsprozess erstellt vor der Migration ein Backup der Wallet. Diese Si
         <source>Add node…</source>
         <translation>Node hinzufügen…</translation>
     </message>
+    <message>
+        <source>This wallet is not backed up yet. If this computer breaks or gets lost, the VLC in it are gone. Save a copy, for example on a USB stick.</source>
+        <translation>Diese Wallet ist noch nicht gesichert. Geht der Computer kaputt oder verloren, sind die VLC darin weg. Speichere eine Kopie, zum Beispiel auf einem USB-Stick.</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>Später</translation>
+    </message>
+    <message>
+        <source>Remind me again in %1 days</source>
+        <translation>In %1 Tagen wieder erinnern</translation>
+    </message>
+    <message>
+        <source>Back up now</source>
+        <translation>Jetzt sichern</translation>
+    </message>
 </context>
 <context>
     <name>PSBTOperationsDialog</name>

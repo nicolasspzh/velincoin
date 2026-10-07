@@ -39,6 +39,8 @@ public:
     void setClientModel(ClientModel *clientModel);
     void setWalletModel(WalletModel *walletModel);
     void showOutOfSyncWarning(bool fShow);
+    /** Show or hide the backup reminder for this wallet (see BackupReminder). */
+    void updateBackupHint();
 
 public Q_SLOTS:
     void setBalance(const interfaces::WalletBalances& balances);
@@ -54,6 +56,8 @@ Q_SIGNALS:
     void togglePrivacyClicked();
     //! The "Add node" button of the no-connection hint was clicked
     void addNodeClicked();
+    //! "Back up now" in the backup reminder was clicked
+    void backupClicked();
 
 protected:
     void changeEvent(QEvent* e) override;
@@ -66,6 +70,7 @@ private:
     QPushButton* m_sync_button{nullptr};
     QToolButton* m_privacy_button{nullptr};
     QFrame* m_connection_hint{nullptr};
+    QFrame* m_backup_hint{nullptr};
     bool m_connection_hint_allowed{false};
     bool m_sync_requested{false};
 
