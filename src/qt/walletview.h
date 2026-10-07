@@ -127,6 +127,7 @@ Q_SIGNALS:
     void receiveCoinsClicked();
     void showHistoryClicked();
     void togglePrivacyClicked();
+    void addNodeClicked();
 };
 
 #endif // BITCOIN_QT_WALLETVIEW_H

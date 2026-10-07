@@ -104,6 +104,7 @@ WalletView::WalletView(WalletModel* wallet_model, const PlatformStyle* _platform
     connect(overviewPage, &OverviewPage::receiveCoinsClicked, this, &WalletView::receiveCoinsClicked);
     connect(overviewPage, &OverviewPage::showHistoryClicked, this, &WalletView::showHistoryClicked);
     connect(overviewPage, &OverviewPage::togglePrivacyClicked, this, &WalletView::togglePrivacyClicked);
+    connect(overviewPage, &OverviewPage::addNodeClicked, this, &WalletView::addNodeClicked);
 
     connect(sendCoinsPage, &SendCoinsDialog::coinsSent, this, &WalletView::coinsSent);
     // Highlight transaction after send

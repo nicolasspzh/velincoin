@@ -6,6 +6,7 @@
 
 #include <qt/bitcoingui.h>
 
+#include <qt/addnodedialog.h>
 #include <qt/bitcoinunits.h>
 #include <qt/clientmodel.h>
 #include <qt/createwalletdialog.h>
@@ -386,6 +387,10 @@ void BitcoinGUI::createActions()
     connect(optionsAction, &QAction::triggered, this, &BitcoinGUI::optionsClicked);
     connect(showHelpMessageAction, &QAction::triggered, this, &BitcoinGUI::showHelpMessageClicked);
     connect(openRPCConsoleAction, &QAction::triggered, this, &BitcoinGUI::showDebugWindow);
+
+    m_add_node_action = new QAction(tr("Add node…"), this);
+    m_add_node_action->setStatusTip(tr("Connect to another Velincoin node by IP address or name"));
+    connect(m_add_node_action, &QAction::triggered, this, &BitcoinGUI::showAddNodeDialog);
     // prevents an open debug window from becoming stuck/unusable on client shutdown
     connect(quitAction, &QAction::triggered, rpcConsole, &QWidget::hide);
 
@@ -612,6 +617,7 @@ void BitcoinGUI::createMenuBar()
     }
 
     window_menu->addSeparator();
+    window_menu->addAction(m_add_node_action);
     for (RPCConsole::TabTypes tab_type : rpcConsole->tabs()) {
         QAction* tab_action = window_menu->addAction(rpcConsole->tabTitle(tab_type));
         tab_action->setShortcut(rpcConsole->tabShortcut(tab_type));
@@ -830,6 +836,7 @@ void BitcoinGUI::addWallet(WalletModel* walletModel)
     connect(wallet_view, &WalletView::showHistoryClicked, this, &BitcoinGUI::gotoHistoryPage);
     // The eye button on the overview toggles Settings > Mask values; the menu item stays in sync
     connect(wallet_view, &WalletView::togglePrivacyClicked, m_mask_values_action, &QAction::toggle);
+    connect(wallet_view, &WalletView::addNodeClicked, this, &BitcoinGUI::showAddNodeDialog);
     connect(wallet_view, &WalletView::transactionClicked, this, &BitcoinGUI::gotoHistoryPage);
     connect(wallet_view, &WalletView::coinsSent, this, &BitcoinGUI::gotoHistoryPage);
     connect(wallet_view, &WalletView::message, [this](const QString& title, const QString& message, unsigned int style) {
@@ -1024,6 +1031,12 @@ void BitcoinGUI::showDebugWindow()
 {
     GUIUtil::bringToFront(rpcConsole);
     Q_EMIT consoleShown(rpcConsole);
+}
+
+void BitcoinGUI::showAddNodeDialog()
+{
+    AddNodeDialog dlg(m_node, Params().GetDefaultPort(), this);
+    dlg.exec();
 }
 
 void BitcoinGUI::showDebugWindowActivateConsole()

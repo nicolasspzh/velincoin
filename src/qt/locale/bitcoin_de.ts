@@ -894,6 +894,14 @@ Das Signieren ist nur mit Adressen vom Typ 'Legacy' möglich.</translation>
         <source>Wallet</source>
         <translation>Wallet</translation>
     </message>
+    <message>
+        <source>Add node…</source>
+        <translation>Node hinzufügen…</translation>
+    </message>
+    <message>
+        <source>Connect to another Velincoin node by IP address or name</source>
+        <translation>Mit einem anderen Velincoin-Node verbinden (IP-Adresse oder Name)</translation>
+    </message>
 </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
@@ -1988,6 +1996,14 @@ Der Migrationsprozess erstellt vor der Migration ein Backup der Wallet. Diese Si
         <source>Hide amounts</source>
         <translation>Beträge verbergen</translation>
     </message>
+    <message>
+        <source>Not connected to the Velincoin network. New blocks and payments only arrive when the wallet is connected.</source>
+        <translation>Keine Verbindung zum Velincoin-Netz. Neue Blöcke und Zahlungen kommen erst an, wenn die Wallet verbunden ist.</translation>
+    </message>
+    <message>
+        <source>Add node…</source>
+        <translation>Node hinzufügen…</translation>
+    </message>
 </context>
 <context>
     <name>PSBTOperationsDialog</name>
@@ -2761,6 +2777,14 @@ Für weitere Informationen über diese Konsole, tippe %6.
     <message>
         <source>Unknown</source>
         <translation type="unfinished">Unbekannt</translation>
+    </message>
+    <message>
+        <source>Add node…</source>
+        <translation>Node hinzufügen…</translation>
+    </message>
+    <message>
+        <source>Connect to another Velincoin node by IP address or name</source>
+        <translation>Mit einem anderen Velincoin-Node verbinden (IP-Adresse oder Name)</translation>
     </message>
 </context>
 <context>
@@ -5203,6 +5227,37 @@ Bitte mit der neuesten Softwareversion ausführen.
     <message>
         <source>Fixed demo value, not a market price. VLC is not traded anywhere yet.</source>
         <translation>Fester Demo-Wert, kein Marktpreis. VLC wird noch nirgends gehandelt.</translation>
+    </message>
+</context>
+<context>
+    <name>AddNodeDialog</name>
+    <message>
+        <source>Add node</source>
+        <translation>Node hinzufügen</translation>
+    </message>
+    <message>
+        <source>Connect to another Velincoin node, for example a friend&apos;s computer or a server. The wallet connects right away and again at every start.</source>
+        <translation>Mit einem anderen Velincoin-Node verbinden, zum Beispiel dem Computer eines Freundes oder einem Server. Die Wallet verbindet sich sofort und bei jedem Start wieder.</translation>
+    </message>
+    <message>
+        <source>for example 192.168.1.20</source>
+        <translation>zum Beispiel 192.168.1.20</translation>
+    </message>
+    <message>
+        <source>IP address or name</source>
+        <translation>IP-Adresse oder Name</translation>
+    </message>
+    <message>
+        <source>Port</source>
+        <translation>Port</translation>
+    </message>
+    <message>
+        <source>Default port of this network: %1</source>
+        <translation>Standardport dieses Netzes: %1</translation>
+    </message>
+    <message>
+        <source>Please enter an IP address or a name, for example 192.168.1.20.</source>
+        <translation>Bitte eine IP-Adresse oder einen Namen eingeben, zum Beispiel 192.168.1.20.</translation>
     </message>
 </context>
 </TS>

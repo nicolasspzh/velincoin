@@ -11,6 +11,7 @@
 #include <common/system.h>
 #include <interfaces/node.h>
 #include <node/connection_types.h>
+#include <qt/addnodedialog.h>
 #include <qt/bantablemodel.h>
 #include <qt/clientmodel.h>
 #include <qt/guiutil.h>
@@ -442,6 +443,15 @@ RPCConsole::RPCConsole(interfaces::Node& node, const PlatformStyle *_platformSty
     platformStyle(_platformStyle)
 {
     ui->setupUi(this);
+
+    // Peers page: connect to another node by IP address or name
+    QPushButton* add_node_button = new QPushButton(tr("Add node…"), ui->tab_peers);
+    add_node_button->setToolTip(tr("Connect to another Velincoin node by IP address or name"));
+    ui->verticalLayout_7->insertWidget(1, add_node_button, 0, Qt::AlignLeft);
+    connect(add_node_button, &QPushButton::clicked, this, [this] {
+        AddNodeDialog dlg(m_node, Params().GetDefaultPort(), this);
+        dlg.exec();
+    });
     QSettings settings;
 #ifdef ENABLE_WALLET
     if (WalletModel::isWalletEnabled()) {

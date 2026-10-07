@@ -25,7 +25,11 @@
 #include <QImage>
 #include <QPainter>
 #include <QPixmap>
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QLabel>
 #include <QPushButton>
+#include <QTimer>
 #include <QToolButton>
 #include <QStatusTipEvent>
 
@@ -206,6 +210,24 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->headerLayout->addWidget(m_sync_button);
     connect(m_sync_button, &QPushButton::clicked, this, &OverviewPage::syncClicked);
 
+    // Hint while there is no connection: without peers no new blocks or payments arrive
+    m_connection_hint = new QFrame(this);
+    m_connection_hint->setObjectName(QStringLiteral("connectionHint"));
+    QHBoxLayout* hint_layout = new QHBoxLayout(m_connection_hint);
+    hint_layout->setContentsMargins(16, 12, 12, 12);
+    hint_layout->setSpacing(10);
+    QLabel* hint_text = new QLabel(tr("Not connected to the Velincoin network. New blocks and payments only arrive when the wallet is connected."), m_connection_hint);
+    hint_text->setWordWrap(true);
+    hint_layout->addWidget(hint_text, 1);
+    QPushButton* hint_sync = new QPushButton(tr("Sync"), m_connection_hint);
+    connect(hint_sync, &QPushButton::clicked, this, &OverviewPage::syncClicked);
+    hint_layout->addWidget(hint_sync);
+    QPushButton* hint_add = new QPushButton(tr("Add node…"), m_connection_hint);
+    connect(hint_add, &QPushButton::clicked, this, &OverviewPage::addNodeClicked);
+    hint_layout->addWidget(hint_add);
+    m_connection_hint->setVisible(false);
+    ui->topLayout->insertWidget(ui->topLayout->indexOf(ui->balanceCard), m_connection_hint);
+
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
     connect(ui->labelWalletStatus, &QPushButton::clicked, this, &OverviewPage::outOfSyncWarningClicked);
@@ -301,6 +323,7 @@ void OverviewPage::updateSyncButton()
     } else {
         m_sync_button->setText(tr("Sync"));
     }
+    m_connection_hint->setVisible(m_connection_hint_allowed && connections == 0);
     m_sync_button->setToolTip(tr("Connect to the Velincoin server now and fetch new blocks.") + QStringLiteral("\n") +
                               tr("%n connection(s), block %1", "", connections).arg(height));
 }
@@ -310,6 +333,11 @@ void OverviewPage::setClientModel(ClientModel *model)
     this->clientModel = model;
     if (model) {
         connect(model, &ClientModel::numConnectionsChanged, this, &OverviewPage::updateSyncButton);
+        // The first connections take a few seconds after start; only then is "no connection" worth a hint
+        QTimer::singleShot(15000, this, [this] {
+            m_connection_hint_allowed = true;
+            updateSyncButton();
+        });
         connect(model, &ClientModel::numBlocksChanged, this, &OverviewPage::updateSyncButton);
         updateSyncButton();
         // Show warning, for example if this is a prerelease version

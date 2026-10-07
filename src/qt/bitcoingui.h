@@ -150,6 +150,7 @@ private:
     QAction* changePassphraseAction = nullptr;
     QAction* aboutQtAction = nullptr;
     QAction* openRPCConsoleAction = nullptr;
+    QAction* m_add_node_action = nullptr;
     QAction* openAction = nullptr;
     QAction* showHelpMessageAction = nullptr;
     QAction* m_create_wallet_action{nullptr};
@@ -302,6 +303,8 @@ public Q_SLOTS:
     void aboutClicked();
     /** Show debug window */
     void showDebugWindow();
+    /** Show the dialog to connect to another node by IP address or name */
+    void showAddNodeDialog();
     /** Show debug window and set focus to the console */
     void showDebugWindowActivateConsole();
     /** Show help message dialog */

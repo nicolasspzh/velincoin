@@ -24,6 +24,7 @@ QT_BEGIN_NAMESPACE
 class QModelIndex;
 class QPushButton;
 class QToolButton;
+class QFrame;
 QT_END_NAMESPACE
 
 /** Overview ("home") page widget */
@@ -51,6 +52,8 @@ Q_SIGNALS:
     void showHistoryClicked();
     //! The eye button next to the total balance was clicked
     void togglePrivacyClicked();
+    //! The "Add node" button of the no-connection hint was clicked
+    void addNodeClicked();
 
 protected:
     void changeEvent(QEvent* e) override;
@@ -62,6 +65,8 @@ private:
     bool m_privacy{false};
     QPushButton* m_sync_button{nullptr};
     QToolButton* m_privacy_button{nullptr};
+    QFrame* m_connection_hint{nullptr};
+    bool m_connection_hint_allowed{false};
     bool m_sync_requested{false};
 
     const PlatformStyle* m_platform_style;
