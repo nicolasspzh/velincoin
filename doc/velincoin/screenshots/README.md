@@ -11,6 +11,7 @@ mit einem Prozessorkern etwa 1 bis 2 Minuten.
 | Übersicht mit Wert in CHF, dunkel | ![](overview-dark-de.png) | ![](overview-dark-en.png) |
 | Übersicht, hell | ![](overview-light-de.png) | ![](overview-light-en.png) |
 | Willkommensseite (keine Wallet geladen) | ![](welcome-de.png) | ![](welcome-en.png) |
+| Überweisen, mit Erklärung der Gebühr | ![](send-page-de.png) | ![](send-page-en.png) |
 | Bestätigung beim Überweisen | ![](send-confirm-de.png) | ![](send-confirm-en.png) |
 | Node hinzufügen | ![](addnode-de.png) | ![](addnode-en.png) |
 | Mining | ![](mining-de.png) | ![](mining-en.png) |
