@@ -246,7 +246,7 @@ Das Signieren ist nur mit Adressen vom Typ &apos;Legacy&apos; möglich.</transla
     <message>
         <location line="+1"/>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
-        <translation type="unfinished">Warnung: Wenn Sie Ihre Wallet verschlüsseln und Ihre Passphrase verlieren, werden Sie &lt;b&gt;ALLE IHRE BITCOINS VERLIEREN&lt;/b&gt;!</translation>
+        <translation type="unfinished">Warnung: Wenn Sie Ihre Wallet verschlüsseln und Ihre Passphrase verlieren, werden Sie &lt;b&gt;ALLE IHRE VELINCOINS VERLIEREN&lt;/b&gt;!</translation>
     </message>
     <message>
         <location line="+0"/>
@@ -4634,7 +4634,7 @@ Hinweis: Da die Gebühr auf Basis der Bytes berechnet wird, führt eine Gebühre
     <message>
         <location line="-19"/>
         <source>You can increase the fee later (signals Replace-By-Fee, BIP-125).</source>
-        <translation type="unfinished">Sie können die Gebühr später erhöhen (signalisiert Replace-By-Fee, BIP-125).</translation>
+        <translation type="unfinished">Du kannst die Gebühr später erhöhen (signalisiert Replace-By-Fee, BIP-125).</translation>
     </message>
     <message>
         <location line="-63"/>
@@ -4651,7 +4651,7 @@ Hinweis: Da die Gebühr auf Basis der Bytes berechnet wird, führt eine Gebühre
         <location line="+14"/>
         <source>Please, review your transaction.</source>
         <extracomment>Text to prompt a user to review the details of the transaction they are attempting to send.</extracomment>
-        <translation type="unfinished">Bitte überprüfen sie ihre Transaktion.</translation>
+        <translation type="unfinished">Bitte überprüfe deine Transaktion.</translation>
     </message>
     <message>
         <location line="+8"/>

@@ -246,7 +246,7 @@ Il n’est possible de signer qu’avec les adresses de type «&#xa0;legacy&#xa0
     <message>
         <location line="+1"/>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
-        <translation type="unfinished">Avertissement&#xa0;: Si vous chiffrez votre portefeuille et perdez votre phrase de passe, vous &lt;b&gt;PERDREZ TOUS VOS BITCOINS&lt;/b&gt;&#x2009;!</translation>
+        <translation type="unfinished">Avertissement&#xa0;: Si vous chiffrez votre portefeuille et perdez votre phrase de passe, vous &lt;b&gt;PERDREZ TOUS VOS VELINCOINS&lt;/b&gt;&#x2009;!</translation>
     </message>
     <message>
         <location line="+0"/>

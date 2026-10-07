@@ -246,7 +246,7 @@ La firma è possibile solo con indirizzi di tipo &apos;legacy&apos;.</translatio
     <message>
         <location line="+1"/>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
-        <translation type="unfinished">Attenzione: Se si cifra il portafoglio e si perde la passphrase &lt;b&gt;TUTTI I PROPRI BITCOIN ANDRANNO PERSI&lt;/b&gt;!</translation>
+        <translation type="unfinished">Attenzione: Se si cifra il portafoglio e si perde la passphrase &lt;b&gt;TUTTI I PROPRI VELINCOIN ANDRANNO PERSI&lt;/b&gt;!</translation>
     </message>
     <message>
         <location line="+0"/>
