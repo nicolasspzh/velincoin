@@ -177,6 +177,8 @@ if(ENABLE_WALLET)
       askpassphrasedialog.h
       backupreminder.cpp
       backupreminder.h
+      balancechart.cpp
+      balancechart.h
       coincontroldialog.cpp
       coincontroldialog.h
       coincontroltreewidget.cpp

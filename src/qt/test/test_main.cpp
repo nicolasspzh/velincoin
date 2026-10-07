@@ -10,7 +10,6 @@
 #include <qt/guiconstants.h>
 #include <qt/test/addnodetests.h>
 #include <qt/test/apptests.h>
-#include <qt/test/backupremindertests.h>
 #include <qt/test/demovaluetests.h>
 #include <qt/test/optiontests.h>
 #include <qt/test/rpcnestedtests.h>
@@ -21,6 +20,8 @@
 
 #ifdef ENABLE_WALLET
 #include <qt/test/addressbooktests.h>
+#include <qt/test/backupremindertests.h>
+#include <qt/test/balancecharttests.h>
 #include <qt/test/wallettests.h>
 #endif // ENABLE_WALLET
 
@@ -97,9 +98,6 @@ int main(int argc, char* argv[])
         AddNodeTests add_node_tests;
         num_test_failures += QTest::qExec(&add_node_tests);
 
-        BackupReminderTests backup_reminder_tests;
-        num_test_failures += QTest::qExec(&backup_reminder_tests);
-
         TestnetResetTests testnet_reset_tests;
         num_test_failures += QTest::qExec(&testnet_reset_tests);
 
@@ -107,6 +105,12 @@ int main(int argc, char* argv[])
         num_test_failures += QTest::qExec(&test3);
 
 #ifdef ENABLE_WALLET
+        BackupReminderTests backup_reminder_tests;
+        num_test_failures += QTest::qExec(&backup_reminder_tests);
+
+        BalanceChartTests balance_chart_tests;
+        num_test_failures += QTest::qExec(&balance_chart_tests);
+
         WalletTests test5(app.node());
         num_test_failures += QTest::qExec(&test5);
 

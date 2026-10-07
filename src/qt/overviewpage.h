@@ -10,6 +10,7 @@
 #include <QWidget>
 #include <memory>
 
+class BalanceChart;
 class ClientModel;
 class TransactionFilterProxy;
 class TxViewDelegate;
@@ -71,6 +72,7 @@ private:
     QToolButton* m_privacy_button{nullptr};
     QFrame* m_connection_hint{nullptr};
     QFrame* m_backup_hint{nullptr};
+    BalanceChart* m_chart{nullptr};
     bool m_connection_hint_allowed{false};
     bool m_sync_requested{false};
 

@@ -6,6 +6,7 @@
 #include <qt/forms/ui_overviewpage.h>
 
 #include <qt/backupreminder.h>
+#include <qt/balancechart.h>
 #include <qt/bitcoinunits.h>
 #include <qt/clientmodel.h>
 #include <qt/demovalue.h>
@@ -229,6 +230,16 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     m_connection_hint->setVisible(false);
     ui->topLayout->insertWidget(ui->topLayout->indexOf(ui->balanceCard), m_connection_hint);
 
+    // Balance history next to the balances, in the room the spacer kept free
+    m_chart = new BalanceChart(ui->balanceCard);
+    m_chart->setVisible(false);
+    ui->statsRow->removeItem(ui->statsSpacer);
+    delete ui->statsSpacer;
+    ui->statsSpacer = nullptr;
+    ui->statsRow->addSpacing(16);
+    ui->statsRow->addWidget(m_chart, 1);
+    connect(m_chart, &BalanceChart::hasDataChanged, this, [this](bool has_data) { m_chart->setVisible(has_data && !m_privacy); });
+
     // Reminder until the wallet is backed up: without a copy the coins are lost with the computer
     m_backup_hint = new QFrame(this);
     m_backup_hint->setObjectName(QStringLiteral("backupHint"));
@@ -276,6 +287,8 @@ void OverviewPage::setPrivacy(bool privacy)
 
     LimitTransactionRows();
     updateIcons();
+    // The chart would show the amounts as well
+    m_chart->setVisible(!m_privacy && m_chart->hasData());
 
     const QString status_tip = m_privacy ? tr("Privacy mode activated for the Overview tab. To unmask the values, uncheck Settings->Mask values.") : "";
     setStatusTip(status_tip);
@@ -394,6 +407,8 @@ void OverviewPage::setWalletModel(WalletModel *model)
         connect(filter.get(), &TransactionFilterProxy::rowsRemoved, this, &OverviewPage::LimitTransactionRows);
         connect(filter.get(), &TransactionFilterProxy::rowsMoved, this, &OverviewPage::LimitTransactionRows);
         LimitTransactionRows();
+        m_chart->setModel(filter.get());
+        m_chart->setVisible(!m_privacy && m_chart->hasData());
         // Keep up to date with wallet
         setBalance(model->getCachedBalance());
         connect(model, &WalletModel::balanceChanged, this, &OverviewPage::setBalance);
@@ -463,6 +478,7 @@ void OverviewPage::updateDisplayUnit()
 
         // Update txdelegate->unit with the current unit
         txdelegate->unit = walletModel->getOptionsModel()->getDisplayUnit();
+        m_chart->setDisplayUnit(txdelegate->unit);
 
         ui->listTransactions->update();
     }

@@ -5430,4 +5430,39 @@ Deine Wallets und Adressen bleiben. Test-Coins aus dem alten Testnetz sind weg. 
         <translation>Nicht in der Kette, ein anderer Block war schneller</translation>
     </message>
 </context>
+<context>
+    <name>BalanceChart</name>
+    <message>
+        <source>History</source>
+        <translation>Verlauf</translation>
+    </message>
+    <message>
+        <source>1W</source>
+        <translation>1W</translation>
+    </message>
+    <message>
+        <source>1M</source>
+        <translation>1M</translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation>Alle</translation>
+    </message>
+    <message>
+        <source>Last 7 days</source>
+        <translation>Letzte 7 Tage</translation>
+    </message>
+    <message>
+        <source>Last 30 days</source>
+        <translation>Letzte 30 Tage</translation>
+    </message>
+    <message>
+        <source>Since the first transaction</source>
+        <translation>Seit der ersten Transaktion</translation>
+    </message>
+    <message>
+        <source>%1: %2</source>
+        <translation>%1: %2</translation>
+    </message>
+</context>
 </TS>
