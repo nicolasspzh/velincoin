@@ -152,6 +152,9 @@ QLabel#labelAlerts, QLabel#label_alerts {
 }
 
 /* ---------- other pages ---------- */
+QWidget#welcomePage { background: transparent; }
+QLabel#welcomeTitle { color: #ffffff; font-size: 22pt; font-weight: 600; }
+QLabel#welcomeText { color: #9a9aa5; font-size: 11pt; }
 QLabel#label_tx_hint, QLabel#label_receive_hint { color: #9a9aa5; }
 QFrame#frameFee, QFrame#frameCoinControl, QFrame#SendCoins, QFrame#SendCoins_UnauthenticatedPaymentRequest {
     background: #101013; border: 1px solid #1d1d23; border-radius: 14px;

@@ -9,6 +9,9 @@
 #include <QMap>
 
 class ClientModel;
+class QAction;
+class QMenu;
+class QPushButton;
 class PlatformStyle;
 class SendCoinsRecipient;
 class WalletModel;
@@ -35,6 +38,9 @@ public:
 
     void setClientModel(ClientModel *clientModel);
 
+    /** Connect the buttons of the welcome page (shown while no wallet is loaded) to the window's actions. */
+    void setWelcomeActions(QAction* create_wallet, QAction* open_wallet, QMenu* open_wallet_menu, QAction* restore_wallet);
+
     bool addView(WalletView* walletView);
     void setCurrentWallet(WalletModel* wallet_model);
     void removeWallet(WalletModel* wallet_model);
@@ -53,6 +59,9 @@ Q_SIGNALS:
 
 private:
     QStackedWidget *walletStack;
+    QPushButton* m_create_wallet_button{nullptr};
+    QPushButton* m_open_wallet_button{nullptr};
+    QPushButton* m_restore_wallet_button{nullptr};
     ClientModel *clientModel;
     QMap<WalletModel*, WalletView*> mapWalletViews;
 

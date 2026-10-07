@@ -145,6 +145,12 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
     // Create actions for the toolbar, menu bar and tray/dock icon
     // Needs walletFrame to be initialized
     createActions();
+#ifdef ENABLE_WALLET
+    if (walletFrame) {
+        // The welcome page (no wallet loaded) offers the same three actions as the File menu
+        walletFrame->setWelcomeActions(m_create_wallet_action, m_open_wallet_action, m_open_wallet_menu, m_restore_wallet_action);
+    }
+#endif // ENABLE_WALLET
 
     // Create application menu bar
     createMenuBar();

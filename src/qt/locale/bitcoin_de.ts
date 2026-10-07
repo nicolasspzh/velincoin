@@ -3924,6 +3924,26 @@ Gehen Sie zu Datei &gt; Wallet Öffnen, um eine Wallet zu laden.
         <source>Unable to decode PSBT</source>
         <translation type="unfinished">PSBT konnte nicht entschlüsselt werden</translation>
     </message>
+    <message>
+        <source>Welcome to Velincoin</source>
+        <translation>Willkommen bei Velincoin</translation>
+    </message>
+    <message>
+        <source>Create a wallet to receive and send VLC, or open one you already have. Your keys stay on this computer.</source>
+        <translation>Erstelle eine Wallet, um VLC zu empfangen und zu senden, oder öffne eine, die du schon hast. Deine Schlüssel bleiben auf diesem Computer.</translation>
+    </message>
+    <message>
+        <source>Create wallet</source>
+        <translation>Wallet erstellen</translation>
+    </message>
+    <message>
+        <source>Open wallet</source>
+        <translation>Wallet öffnen</translation>
+    </message>
+    <message>
+        <source>Restore wallet from backup</source>
+        <translation>Wallet aus Backup wiederherstellen</translation>
+    </message>
 </context>
 <context>
     <name>WalletModel</name>
