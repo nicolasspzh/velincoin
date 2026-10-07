@@ -25,6 +25,24 @@ Ihr braucht mindestens **zwei** Server an verschiedenen Orten, damit das Netz
 nicht von einem einzelnen Rechner abhängt. Ein kleiner gemieteter Linux-Server
 (VPS) reicht am Anfang, solange die Kette klein ist.
 
+**Schneller Weg (Testnetz, Debian):** Das Skript
+[`contrib/velincoin/setup-seed-node.sh`](../../contrib/velincoin/setup-seed-node.sh)
+erledigt die Punkte 1 bis 5 unten in einem Durchgang. Es kompiliert Velincoin Core
+auf dem Server (ohne Wallet), legt den Benutzer `velincoin` und
+`/etc/velincoin/velincoin.conf` an und startet den Dienst `velincoind`. Als root
+auf dem Server ausführen:
+
+```
+apt-get update && apt-get install -y curl
+curl -fsSLO https://raw.githubusercontent.com/nicolasspzh/velincoin/main/contrib/velincoin/setup-seed-node.sh
+bash setup-seed-node.sh
+```
+
+Der Server braucht zum Kompilieren mindestens 1.5 GB Arbeitsspeicher. Das Skript
+darf später nochmals laufen, um den neuesten Code zu kompilieren.
+
+Von Hand geht es so:
+
 1. Velincoin Core kompilieren oder die fertigen Programme hochladen
    (siehe README, Abschnitt "Kompilieren").
 2. In der Firewall den Port öffnen:
