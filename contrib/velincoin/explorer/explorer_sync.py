@@ -123,6 +123,16 @@ def local_files(folder):
     return files
 
 
+# Genesis blocks of test networks that were started anew (README, "Neustarts des
+# Testnetzes"). An explorer that still shows one of them is replaced without --replace.
+RETIRED_GENESIS = {
+    "testnet4": {
+        "00000000e803ebf103aa707b7f6aa2b80a613e47ef46c9f77b8c969a1a8b3817",
+        "000000f91b6f17b7699c5018fa8fc70e2dc8e966629f5974066b22d51cf9c354",
+    },
+}
+
+
 def check_same_chain(explorer, remote_info):
     """Refuse to replace an explorer that shows a different chain."""
     rpc = explorer.rpc
@@ -166,9 +176,14 @@ def sync_once(explorer, indexer, gh, branch, folder, replace=False, log=print):
     commit, tree = gh.head(branch)
     remote = gh.files_in(tree, folder)
     if "sync.json" in remote and not replace:
-        problem = check_same_chain(explorer, json.loads(gh.read_blob(remote["sync.json"])))
-        if problem:
-            raise SyncError(problem)
+        remote_info = json.loads(gh.read_blob(remote["sync.json"]))
+        if (remote_info.get("chain") == explorer.chain and
+                remote_info.get("genesis") in RETIRED_GENESIS.get(explorer.chain, ())):
+            log("Die Website zeigt noch die Kette von vor dem Neustart des Testnetzes, sie wird ersetzt.")
+        else:
+            problem = check_same_chain(explorer, remote_info)
+            if problem:
+                raise SyncError(problem)
 
     changed_rels = [rel for rel, data in sorted(local.items()) if remote.get(rel) != git_blob_sha(data)]
     removed = [rel for rel in remote if rel not in local]
