@@ -125,6 +125,8 @@ Weitere Dokumente
   eines 51%-Angriffs mit SHA-256 und die Möglichkeiten dagegen
 - [doc/velincoin/seed-server.md](doc/velincoin/seed-server.md): Anleitung für
   Seed-Server, damit neue Nodes das Netz finden
+- [doc/velincoin/screenshots/](doc/velincoin/screenshots/README.md): Bildschirmfotos
+  der Wallet auf Deutsch und Englisch
 - [contrib/velincoin/explorer/](contrib/velincoin/explorer/README.md): Block Explorer,
   eine Webseite mit Blöcken, Transaktionen, Kontoständen und Charts
 
@@ -160,7 +162,8 @@ Was noch nicht angepasst ist
   `src/qt/res/fonts/Inter-LICENSE.txt`). Die Oberfläche nutzt auf allen Systemen den
   Qt-Stil „Fusion“, damit sie unter Windows, macOS und Linux gleich aussieht.
   Getestet unter Linux (Bildschirmfotos, automatische GUI-Tests), unter Windows noch
-  nicht von Hand angeschaut.
+  nicht von Hand angeschaut. Bildschirmfotos auf Deutsch und Englisch, dunkel und
+  hell: [doc/velincoin/screenshots/](doc/velincoin/screenshots/README.md).
 - **Funktionen der Wallet:**
   - verbindet sich bei jedem Start mit dem Velincoin-Server und verbindet sich nach
     einem Abbruch innerhalb einer Minute neu; der Knopf *Synchronisieren* verbindet
