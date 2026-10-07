@@ -139,18 +139,44 @@ Was noch nicht angepasst ist
   ist als Programmsymbol und in den Bildern des Windows-Installers eingebaut
   (Original in `doc/velincoin/logo/`). Für das Logo gibt es noch keine Vektordatei
   (SVG). Die alte Datei `src/qt/res/src/bitcoin.svg` wird beim Kompilieren nicht
-  verwendet. Noch nicht angepasst: Übersetzungen in andere Sprachen als Deutsch und
-  der Name des macOS-Programmpakets.
-- **Design der Wallet:** dunkles Design passend zur Website. Navigation in einer
-  Seitenleiste links mit Anzeige des Netzes (Hauptnetz, Testnetz, Regtest),
-  neue Übersicht mit Gesamtguthaben, Knöpfen zum Überweisen und Empfangen und den
-  letzten Zahlungen, neuer Startbildschirm. Farben und Formen stehen in
-  `src/qt/res/styles/velincoin.qss`, Schrift und Farbpalette in
-  `src/qt/velincointheme.cpp`. Die Schrift ist Inter (SIL Open Font License,
+  verwendet. Noch nicht angepasst: der Name des macOS-Programmpakets.
+- **Übersetzungen:** Deutsch ist vollständig, in Schweizer Rechtschreibung (ss statt
+  ß). Französisch und Italienisch sind auf dem Stand des Codes (Bitcoin → Velincoin,
+  BTC → VLC), die neuen Velincoin-Texte darin sind aber maschinell übersetzt und
+  noch nicht von jemandem mit dieser Muttersprache geprüft (in den `.ts`-Dateien als
+  «unfinished» markiert). Die übrigen rund 95 Sprachen stammen von Bitcoin Core,
+  nennen teilweise noch „Bitcoin“ und kennen die neuen Texte nicht (diese
+  erscheinen dort englisch). Abgleich mit dem Code: `cmake --build build --target
+  translate` für die englische Vorlage, danach `lupdate` für die einzelnen Sprachen.
+- **Design der Wallet:** dunkles Design passend zur Website, dazu ein helles
+  (*Einstellungen → Optionen → Anzeige → Darstellung*, gilt für alle Netze, nach
+  einem Neustart). Navigation in einer Seitenleiste links mit Anzeige des Netzes
+  (Hauptnetz, Testnetz, Regtest), Übersicht mit Gesamtguthaben, Auge zum Verbergen
+  der Beträge, Verlauf des Kontostands (1W / 1M / Alle), Knöpfen zum Überweisen und
+  Empfangen und den letzten Zahlungen, Willkommensseite ohne Wallet, neuer
+  Startbildschirm. Alle Farben kommen aus dem Theme: Das Stylesheet
+  `src/qt/res/styles/velincoin.qss` nennt sie als `@token@`, die Werte für Dunkel
+  und Hell stehen zusammen mit der Schrift in `src/qt/velincointheme.cpp`. Die Schrift ist Inter (SIL Open Font License,
   `src/qt/res/fonts/Inter-LICENSE.txt`). Die Oberfläche nutzt auf allen Systemen den
   Qt-Stil „Fusion“, damit sie unter Windows, macOS und Linux gleich aussieht.
   Getestet unter Linux (Bildschirmfotos, automatische GUI-Tests), unter Windows noch
   nicht von Hand angeschaut.
+- **Funktionen der Wallet:**
+  - verbindet sich bei jedem Start mit dem Velincoin-Server und verbindet sich nach
+    einem Abbruch innerhalb einer Minute neu; der Knopf *Synchronisieren* verbindet
+    sofort (`src/qt/velincoinserver.cpp`)
+  - *Fenster → Node hinzufügen* (auch auf der Seite *Peers* des Node-Fensters):
+    IP-Adresse oder Name, der Standardport ist vorausgefüllt, die Verbindung bleibt
+    nach einem Neustart (`addnode` in `settings.json`)
+  - Seite *Mining*, nur im Testnetz und in Regtest: mined wie `generatetoaddress` an
+    eine neue Adresse der Wallet, im Hintergrund, mit Wahl der Prozessorkerne und
+    Liste der gefundenen Blöcke (`src/qt/cpuminer.cpp`, `src/qt/miningpage.cpp`)
+  - Erinnerung auf der Übersicht, bis die Wallet gesichert ist (*Jetzt sichern*,
+    *Später* für 7 Tage), pro Wallet gespeichert
+  - *Hilfe → Block Explorer öffnen*: der Live-Explorer des Servers; neue Wallets
+    öffnen Transaktionen dort auch über das Kontextmenü
+  - findet sie beim Start im Testnetz Blöcke eines alten Testnetzes, legt sie sie
+    zur Seite, statt mit einem Fehler abzubrechen (siehe «Neustarts des Testnetzes»)
 - **Wert in CHF:** Die Übersicht und der Bestätigungsdialog beim Senden
   zeigen neben den VLC-Beträgen einen Wert in Franken, zum Beispiel
   „≈ 0.050 CHF · Wert“. Das ist ein **fester Wert** (1 VLC = 0.001 CHF) und
@@ -170,7 +196,9 @@ Was noch nicht angepasst ist
   29733 im Testnetz (`contrib/seeds/nodes_main.txt`, `nodes_testnet4.txt`,
   daraus erzeugt `src/chainparamsseeds.h`). Ein neuer Node ohne bekannte Adressen
   verbindet sich nach etwa einer Minute von selbst damit, die grafische Wallet
-  gleich beim Start. Der Server betreibt im Moment nur das Testnetz. DNS-Seeds
+  gleich beim Start. Mit `contrib/velincoin/server/install.sh` betreibt der Server
+  Haupt- und Testnetz und die Live-Explorer (siehe
+  [doc/velincoin/server-einrichten.md](doc/velincoin/server-einrichten.md)). DNS-Seeds
   gibt es noch keine. Siehe [doc/velincoin/seed-server.md](doc/velincoin/seed-server.md).
 - **Mindest-Arbeit der Kette (`nMinimumChainWork`):** steht auf 0. Das ist für eine
   neue Kette nötig. Sobald das Netz läuft, muss der Wert regelmässig erhöht werden.
@@ -196,6 +224,10 @@ Bekannte Testfehler:
   normalen Rechner grob 80 Stunden. Wird später nachgeholt.
 - `feature_bind_extra.py` und `rpc_bind.py --ipv4`/`--nonloopback` brauchen IPv6.
   In einer Umgebung ohne IPv6 schlagen sie fehl, das hat nichts mit Velincoin zu tun.
+- `miner_tests/CreateNewBlock_validity` (Unit-Test) schlägt mit `high-hash` fehl.
+  Der Test nutzt fest eingetragene Nonces, die zum Bitcoin-Genesis-Block passen. Er
+  schlug schon vor den Änderungen an der Wallet fehl und muss für die
+  Velincoin-Kette neu berechnet werden.
 
 Automatische Tests auf GitHub (GitHub Actions) sind vorerst abgeschaltet. Die
 Konfiguration in `.github/workflows/ci.yml` stammt von Bitcoin Core und ist noch
