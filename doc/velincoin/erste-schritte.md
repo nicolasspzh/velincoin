@@ -19,7 +19,7 @@ Es gibt drei Netze. Für den Anfang empfehle ich Regtest.
 | Netz | Start mit | Wofür |
 |---|---|---|
 | Regtest | `-regtest` | Üben auf dem eigenen Computer. Blöcke entstehen sofort, nur ihr seid im Netz. |
-| Testnetz | `-testnet4` | Ein echtes Netz mit mehreren Computern, aber ohne Wert. Minen dauert echt lange. |
+| Testnetz | `-testnet4` | Ein echtes Netz mit mehreren Computern, aber ohne Wert. Minen geht schnell, etwa 15 Sekunden pro Block (siehe unten). |
 | Hauptnetz | (nichts) | Das echte Velincoin-Netz. Noch nicht öffentlich gestartet. |
 
 
@@ -149,6 +149,28 @@ zum Hauptnetz, eine mit `tvlc1` zum Testnetz.
 2. Beim ersten Start gibt es im Testnetz noch keine Wallet: **File > Create
    Wallet** wählen und einen Namen eingeben.
 3. **Receive > Create new receiving address**. Die Adresse beginnt mit `tvlc1`.
+
+### Transaktionen im eigenen Block Explorer öffnen
+
+Läuft der Block Explorer auf eurem Computer (siehe
+[contrib/velincoin/explorer/README.md](../../contrib/velincoin/explorer/README.md)),
+kann die Wallet jede Transaktion direkt darin öffnen:
+
+1. **Settings > Options** (Deutsch: **Einstellungen > Optionen**), Reiter
+   **Display** (**Anzeige**).
+2. Bei **Third-party transaction URLs** (**Transaktions-URLs von Drittparteien**) eintragen:
+
+   ```
+   http://127.0.0.1:8080/tx/%s
+   ```
+
+   `%s` ersetzt die Wallet durch die Transaktions-ID. `8080` ist der Port, auf
+   dem der Explorer läuft (Standard, änderbar mit `--port`).
+3. Mit **OK** bestätigen und die Wallet neu starten.
+
+Danach hat in der Liste der Transaktionen das Kontextmenü (Rechtsklick) einen
+Eintrag mit dieser Adresse. In der Wallet ist bewusst kein Explorer
+voreingestellt, weil es noch keinen öffentlichen Live-Explorer gibt.
 
 
 3. Wo liegen die Daten?
