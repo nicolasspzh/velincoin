@@ -68,13 +68,18 @@ Zweite Wallet anlegen und etwas schicken:
 ```
 build/bin/velincoin-cli -regtest createwallet "ben"
 build/bin/velincoin-cli -regtest -rpcwallet=ben getnewaddress
-build/bin/velincoin-cli -regtest -rpcwallet=anna -named sendtoaddress address=<bens-adresse> amount=12.5 fee_rate=1
+build/bin/velincoin-cli -regtest -rpcwallet=anna sendtoaddress <bens-adresse> 12.5
 build/bin/velincoin-cli -regtest generatetoaddress 1 <annas-adresse>
 build/bin/velincoin-cli -regtest -rpcwallet=ben getbalance
 ```
 
 Sind mehrere Wallets geladen, muss man mit `-rpcwallet=` sagen, welche gemeint
 ist. Der Block nach dem Senden bestätigt die Zahlung. Danach hat Ben `12.50000000`.
+
+Die Gebühr zahlt Anna. Die Wallet wählt sie selbst: Solange es keine Schätzung gibt
+(wie in Regtest), die kleinste, 1 Satoshi pro vByte. Diese Überweisung kostet damit
+`0.00000141` VLC. Eine eigene Gebühr geht mit `-named sendtoaddress address=...
+amount=12.5 fee_rate=5` (Satoshi pro vByte).
 
 ### Node stoppen
 

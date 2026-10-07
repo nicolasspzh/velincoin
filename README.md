@@ -116,6 +116,22 @@ ungültig, Test-Coins aus dem alten Testnetz sind weg. Die Wallets bleiben.
 Bitcoin-Seed-Server sind entfernt, damit sich ein Velincoin-Node nie von selbst
 mit ihnen verbindet.
 
+### Gebühren
+
+Die Gebühr einer Überweisung geht an den Miner des Blocks. Sie richtet sich nach
+der Grösse der Überweisung in vBytes, nicht nach dem Betrag. Die kleinste Gebühr,
+die die Wallet zahlt, ist 1 Satoshi pro vByte (`-mintxfee`, 0.00001 VLC/kvB). Eine
+normale Überweisung (ein Eingang, zwei Ausgänge, 141 vBytes) kostet damit
+0.00000141 VLC.
+
+Die empfohlene Gebühr schätzt die Wallet aus den letzten Blöcken. Dafür braucht es
+viele Überweisungen, die ein kleines Netz selten hat. Bitcoin Core bricht das Senden
+dann ab ("Fee estimation failed. Fallbackfee is disabled"). Velincoin zahlt in
+diesem Fall die kleinste Gebühr (`-fallbackfee`, Standard 0.00001 VLC/kvB statt 0,
+`src/wallet/wallet.h`). Sobald es eine Schätzung gibt, gilt diese. Die Seite
+*Überweisen* der Wallet zeigt unter der Gebühr, was eine normale Überweisung kostet,
+und erklärt, wohin die Gebühr geht.
+
 Weitere Dokumente
 -----------------
 
