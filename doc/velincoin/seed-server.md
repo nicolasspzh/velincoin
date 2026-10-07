@@ -10,7 +10,7 @@ Für diesen ersten Kontakt gibt es drei Wege:
 | Weg | Wie es funktioniert | Stand bei Velincoin |
 |---|---|---|
 | **Manuell** | Man trägt die IP-Adresse eines Nodes selbst ein: `addnode=1.2.3.4:9733` in `velincoin.conf` | Funktioniert jetzt schon |
-| **Feste Seeds** (fixed seeds) | Eine Liste von IP-Adressen ist fest ins Programm kompiliert | Liste ist leer |
+| **Feste Seeds** (fixed seeds) | Eine Liste von IP-Adressen ist fest ins Programm kompiliert | Testnetz: `159.195.4.228:29733`, Hauptnetz: leer |
 | **DNS-Seeds** | Ein Name wie `seed.velincoin.com` liefert die IP-Adressen von aktiven Nodes | Noch keiner |
 
 Ohne Seeds müssen alle Nutzer die IP-Adresse eines Nodes kennen. Für einen
@@ -81,8 +81,8 @@ Sobald die Server laufen, kommen ihre Adressen fest ins Programm.
    5.6.7.8:9733
    ```
 
-   Achtung: Diese Dateien enthalten im Moment noch die Listen von Bitcoin. Sie
-   werden zurzeit nicht verwendet.
+   `nodes_testnet4.txt` enthält schon den Testnetz-Server und wird verwendet.
+   `nodes_main.txt` enthält noch die Liste von Bitcoin und wird nicht verwendet.
 2. Im Ordner `contrib/seeds` ausführen:
 
    ```
