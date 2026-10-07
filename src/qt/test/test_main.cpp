@@ -13,6 +13,7 @@
 #include <qt/test/demovaluetests.h>
 #include <qt/test/optiontests.h>
 #include <qt/test/rpcnestedtests.h>
+#include <qt/test/testnetresettests.h>
 #include <qt/test/uritests.h>
 #include <test/util/setup_common.h>
 #include <util/chaintype.h>
@@ -94,6 +95,9 @@ int main(int argc, char* argv[])
 
         AddNodeTests add_node_tests;
         num_test_failures += QTest::qExec(&add_node_tests);
+
+        TestnetResetTests testnet_reset_tests;
+        num_test_failures += QTest::qExec(&testnet_reset_tests);
 
         RPCNestedTests test3(app.node());
         num_test_failures += QTest::qExec(&test3);

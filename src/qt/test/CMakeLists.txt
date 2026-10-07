@@ -11,6 +11,7 @@ add_executable(test_bitcoin-qt
   optiontests.cpp
   rpcnestedtests.cpp
   test_main.cpp
+  testnetresettests.cpp
   uritests.cpp
   util.cpp
   ../../init/bitcoin-qt.cpp

@@ -97,10 +97,17 @@ Testnetz nie lange stehen.
 
 Neustarts des Testnetzes: am 6. Oktober 2026 mit der tieferen Schwierigkeit und
 am 7. Oktober 2026 mit 90 Sekunden Blockzeit. Alte Testnetz-Blöcke sind jeweils
-ungültig. Wer schon Testnetz-Daten hat, löscht im Testnetz-Datenordner die
-Ordner `blocks` und `chainstate`. Der Ordner `wallets` kann bleiben; Test-Coins
-aus dem alten Testnetz sind aber weg. Der Block Explorer muss nach einem
-Neustart neu exportiert werden.
+ungültig, Test-Coins aus dem alten Testnetz sind weg. Die Wallets bleiben.
+
+- **Grafische Wallet:** Findet sie beim Start im Testnetz noch Blöcke eines alten
+  Testnetzes, verschiebt sie die Ordner `blocks` und `chainstate` in einen Ordner
+  `old-chain-<Datum>` im Testnetz-Datenordner, meldet das und lädt das neue
+  Testnetz (`src/qt/testnetreset.cpp`).
+- **velincoind:** startet mit alten Blöcken nicht ("Incorrect or no genesis block
+  found"). Im Testnetz-Datenordner die Ordner `blocks` und `chainstate` löschen.
+  Auf dem Seed-Server erledigt das `contrib/velincoin/setup-seed-node.sh`.
+- **Block Explorer:** `explorer_sync.py` ersetzt die Kette eines alten Testnetzes
+  auf der Website von selbst (Liste `RETIRED_GENESIS`).
 
 `-testnet` (Testnet3) und `-signet` sind weiterhin die Netze von Bitcoin. Ihre
 Bitcoin-Seed-Server sind entfernt, damit sich ein Velincoin-Node nie von selbst

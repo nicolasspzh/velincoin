@@ -5260,4 +5260,19 @@ Bitte mit der neuesten Softwareversion ausführen.
         <translation>Bitte eine IP-Adresse oder einen Namen eingeben, zum Beispiel 192.168.1.20.</translation>
     </message>
 </context>
+<context>
+    <name>TestnetReset</name>
+    <message>
+        <source>The Velincoin test network was started anew. The blocks of the old test network on this computer were moved to:
+
+%1
+
+Your wallets and addresses stay. Test coins from the old test network are gone. The wallet now loads the new test network.</source>
+        <translation>Das Velincoin-Testnetz wurde neu gestartet. Die Blöcke des alten Testnetzes auf diesem Computer wurden verschoben nach:
+
+%1
+
+Deine Wallets und Adressen bleiben. Test-Coins aus dem alten Testnetz sind weg. Die Wallet lädt jetzt das neue Testnetz.</translation>
+    </message>
+</context>
 </TS>

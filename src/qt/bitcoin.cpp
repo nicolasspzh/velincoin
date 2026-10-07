@@ -28,6 +28,7 @@
 #include <qt/optionsmodel.h>
 #include <qt/platformstyle.h>
 #include <qt/splashscreen.h>
+#include <qt/testnetreset.h>
 #include <qt/utilitydialog.h>
 #include <qt/velincoinserver.h>
 #include <qt/velincointheme.h>
@@ -630,6 +631,9 @@ int GuiMain(int argc, char* argv[])
         app.createPaymentServer();
     }
 #endif // ENABLE_WALLET
+
+    // Blocks of an older Velincoin test network would stop the node from starting
+    TestnetReset::CheckAtStart();
 
     /// 9. Main GUI initialization
     // Install global event filter that makes sure that out-of-focus labels do not contain text cursor.
