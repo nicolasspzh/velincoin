@@ -1272,7 +1272,10 @@ void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
         if(walletFrame)
         {
             walletFrame->showOutOfSyncWarning(true);
-            modalOverlay->showHide();
+            // Velincoin: the sync overlay is not shown on its own. On a young network with
+            // few miners the last block is often hours old, so it would cover the wallet
+            // at every start. It stays one click away on the progress bar, the sync icon
+            // and the "Not synchronized" button on the overview.
         }
 #endif // ENABLE_WALLET
 
