@@ -46,9 +46,9 @@ void DemoValueTests::formatTests()
     QCOMPARE(DemoValue::Format(-COIN), QString("-0.001 CHF"));
     QCOMPARE(DemoValue::Format(-21'000'000 * COIN), QString("-21" + thin_sp + "000.000 CHF"));
 
-    // the label always says that it is a demo value; "≈" only for rounded values
+    // the label always says that it is a value in CHF; "≈" only for rounded values
     QVERIFY(DemoValue::Label(50 * COIN).startsWith(QString(QChar(0x2248)) + " 0.050 CHF"));
-    QVERIFY(DemoValue::Label(50 * COIN).contains("demo value"));
+    QVERIFY(DemoValue::Label(50 * COIN).contains("value"));
     QVERIFY(DemoValue::Label(0).startsWith("0.000 CHF"));
     QVERIFY(DemoValue::Label(1).startsWith("< 0.001 CHF"));
     QVERIFY(DemoValue::FormatHtml(1).contains("&lt; 0.001 CHF"));

@@ -1856,12 +1856,12 @@ Der Migrationsprozess erstellt vor der Migration ein Backup der Wallet. Diese Si
         <translation type="unfinished">Die eingegebene Proxy-Adresse ist ungültig.</translation>
     </message>
     <message>
-        <source>Show demo value in CHF</source>
-        <translation>Demo-Wert in CHF anzeigen</translation>
+        <source>Show value in CHF</source>
+        <translation>Wert in CHF anzeigen</translation>
     </message>
     <message>
-        <source>Fixed demo value, not a market price. VLC is not traded anywhere yet.</source>
-        <translation>Fester Demo-Wert, kein Marktpreis. VLC wird noch nirgends gehandelt.</translation>
+        <source>Fixed value, not a market price. VLC is not traded anywhere yet.</source>
+        <translation>Fester Wert, kein Marktpreis. VLC wird noch nirgends gehandelt.</translation>
     </message>
 </context>
 <context>
@@ -5233,12 +5233,12 @@ Bitte mit der neuesten Softwareversion ausführen.
 <context>
     <name>DemoValue</name>
     <message>
-        <source>%1 · demo value</source>
-        <translation>%1 · Demo-Wert</translation>
+        <source>%1 · value</source>
+        <translation>%1 · Wert</translation>
     </message>
     <message>
-        <source>Fixed demo value, not a market price. VLC is not traded anywhere yet.</source>
-        <translation>Fester Demo-Wert, kein Marktpreis. VLC wird noch nirgends gehandelt.</translation>
+        <source>Fixed value, not a market price. VLC is not traded anywhere yet.</source>
+        <translation>Fester Wert, kein Marktpreis. VLC wird noch nirgends gehandelt.</translation>
     </message>
 </context>
 <context>

@@ -33,7 +33,7 @@ QString Format(CAmount amount);
 /** Format() for HTML, kept on one line. */
 QString FormatHtml(CAmount amount);
 
-/** Short label with the demo note, e.g. "≈ 0.050 CHF · demo value". */
+/** Short label with the demo note, e.g. "≈ 0.050 CHF · value". */
 QString Label(CAmount amount);
 
 /** Tooltip explaining that the value is not a price. */

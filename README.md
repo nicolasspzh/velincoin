@@ -83,20 +83,23 @@ Im Testnetz kommt im Durchschnitt alle **90 Sekunden** ein Block (im Hauptnetz
 alle 10 Minuten). Der erste Block startet mit einer Schwierigkeit, bei der ein
 Prozessorkern etwa **1 bis 2 Minuten** pro Block braucht. Danach passt sich die
 Schwierigkeit wie bei Bitcoin alle 2016 Blöcke an, mit 90 Sekunden als Ziel.
-Die niedrigste erlaubte Schwierigkeit ist 256-mal tiefer als im Hauptnetz: Wenn
-3 Minuten lang (2 × 90 Sekunden) kein Block gefunden wird, darf der nächste
-Block mit dieser niedrigsten Schwierigkeit gemined werden. So bleibt das
-Testnetz nie lange stehen.
+Die Start-Schwierigkeit ist zugleich die niedrigste erlaubte (16-mal tiefer als
+im Hauptnetz). Ein Block dauert mit einem Prozessorkern also nie nur ein paar
+Sekunden. Steigt die Schwierigkeit, weil viele minen, und hören sie wieder auf,
+gilt: Wenn 3 Minuten lang (2 × 90 Sekunden) kein Block gefunden wird, darf der
+nächste Block wieder mit der niedrigsten Schwierigkeit gemined werden. So bleibt
+das Testnetz nie lange stehen.
 
 | Einstellung | Wert im Testnetz |
 |---|---|
 | Ziel-Blockzeit | 90 Sekunden (`nPowTargetSpacing`) |
 | Anpassung der Schwierigkeit | alle 2016 Blöcke (etwa 2.1 Tage) |
-| Schwierigkeit des Genesis-Blocks | `0x1d0ffff0` (16-mal die niedrigste) |
-| Niedrigste Schwierigkeit | `0x1e00ffff` (`powLimit`), nach 3 Minuten ohne Block |
+| Schwierigkeit des Genesis-Blocks | `0x1d0ffff0` (16-mal tiefer als im Hauptnetz) |
+| Niedrigste Schwierigkeit | `0x1d0ffff0` (`powLimit`), gleich wie der Genesis-Block; nach 3 Minuten ohne Block wieder erlaubt |
 
 Neustarts des Testnetzes: am 6. Oktober 2026 mit der tieferen Schwierigkeit und
-am 7. Oktober 2026 mit 90 Sekunden Blockzeit. Alte Testnetz-Blöcke sind jeweils
+am 7. Oktober 2026 mit 90 Sekunden Blockzeit und der Start-Schwierigkeit als
+niedrigster. Alte Testnetz-Blöcke sind jeweils
 ungültig, Test-Coins aus dem alten Testnetz sind weg. Die Wallets bleiben.
 
 - **Grafische Wallet:** Findet sie beim Start im Testnetz noch Blöcke eines alten
@@ -148,13 +151,13 @@ Was noch nicht angepasst ist
   Qt-Stil „Fusion“, damit sie unter Windows, macOS und Linux gleich aussieht.
   Getestet unter Linux (Bildschirmfotos, automatische GUI-Tests), unter Windows noch
   nicht von Hand angeschaut.
-- **Demo-Wert in CHF:** Die Übersicht und der Bestätigungsdialog beim Senden
+- **Wert in CHF:** Die Übersicht und der Bestätigungsdialog beim Senden
   zeigen neben den VLC-Beträgen einen Wert in Franken, zum Beispiel
-  „≈ 0.050 CHF · Demo-Wert“. Das ist ein **fester Demo-Wert** (1 VLC = 0.001 CHF)
-  und **kein Preis**: VLC wird nirgends gehandelt und hat keinen Marktwert. Der
-  Kurs steht an einer einzigen Stelle im Code (`MILLI_CHF_PER_COIN` in
+  „≈ 0.050 CHF · Wert“. Das ist ein **fester Wert** (1 VLC = 0.001 CHF) und
+  **kein Marktpreis**: VLC wird nirgends gehandelt. Das sagt auch der Tooltip.
+  Der Kurs steht an einer einzigen Stelle im Code (`MILLI_CHF_PER_COIN` in
   `src/qt/demovalue.h`), gerechnet wird mit ganzen Zahlen. Ausschalten unter
-  *Einstellungen → Optionen → Anzeige → Demo-Wert in CHF anzeigen*.
+  *Einstellungen → Optionen → Anzeige → Wert in CHF anzeigen*.
 - **Anleitungen und Hilfsskripte** in `doc/` und `contrib/` stammen von Bitcoin Core
   und nennen oft noch `bitcoind` usw. Angepasst sind die Dienst-Vorlagen in
   `contrib/init/` (zum Beispiel `velincoind.service` für systemd) und die

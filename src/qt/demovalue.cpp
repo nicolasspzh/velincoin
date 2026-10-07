@@ -46,11 +46,11 @@ QString Label(CAmount amount)
     QString value{Format(amount)};
     // "≈" for rounded values; not for zero and not for "< 0.001 CHF"
     if (amount != 0 && ToMilliChf(amount) != 0) value.prepend(QString(QChar(0x2248)) + QLatin1Char(' '));
-    return QCoreApplication::translate("DemoValue", "%1 · demo value").arg(value);
+    return QCoreApplication::translate("DemoValue", "%1 · value").arg(value);
 }
 
 QString ToolTip()
 {
-    return QCoreApplication::translate("DemoValue", "Fixed demo value, not a market price. VLC is not traded anywhere yet.");
+    return QCoreApplication::translate("DemoValue", "Fixed value, not a market price. VLC is not traded anywhere yet.");
 }
 } // namespace DemoValue
