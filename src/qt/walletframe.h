@@ -9,6 +9,7 @@
 #include <QMap>
 
 class ClientModel;
+class CpuMiner;
 class QAction;
 class QMenu;
 class QPushButton;
@@ -37,6 +38,7 @@ public:
     ~WalletFrame();
 
     void setClientModel(ClientModel *clientModel);
+    void setMiner(CpuMiner* miner);
 
     /** Connect the buttons of the welcome page (shown while no wallet is loaded) to the window's actions. */
     void setWelcomeActions(QAction* create_wallet, QAction* open_wallet, QMenu* open_wallet_menu, QAction* restore_wallet);
@@ -63,6 +65,7 @@ private:
     QPushButton* m_open_wallet_button{nullptr};
     QPushButton* m_restore_wallet_button{nullptr};
     ClientModel *clientModel;
+    CpuMiner* m_miner{nullptr};
     QMap<WalletModel*, WalletView*> mapWalletViews;
 
     bool bOutOfSync;
@@ -84,6 +87,8 @@ public Q_SLOTS:
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */
     void gotoSendCoinsPage(QString addr = "");
+    /** Switch to the Mining page */
+    void gotoMiningPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");

@@ -115,6 +115,14 @@ void WalletFrame::setClientModel(ClientModel *_clientModel)
     }
 }
 
+void WalletFrame::setMiner(CpuMiner* miner)
+{
+    m_miner = miner;
+    for (auto i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i) {
+        i.value()->setMiner(miner);
+    }
+}
+
 bool WalletFrame::addView(WalletView* walletView)
 {
     if (!clientModel) return false;
@@ -122,6 +130,7 @@ bool WalletFrame::addView(WalletView* walletView)
     if (mapWalletViews.contains(walletView->getWalletModel())) return false;
 
     walletView->setClientModel(clientModel);
+    walletView->setMiner(m_miner);
     walletView->showOutOfSyncWarning(bOutOfSync);
 
     WalletView* current_wallet_view = currentWalletView();
@@ -216,6 +225,13 @@ void WalletFrame::gotoReceiveCoinsPage()
     QMap<WalletModel*, WalletView*>::const_iterator i;
     for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
         i.value()->gotoReceiveCoinsPage();
+}
+
+void WalletFrame::gotoMiningPage()
+{
+    for (auto i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i) {
+        i.value()->gotoMiningPage();
+    }
 }
 
 void WalletFrame::gotoSendCoinsPage(QString addr)

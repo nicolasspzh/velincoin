@@ -35,6 +35,7 @@ class RPCConsole;
 class SendCoinsRecipient;
 class UnitDisplayStatusBarControl;
 class WalletController;
+class CpuMiner;
 class WalletFrame;
 class WalletModel;
 class HelpMessageDialog;
@@ -81,6 +82,8 @@ public:
 #ifdef ENABLE_WALLET
     void setWalletController(WalletController* wallet_controller, bool show_loading_minimized);
     WalletController* getWalletController();
+    /** The miner of the Mining page (test network and regtest); nullptr hides the page */
+    void setMiner(CpuMiner* miner);
 #endif
 
 #ifdef ENABLE_WALLET
@@ -134,6 +137,8 @@ private:
     QToolBar* appToolBar = nullptr;
     QAction* overviewAction = nullptr;
     QAction* historyAction = nullptr;
+    QAction* m_mining_action = nullptr;
+    CpuMiner* m_miner = nullptr;
     QAction* quitAction = nullptr;
     QAction* sendCoinsAction = nullptr;
     QAction* usedSendingAddressesAction = nullptr;
@@ -284,6 +289,8 @@ public Q_SLOTS:
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */
     void gotoSendCoinsPage(QString addr = "");
+    /** Switch to the Mining page */
+    void gotoMiningPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");

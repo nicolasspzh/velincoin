@@ -20,6 +20,7 @@
 #include <noui.h>
 #include <qt/bitcoingui.h>
 #include <qt/clientmodel.h>
+#include <qt/cpuminer.h>
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/initexecutor.h>
@@ -345,6 +346,14 @@ void BitcoinApplication::requestShutdown()
 
     qDebug() << __func__ << ": Requesting shutdown";
 
+#ifdef ENABLE_WALLET
+    // Stop mining before the node shuts down
+    if (m_miner) {
+        window->setMiner(nullptr);
+        m_miner.reset();
+    }
+#endif
+
     // Must disconnect node signals otherwise current thread can deadlock since
     // no event loop is running.
     window->unsubscribeFromCoreSignals();
@@ -401,6 +410,12 @@ void BitcoinApplication::initializeResult(bool success, interfaces::BlockAndHead
     bool start_minimized = gArgs.GetBoolArg("-min", false);
 #ifdef ENABLE_WALLET
     if (WalletModel::isWalletEnabled()) {
+        // Mining page only where coins have no value: test network and regtest
+        const ChainType chain{Params().GetChainType()};
+        if (chain == ChainType::TESTNET4 || chain == ChainType::REGTEST) {
+            m_miner = std::make_unique<CpuMiner>(node());
+            window->setMiner(m_miner.get());
+        }
         m_wallet_controller = new WalletController(*clientModel, platformStyle, this);
         window->setWalletController(m_wallet_controller, /*show_loading_minimized=*/start_minimized);
         if (paymentServer) {

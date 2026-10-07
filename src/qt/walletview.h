@@ -11,6 +11,8 @@
 #include <QStackedWidget>
 
 class ClientModel;
+class CpuMiner;
+class MiningPage;
 class OverviewPage;
 class PlatformStyle;
 class ReceiveCoinsDialog;
@@ -43,6 +45,8 @@ public:
         The client model represents the part of the core that communicates with the P2P network, and is wallet-agnostic.
     */
     void setClientModel(ClientModel *clientModel);
+    /** Miner for the Mining page; nullptr hides the page (main network) */
+    void setMiner(CpuMiner* miner);
     WalletModel* getWalletModel() const noexcept { return walletModel; }
 
     bool handlePaymentRequest(const SendCoinsRecipient& recipient);
@@ -59,6 +63,7 @@ private:
     WalletModel* const walletModel;
 
     OverviewPage *overviewPage;
+    MiningPage* miningPage{nullptr};
     QWidget *transactionsPage;
     ReceiveCoinsDialog *receiveCoinsPage;
     SendCoinsDialog *sendCoinsPage;
@@ -79,6 +84,8 @@ public Q_SLOTS:
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */
     void gotoSendCoinsPage(QString addr = "");
+    /** Switch to the Mining page (test network and regtest) */
+    void gotoMiningPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");

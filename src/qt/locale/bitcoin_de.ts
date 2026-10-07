@@ -902,6 +902,14 @@ Das Signieren ist nur mit Adressen vom Typ 'Legacy' möglich.</translation>
         <source>Connect to another Velincoin node by IP address or name</source>
         <translation>Mit einem anderen Velincoin-Node verbinden (IP-Adresse oder Name)</translation>
     </message>
+    <message>
+        <source>&amp;Mining</source>
+        <translation>&amp;Mining</translation>
+    </message>
+    <message>
+        <source>Mine test VLC with this computer</source>
+        <translation>Test-VLC mit diesem Computer minen</translation>
+    </message>
 </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
@@ -4127,6 +4135,10 @@ Gehen Sie zu Datei &gt; Wallet Öffnen, um eine Wallet zu laden.
         <source>Transactions</source>
         <translation>Transaktionen</translation>
     </message>
+    <message>
+        <source>Mining</source>
+        <translation>Mining</translation>
+    </message>
 </context>
 <context>
     <name>bitcoin-core</name>
@@ -5273,6 +5285,125 @@ Your wallets and addresses stay. Test coins from the old test network are gone. 
 %1
 
 Deine Wallets und Adressen bleiben. Test-Coins aus dem alten Testnetz sind weg. Die Wallet lädt jetzt das neue Testnetz.</translation>
+    </message>
+</context>
+<context>
+    <name>MiningPage</name>
+    <message>
+        <source>Mine test VLC with the processor of this computer. Every block you find pays to a new address of this wallet. Mining is only possible on the test network and on regtest.</source>
+        <translation>Mine Test-VLC mit dem Prozessor dieses Computers. Jeder Block, den du findest, zahlt an eine neue Adresse dieser Wallet. Minen geht nur im Testnetz und in Regtest.</translation>
+    </message>
+    <message>
+        <source>Processor cores</source>
+        <translation>Prozessorkerne</translation>
+    </message>
+    <message>
+        <source>More cores find blocks faster, but the computer gets slower and louder.</source>
+        <translation>Mit mehr Kernen findest du Blöcke schneller, aber der Computer wird langsamer und lauter.</translation>
+    </message>
+    <message>
+        <source>of %1</source>
+        <translation>von %1</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Status</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>Geschwindigkeit</translation>
+    </message>
+    <message>
+        <source>Expected time per block</source>
+        <translation>Erwartete Zeit pro Block</translation>
+    </message>
+    <message>
+        <source>Paid to</source>
+        <translation>Auszahlung an</translation>
+    </message>
+    <message>
+        <source>Mined coins can be spent after 100 more blocks. Until then the overview shows them as immature.</source>
+        <translation>Geminte Coins kannst du erst nach 100 weiteren Blöcken ausgeben. Bis dahin zeigt die Übersicht sie als «unreif».</translation>
+    </message>
+    <message>
+        <source>Not connected to the Velincoin network. Blocks you find stay on this computer until it connects, and nobody else sees them.</source>
+        <translation>Keine Verbindung zum Velincoin-Netz. Gefundene Blöcke bleiben auf diesem Computer, bis er sich verbindet, und niemand sonst sieht sie.</translation>
+    </message>
+    <message>
+        <source>Blocks found</source>
+        <translation>Gefundene Blöcke</translation>
+    </message>
+    <message>
+        <source>No blocks found yet.</source>
+        <translation>Noch keine Blöcke gefunden.</translation>
+    </message>
+    <message>
+        <source>Block</source>
+        <translation>Block</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation>Zeit</translation>
+    </message>
+    <message>
+        <source>Reward</source>
+        <translation>Belohnung</translation>
+    </message>
+    <message>
+        <source>Mining</source>
+        <translation>Mining</translation>
+    </message>
+    <message>
+        <source>Mining could not start: %1</source>
+        <translation>Mining konnte nicht starten: %1</translation>
+    </message>
+    <message>
+        <source>Start mining</source>
+        <translation>Mining starten</translation>
+    </message>
+    <message>
+        <source>Mining is not available.</source>
+        <translation>Mining ist nicht verfügbar.</translation>
+    </message>
+    <message>
+        <source>Stop mining</source>
+        <translation>Mining stoppen</translation>
+    </message>
+    <message>
+        <source>Not mining</source>
+        <translation>Mining ist aus</translation>
+    </message>
+    <message>
+        <source>Starting…</source>
+        <translation>Startet…</translation>
+    </message>
+    <message>
+        <source>Mining block %1</source>
+        <translation>Mining läuft, Block %1</translation>
+    </message>
+    <message>
+        <source>about %1 on this computer</source>
+        <translation>etwa %1 auf diesem Computer</translation>
+    </message>
+    <message>
+        <source>A new address of this wallet</source>
+        <translation>Eine neue Adresse dieser Wallet</translation>
+    </message>
+    <message>
+        <source>%1 (wallet %2)</source>
+        <translation>%1 (Wallet %2)</translation>
+    </message>
+    <message>
+        <source>Mining stopped: %1</source>
+        <translation>Mining gestoppt: %1</translation>
+    </message>
+    <message>
+        <source>In the chain</source>
+        <translation>In der Kette</translation>
+    </message>
+    <message>
+        <source>Not in the chain, another block was faster</source>
+        <translation>Nicht in der Kette, ein anderer Block war schneller</translation>
     </message>
 </context>
 </TS>

@@ -179,10 +179,14 @@ if(ENABLE_WALLET)
       coincontroldialog.h
       coincontroltreewidget.cpp
       coincontroltreewidget.h
+      cpuminer.cpp
+      cpuminer.h
       createwalletdialog.cpp
       createwalletdialog.h
       editaddressdialog.cpp
       editaddressdialog.h
+      miningpage.cpp
+      miningpage.h
       openuridialog.cpp
       openuridialog.h
       overviewpage.cpp

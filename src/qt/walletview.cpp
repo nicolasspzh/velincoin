@@ -9,6 +9,7 @@
 #include <qt/clientmodel.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
+#include <qt/miningpage.h>
 #include <qt/overviewpage.h>
 #include <qt/platformstyle.h>
 #include <qt/receivecoinsdialog.h>
@@ -90,10 +91,14 @@ WalletView::WalletView(WalletModel* wallet_model, const PlatformStyle* _platform
     AddPageTitle(receiveCoinsPage, tr("Receive"));
     AddPageTitle(transactionsPage, tr("Transactions"));
 
+    miningPage = new MiningPage(walletModel);
+    AddPageTitle(miningPage, tr("Mining"));
+
     addWidget(overviewPage);
     addWidget(transactionsPage);
     addWidget(receiveCoinsPage);
     addWidget(sendCoinsPage);
+    addWidget(miningPage);
 
     connect(overviewPage, &OverviewPage::transactionClicked, this, &WalletView::transactionClicked);
     // Clicking on a transaction on the overview pre-selects the transaction on the transaction history page
@@ -144,6 +149,7 @@ void WalletView::setClientModel(ClientModel *_clientModel)
     this->clientModel = _clientModel;
 
     overviewPage->setClientModel(_clientModel);
+    miningPage->setClientModel(_clientModel);
     sendCoinsPage->setClientModel(_clientModel);
     walletModel->setClientModel(_clientModel);
 }
@@ -182,6 +188,17 @@ void WalletView::gotoHistoryPage()
 void WalletView::gotoReceiveCoinsPage()
 {
     setCurrentWidget(receiveCoinsPage);
+}
+
+void WalletView::setMiner(CpuMiner* miner)
+{
+    miningPage->setMiner(miner);
+    if (!miner && currentWidget() == miningPage) gotoOverviewPage();
+}
+
+void WalletView::gotoMiningPage()
+{
+    setCurrentWidget(miningPage);
 }
 
 void WalletView::gotoSendCoinsPage(QString addr)

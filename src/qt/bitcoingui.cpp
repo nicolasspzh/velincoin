@@ -287,6 +287,15 @@ void BitcoinGUI::createActions()
     historyAction->setShortcut(QKeySequence(QStringLiteral("Alt+4")));
     tabGroup->addAction(historyAction);
 
+    // Only on the test network and regtest, see setMiner()
+    m_mining_action = new QAction(platformStyle->SingleColorIcon(QStringLiteral(":/icons/tx_mined")), tr("&Mining"), this);
+    m_mining_action->setStatusTip(tr("Mine test VLC with this computer"));
+    m_mining_action->setToolTip(m_mining_action->statusTip());
+    m_mining_action->setCheckable(true);
+    m_mining_action->setShortcut(QKeySequence(QStringLiteral("Alt+5")));
+    m_mining_action->setVisible(false);
+    tabGroup->addAction(m_mining_action);
+
 #ifdef ENABLE_WALLET
     // These showNormalIfMinimized are needed because Send Coins and Receive Coins
     // can be triggered from the tray menu, and need to show the GUI to be useful.
@@ -298,6 +307,8 @@ void BitcoinGUI::createActions()
     connect(receiveCoinsAction, &QAction::triggered, this, &BitcoinGUI::gotoReceiveCoinsPage);
     connect(historyAction, &QAction::triggered, [this]{ showNormalIfMinimized(); });
     connect(historyAction, &QAction::triggered, this, &BitcoinGUI::gotoHistoryPage);
+    connect(m_mining_action, &QAction::triggered, [this]{ showNormalIfMinimized(); });
+    connect(m_mining_action, &QAction::triggered, this, &BitcoinGUI::gotoMiningPage);
 #endif // ENABLE_WALLET
 
     quitAction = new QAction(tr("E&xit"), this);
@@ -677,6 +688,7 @@ void BitcoinGUI::createToolBars()
         toolbar->addAction(sendCoinsAction);
         toolbar->addAction(receiveCoinsAction);
         toolbar->addAction(historyAction);
+        toolbar->addAction(m_mining_action);
         overviewAction->setChecked(true);
 
 #ifdef ENABLE_WALLET
@@ -905,6 +917,7 @@ void BitcoinGUI::setWalletActionsEnabled(bool enabled)
     sendCoinsAction->setEnabled(enabled);
     receiveCoinsAction->setEnabled(enabled);
     historyAction->setEnabled(enabled && !isPrivacyModeActivated());
+    m_mining_action->setEnabled(enabled);
     encryptWalletAction->setEnabled(enabled);
     backupWalletAction->setEnabled(enabled);
     changePassphraseAction->setEnabled(enabled);
@@ -1064,6 +1077,20 @@ void BitcoinGUI::gotoOverviewPage()
 {
     overviewAction->setChecked(true);
     if (walletFrame) walletFrame->gotoOverviewPage();
+}
+
+void BitcoinGUI::setMiner(CpuMiner* miner)
+{
+    m_miner = miner;
+    if (walletFrame) walletFrame->setMiner(miner);
+    if (!miner && m_mining_action->isChecked()) gotoOverviewPage();
+    m_mining_action->setVisible(miner != nullptr);
+}
+
+void BitcoinGUI::gotoMiningPage()
+{
+    m_mining_action->setChecked(true);
+    if (walletFrame) walletFrame->gotoMiningPage();
 }
 
 void BitcoinGUI::gotoHistoryPage()
@@ -1385,6 +1412,7 @@ void BitcoinGUI::changeEvent(QEvent *e)
         sendCoinsAction->setIcon(platformStyle->SingleColorIcon(QStringLiteral(":/icons/send")));
         receiveCoinsAction->setIcon(platformStyle->SingleColorIcon(QStringLiteral(":/icons/receiving_addresses")));
         historyAction->setIcon(platformStyle->SingleColorIcon(QStringLiteral(":/icons/history")));
+        m_mining_action->setIcon(platformStyle->SingleColorIcon(QStringLiteral(":/icons/tx_mined")));
     }
 
     QMainWindow::changeEvent(e);
