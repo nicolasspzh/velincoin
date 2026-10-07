@@ -124,9 +124,11 @@ Versuche. Der eingebaute Miner nutzt nur einen Prozessorkern und braucht dafür
 etwa **1 bis 2 Minuten**. Es ist Glückssache: Manchmal geht es schneller,
 manchmal länger. Auf eurem Computer kann es schneller oder langsamer sein.
 
-Hat 3 Minuten lang niemand einen Block gefunden, darf der nächste Block mit
-der niedrigsten Schwierigkeit gemined werden. Der erste Block nach einer Pause
-geht deshalb meist in wenigen Sekunden.
+Die Start-Schwierigkeit ist auch die niedrigste. Schneller als etwa eine Minute
+pro Block wird es mit einem Prozessorkern also nicht. Ist die Schwierigkeit
+gestiegen, weil viele minen, und hat 3 Minuten lang niemand einen Block
+gefunden, darf der nächste Block wieder mit der niedrigsten Schwierigkeit
+gemined werden.
 
 Wichtig: Geminte Coins sind erst nach 100 weiteren Blöcken ausgebbar. Mined also
 zum Beispiel 110 Blöcke, dann sind die ersten 10 Belohnungen (500 VLC) frei. Mit

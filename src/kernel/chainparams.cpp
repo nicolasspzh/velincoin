@@ -313,13 +313,14 @@ public:
         consensus.SegwitHeight = 1;
         consensus.MinBIP9WarningHeight = 0;
         // Velincoin: test blocks come every 90 seconds instead of every 10
-        // minutes. The genesis block starts at 16 times the lowest difficulty,
-        // about 1 to 2 minutes per block on one processor core. The lowest
-        // difficulty stays 256 times lower than on the main network: when no
-        // block was found for 2 * 90 seconds, the next block may use it
-        // (fPowAllowMinDifficultyBlocks). The difficulty is adjusted every
-        // 2016 blocks (2016 * 90 seconds = 2.1 days), as before.
-        consensus.powLimit = uint256{"000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
+        // minutes. The genesis difficulty (16 times lower than on the main
+        // network) is also the lowest one: about 1 to 2 minutes per block on
+        // one processor core, never just seconds. When no block was found for
+        // 2 * 90 seconds, the next block may use it again
+        // (fPowAllowMinDifficultyBlocks), which matters once the difficulty
+        // has risen. The difficulty is adjusted every 2016 blocks
+        // (2016 * 90 seconds = 2.1 days), as before.
+        consensus.powLimit = uint256{"0000000ffff00000000000000000000000000000000000000000000000000000"};
         consensus.nPowTargetSpacing = 90;
         consensus.nPowTargetTimespan = 2016 * consensus.nPowTargetSpacing;
         consensus.fPowAllowMinDifficultyBlocks = true;

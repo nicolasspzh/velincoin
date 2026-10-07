@@ -49,10 +49,10 @@ BOOST_AUTO_TEST_CASE(MiningInterface)
 
     // The template should use the mocked system time
     BOOST_REQUIRE_EQUAL(block_template->getBlockHeader().nTime, genesis_time + 60);
-    // Velincoin: the genesis block is harder than the lowest difficulty, and so is the next block
+    // Velincoin: the genesis difficulty is also the lowest one, and the next block uses it
     const uint32_t genesis_bits{WITH_LOCK(cs_main, return m_node.chainman->ActiveChain().Tip()->nBits)};
     const uint32_t pow_limit_bits{UintToArith256(m_node.chainman->GetConsensus().powLimit).GetCompact()};
-    BOOST_REQUIRE(genesis_bits != pow_limit_bits);
+    BOOST_REQUIRE_EQUAL(genesis_bits, pow_limit_bits);
     BOOST_REQUIRE_EQUAL(block_template->getBlockHeader().nBits, genesis_bits);
 
     const BlockWaitOptions wait_options{.timeout = MillisecondsDouble{0}, .fee_threshold = 1};
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(MiningInterface)
     should_be_nullptr = block_template->waitNext(wait_options);
     BOOST_REQUIRE(should_be_nullptr == nullptr);
 
-    // One second later the difficulty drops and it returns a new template
+    // One second later a minimum difficulty block is allowed and it returns a new template
     {
         LOCK(cs_main);
         SetMockTime(m_node.chainman->ActiveChain().Tip()->GetBlockTime() + min_difficulty_after + 1);
