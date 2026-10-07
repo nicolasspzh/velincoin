@@ -24,6 +24,7 @@ import json
 import math
 import os
 import re
+import shutil
 import sqlite3
 import sys
 import threading
@@ -503,18 +504,81 @@ class Redirect(Exception):
         self.location = location
 
 
-def link_block(height_or_hash, text=None):
-    return f'<a href="/block/{h(height_or_hash)}">{h(text if text is not None else height_or_hash)}</a>'
+class ServerURLs:
+    """Links for the explorer web server."""
+    static_site = False
+
+    def home(self):
+        return "/"
+
+    def blocks(self, start=None):
+        return "/blocks" if start is None else f"/blocks?start={start}"
+
+    def block(self, ident, page=None):
+        return f"/block/{ident}" if page is None else f"/block/{ident}?page={page}"
+
+    def tx(self, txid):
+        return f"/tx/{txid}"
+
+    def address(self, address, page=None):
+        return f"/address/{address}" if page is None else f"/address/{address}?page={page}"
+
+    def stats(self):
+        return "/stats"
+
+    def static(self, name):
+        return f"/static/{name}"
+
+
+class StaticURLs:
+    """Links between the files of a static export (--export). base leads from
+    the current page back to the export folder, for example "../"."""
+    static_site = True
+
+    def __init__(self, base=""):
+        self.base = base
+
+    def home(self):
+        return f"{self.base}index.html"
+
+    def blocks(self, start=None):
+        return f"{self.base}blocks.html"
+
+    def block(self, ident, page=None):
+        return f"{self.base}block/{ident}.html"  # ident is always a block hash here
+
+    def tx(self, txid):
+        return f"{self.base}tx/{txid}.html"
+
+    def address(self, address, page=None):
+        return f"{self.base}address/{address}.html"
+
+    def stats(self):
+        return f"{self.base}stats.html"
+
+    def static(self, name):
+        return f"{self.base}static/{name}"
+
+    def website(self):
+        return f"{self.base}../index.html"
+
+
+URLS = ServerURLs()
+
+
+def link_block(block_hash, text=None):
+    return f'<a href="{h(URLS.block(block_hash))}">{h(text if text is not None else block_hash)}</a>'
 
 
 def link_tx(txid, short=True):
-    return f'<a class="mono" href="/tx/{h(txid)}">{h(short_hash(txid) if short else txid)}</a>'
+    return f'<a class="mono" href="{h(URLS.tx(txid))}">{h(short_hash(txid) if short else txid)}</a>'
 
 
 def link_address(address, short=False):
     if short:
-        return f'<a class="mono nowrap" href="/address/{h(address)}" title="{h(address)}">{h(short_hash(address, 10))}</a>'
-    return f'<a class="mono" href="/address/{h(address)}">{h(address)}</a>'
+        return (f'<a class="mono nowrap" href="{h(URLS.address(address))}" title="{h(address)}">'
+                f'{h(short_hash(address, 10))}</a>')
+    return f'<a class="mono" href="{h(URLS.address(address))}">{h(address)}</a>'
 
 
 def table(headers, rows, numeric=()):
@@ -557,6 +621,9 @@ class Explorer:
         self.chain = chain
         self.indexer = indexer
         self.interval = CHAINS[chain][2]
+        self.blocks_per_page = BLOCKS_PER_PAGE
+        self.txs_per_page = TXS_PER_PAGE
+        self.snapshot = None  # (time, height) of a static export
 
     # -- helpers ------------------------------------------------------------
 
@@ -578,6 +645,8 @@ class Explorer:
         return ""
 
     def layout(self, con, title, body):
+        if URLS.static_site:
+            return self.static_layout(title, body)
         label = CHAINS[self.chain][3]
         return f"""<!doctype html>
 <html lang="de">
@@ -605,6 +674,45 @@ class Explorer:
 {body}
 </main>
 <footer class="wrap foot">Daten direkt aus einem Velincoin-Core-Node. Alle Zeiten in UTC. <a href="https://velincoin.com/">velincoin.com</a></footer>
+</body>
+</html>
+"""
+
+    def static_layout(self, title, body):
+        """Page frame of the static export, in the look of the Velincoin website."""
+        label = CHAINS[self.chain][3]
+        u = URLS
+        when, height = self.snapshot
+        stamp = f"Momentaufnahme vom {fmt_time(when)}, Blockhöhe {fmt_int(height)}"
+        return f"""<!doctype html>
+<html lang="de" data-site="velincoin">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{h(title)} · Velincoin Explorer</title>
+<link rel="icon" href="{h(u.static('favicon.png'))}">
+<link rel="stylesheet" href="{h(u.static('style.css'))}">
+<link rel="stylesheet" href="{h(u.static('site-theme.css'))}">
+<script src="{h(u.base)}search-index.js" defer></script>
+<script src="{h(u.static('search.js'))}" defer></script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-inner">
+    <a class="brand" href="{h(u.website())}"><img src="{h(u.static('logo.png'))}" alt="" width="28" height="28"><span>Velincoin</span></a>
+    <span class="net net-{h(self.chain)}">Explorer · {h(label)}</span>
+    <nav class="nav"><a href="{h(u.home())}">Übersicht</a><a href="{h(u.blocks())}">Blöcke</a><a href="{h(u.stats())}">Statistik</a><a href="{h(u.website())}">Website</a></nav>
+    <form class="search" role="search" data-base="{h(u.base)}">
+      <input name="q" type="search" placeholder="Blockhöhe, Hash, Transaktion oder Adresse" aria-label="Suchbegriff" required>
+      <button type="submit">Suchen</button>
+    </form>
+  </div>
+</header>
+<main class="wrap">
+<p class="note snapshot">{h(stamp)}. Neue Blöcke erscheinen erst mit dem nächsten Export.</p>
+{body}
+</main>
+<footer class="wrap foot">{h(stamp)}. Alle Zeiten in UTC. Velincoin ist ein Schulprojekt, VLC hat keinen Marktwert.</footer>
 </body>
 </html>
 """
@@ -676,7 +784,7 @@ class Explorer:
                 f'<section class="tiles">{"".join(tiles)}</section>',
                 '<h2>Neueste Blöcke</h2>',
                 table(["Höhe", "Zeit", "Transaktionen", "Grösse", "Belohnung an"], rows, numeric=(0, 2, 3)),
-                '<p><a href="/blocks">Alle Blöcke</a> · <a href="/stats">Statistik und Charts</a></p>']
+                f'<p><a href="{h(URLS.blocks())}">Alle Blöcke</a> · <a href="{h(URLS.stats())}">Statistik und Charts</a></p>']
         mempool_txids = self.rpc_safe("getrawmempool") or []
         if mempool_txids:
             body.append("<h2>Unbestätigte Transaktionen</h2><ul class=\"plain\">")
@@ -692,14 +800,14 @@ class Explorer:
             return "Blöcke", "<h1>Blöcke</h1><p>Noch keine Blöcke im Index.</p>"
         start = min(query_int(query, "start", tip["height"]), tip["height"])
         blocks = con.execute("SELECT * FROM blocks WHERE height<=? ORDER BY height DESC LIMIT ?",
-                             (start, BLOCKS_PER_PAGE)).fetchall()
+                             (start, self.blocks_per_page)).fetchall()
         rows = [(link_block(b["hash"], fmt_int(b["height"])), h(fmt_time(b["time"])), fmt_int(b["ntx"]),
                  h(fmt_bytes(b["size"])), h(fmt_vlc(b["reward"])), link_address(b["miner"], short=True) if b["miner"] else "–")
                 for b in blocks]
-        newer = start + BLOCKS_PER_PAGE if start < tip["height"] else None
-        older = start - BLOCKS_PER_PAGE if start - BLOCKS_PER_PAGE >= 0 else None
-        nav = pager(f"/blocks?start={min(newer, tip['height'])}" if newer is not None else None,
-                    f"/blocks?start={older}" if older is not None else None, "← Neuere", "Ältere →")
+        newer = start + self.blocks_per_page if start < tip["height"] else None
+        older = start - self.blocks_per_page if start - self.blocks_per_page >= 0 else None
+        nav = pager(URLS.blocks(min(newer, tip["height"])) if newer is not None else None,
+                    URLS.blocks(older) if older is not None else None, "← Neuere", "Ältere →")
         return "Blöcke", ("<h1>Blöcke</h1>" +
                           table(["Höhe", "Zeit", "Transaktionen", "Grösse", "Coinbase (VLC)", "Belohnung an"],
                                 rows, numeric=(0, 2, 3, 4)) + nav)
@@ -728,17 +836,16 @@ class Explorer:
         ])
         page = query_int(query, "page", 1, minimum=1)
         txs = con.execute("SELECT * FROM txs WHERE height=? ORDER BY idx LIMIT ? OFFSET ?",
-                          (b["height"], TXS_PER_PAGE, (page - 1) * TXS_PER_PAGE)).fetchall()
+                          (b["height"], self.txs_per_page, (page - 1) * self.txs_per_page)).fetchall()
         rows = [(link_tx(t["txid"], short=False),
                  "Coinbase" if t["is_coinbase"] else (h(fmt_vlc(t["fee"])) if t["fee"] is not None else "–"),
                  h(fmt_vlc(t["total_out"])))
                 for t in txs]
-        pages = max(1, math.ceil(b["ntx"] / TXS_PER_PAGE))
+        pages = max(1, math.ceil(b["ntx"] / self.txs_per_page))
         nav = ""
         if pages > 1:
-            base = f"/block/{b['hash']}?page="
-            nav = pager(base + str(page - 1) if page > 1 else None, base + str(page + 1) if page < pages else None,
-                        "← Zurück", "Weiter →")
+            nav = pager(URLS.block(b["hash"], page - 1) if page > 1 else None,
+                        URLS.block(b["hash"], page + 1) if page < pages else None, "← Zurück", "Weiter →")
         title = f"Block {fmt_int(b['height'])}"
         if b["height"] == 0:
             title += " (Genesis-Block)"
@@ -826,14 +933,14 @@ class Explorer:
         address = self.check_address(con, address)
         s = self.address_summary(con, address)
         page = query_int(query, "page", 1, minimum=1)
-        rows_db = con.execute("SELECT a.*, b.time FROM address_txs a JOIN blocks b ON b.height=a.height "
+        rows_db = con.execute("SELECT a.*, b.time, b.hash FROM address_txs a JOIN blocks b ON b.height=a.height "
                               "WHERE a.address=? ORDER BY a.height DESC, a.txid LIMIT ? OFFSET ?",
-                              (address, TXS_PER_PAGE, (page - 1) * TXS_PER_PAGE)).fetchall()
+                              (address, self.txs_per_page, (page - 1) * self.txs_per_page)).fetchall()
         rows = []
         for r in rows_db:
             delta = r["received"] - r["sent"]
             sign = "+" if delta > 0 else ""
-            rows.append((h(fmt_time(r["time"])), link_block(r["height"], fmt_int(r["height"])), link_tx(r["txid"]),
+            rows.append((h(fmt_time(r["time"])), link_block(r["hash"], fmt_int(r["height"])), link_tx(r["txid"]),
                          f'<span class="{"pos" if delta > 0 else "neg" if delta < 0 else ""}">{sign}{h(fmt_vlc(delta))}</span>'))
         tiles = "".join([
             tile("Kontostand", vlc_html(s["balance"])),
@@ -841,12 +948,11 @@ class Explorer:
             tile("Gesendet", vlc_html(s["sent"])),
             tile("Transaktionen", fmt_int(s["tx_count"])),
         ])
-        pages = max(1, math.ceil(s["tx_count"] / TXS_PER_PAGE))
+        pages = max(1, math.ceil(s["tx_count"] / self.txs_per_page))
         nav = ""
         if pages > 1:
-            base = f"/address/{address}?page="
-            nav = pager(base + str(page - 1) if page > 1 else None, base + str(page + 1) if page < pages else None,
-                        "← Neuere", "Ältere →")
+            nav = pager(URLS.address(address, page - 1) if page > 1 else None,
+                        URLS.address(address, page + 1) if page < pages else None, "← Neuere", "Ältere →")
         history = (table(["Zeit", "Block", "Transaktion", "Änderung (VLC)"], rows, numeric=(1, 3)) + nav
                    if rows else "<p>Noch keine bestätigten Transaktionen.</p>")
         return "Adresse", (f'<h1>Adresse</h1><p class="mono big">{h(address)}</p>'
@@ -938,7 +1044,7 @@ class Explorer:
                  "wenn VLC irgendwo gehandelt wird.</p>")
         return "Statistik", (f"<h1>Statistik</h1>{intro}<div class=\"charts\">{''.join(charts)}</div>"
                              f'<script type="application/json" id="chart-data">{payload}</script>'
-                             '<script src="/static/charts.js" defer></script>')
+                             f'<script src="{h(URLS.static("charts.js"))}" defer></script>')
 
     # -- JSON API -----------------------------------------------------------
 
@@ -1088,6 +1194,79 @@ def make_server(explorer, bind, port):
 
 
 # ---------------------------------------------------------------------------
+# Static export
+# ---------------------------------------------------------------------------
+
+EXPORT_STATIC_FILES = ["style.css", "site-theme.css", "charts.js", "search.js", "logo.png", "favicon.png"]
+
+
+def export_static(explorer, outdir, log=print):
+    """Write every page as a static HTML file into outdir.
+
+    The result needs no server and no node: it can be put on a static web
+    host such as Vercel, next to the website (website/explorer/). It shows the
+    chain as it was at the time of the export.
+    """
+    global URLS
+    con = open_db(explorer.db_path)
+    try:
+        tip = db_tip(con)
+        if tip is None:
+            raise ExplorerError("Noch keine Blöcke im Index, es gibt nichts zu exportieren.")
+        explorer.blocks_per_page = explorer.txs_per_page = 10 ** 9  # everything on one page
+        explorer.snapshot = (int(time.time()), tip["height"])
+        for sub in ("block", "tx", "address", "static"):
+            os.makedirs(os.path.join(outdir, sub), exist_ok=True)
+        written = 0
+
+        def write(rel, depth, render):
+            global URLS
+            nonlocal written
+            URLS = StaticURLs("../" * depth)
+            try:
+                title, body = render()
+            except NotFound as e:
+                log(f"Übersprungen: {rel} ({e})")
+                return
+            with open(os.path.join(outdir, *rel.split("/")), "w", encoding="utf-8", newline="\n") as f:
+                f.write(explorer.layout(con, title, body))
+            written += 1
+
+        hashes = [r["hash"] for r in con.execute("SELECT hash FROM blocks ORDER BY height")]
+        txids = [r["txid"] for r in con.execute("SELECT txid FROM txs ORDER BY height, idx")]
+        known = set(txids)
+        mempool = [t for t in (explorer.rpc_safe("getrawmempool") or []) if t not in known]
+        addresses = {r["address"] for r in con.execute("SELECT DISTINCT address FROM address_txs")}
+        for txid in mempool:  # receivers of unconfirmed payments get a page as well
+            tx = explorer.rpc_safe("getrawtransaction", txid, 1)
+            for o in (tx or {}).get("vout", []):
+                if o["scriptPubKey"].get("address"):
+                    addresses.add(o["scriptPubKey"]["address"])
+
+        write("index.html", 0, lambda: explorer.page_home(con, {}))
+        write("blocks.html", 0, lambda: explorer.page_blocks(con, {}))
+        write("stats.html", 0, lambda: explorer.page_stats(con, {}))
+        for block_hash in hashes:
+            write(f"block/{block_hash}.html", 1, lambda block_hash=block_hash: explorer.page_block(con, {}, block_hash))
+        for txid in txids + mempool:
+            write(f"tx/{txid}.html", 1, lambda txid=txid: explorer.page_tx(con, {}, txid))
+        for address in sorted(addresses):
+            write(f"address/{address}.html", 1, lambda address=address: explorer.page_address(con, {}, address))
+
+        for name in EXPORT_STATIC_FILES:
+            shutil.copyfile(os.path.join(STATIC_DIR, name), os.path.join(outdir, "static", name))
+        index = {"heights": hashes, "txids": txids + mempool, "addresses": sorted(addresses)}
+        with open(os.path.join(outdir, "search-index.js"), "w", encoding="utf-8", newline="\n") as f:
+            f.write("window.VLC_SEARCH = " + json.dumps(index) + ";\n")
+        log(f"Export fertig: {written} Seiten bis Blockhöhe {tip['height']} in {outdir}")
+        return written
+    finally:
+        URLS = ServerURLs()
+        explorer.blocks_per_page, explorer.txs_per_page, explorer.snapshot = BLOCKS_PER_PAGE, TXS_PER_PAGE, None
+        con.close()
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -1117,6 +1296,9 @@ def main():
     ap.add_argument("--bind", default="127.0.0.1", help="Adresse für den Webserver (Standard 127.0.0.1)")
     ap.add_argument("--port", type=int, default=8080, help="Port für den Webserver (Standard 8080)")
     ap.add_argument("--poll", type=float, default=5.0, help="Sekunden zwischen zwei Abfragen beim Node")
+    ap.add_argument("--export", metavar="ORDNER",
+                    help="Keinen Webserver starten, sondern alle Seiten als Dateien in ORDNER speichern "
+                         "(zum Beispiel website/explorer für Vercel)")
     args = ap.parse_args()
 
     rpc = build_rpc(args)
@@ -1135,6 +1317,16 @@ def main():
     init_db(db_path)
     indexer = Indexer(rpc, db_path, args.chain, poll=args.poll, log=log)
     explorer = Explorer(rpc, db_path, args.chain, indexer)
+    if args.export:
+        con = open_db(db_path)
+        try:
+            indexer.sync(con)
+            export_static(explorer, args.export, log=log)
+        except (NodeUnavailable, RPCError, ExplorerError) as e:
+            sys.exit(f"Fehler: {e}")
+        finally:
+            con.close()
+        return
     server = make_server(explorer, args.bind, args.port)
     indexer.start()
     log(f"Explorer läuft auf http://{args.bind}:{args.port}/ (Datenbank {db_path}). Beenden mit Ctrl+C.")

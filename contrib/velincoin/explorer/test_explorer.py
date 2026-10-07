@@ -12,8 +12,10 @@ Usage: test_explorer.py [--bindir build/bin]
 """
 
 import argparse
+import html
 import json
 import os
+import re
 import shutil
 import socket
 import subprocess
@@ -217,6 +219,38 @@ def main():
         charts = json.loads(body)
         check(len(charts["supply"]) == tip["height"] and sum(p["v"] for p in charts["blocks_per_day"]) == tip["height"],
               "API: Chart-Daten")
+
+        print("Statischer Export (für Vercel) prüfen")
+        site = os.path.join(tmp, "website")
+        out = os.path.join(site, "explorer")
+        pages = ex.export_static(explorer, out, log=lambda m: None)
+        n_txs = con.execute("SELECT COUNT(*) FROM txs").fetchone()[0]
+        n_addr = con.execute("SELECT COUNT(DISTINCT address) FROM address_txs").fetchone()[0]
+        check(pages >= 3 + tip["height"] + 1 + n_txs + n_addr,
+              f"{pages} Seiten exportiert (Blöcke, Transaktionen, Adressen und die unbestätigte Zahlung)")
+        check(os.path.exists(os.path.join(out, "tx", mempool_txid + ".html")), "Seite der unbestätigten Zahlung existiert")
+        broken, links = [], 0
+        for folder, _, files in os.walk(out):
+            for name in files:
+                if not name.endswith(".html"):
+                    continue
+                with open(os.path.join(folder, name), encoding="utf-8") as f:
+                    text = f.read()
+                for ref in re.findall(r'(?:href|src)="([^"#?]+)', text):
+                    if ref.startswith(("http:", "https:")) or ref == "../index.html" or ref.endswith("/../index.html"):
+                        continue  # the website itself is not part of this test
+                    links += 1
+                    if not os.path.exists(os.path.normpath(os.path.join(folder, html.unescape(ref)))):
+                        broken.append((name, ref))
+        check(not broken and links > 1000, f"alle {links} Links im Export führen zu einer Datei {broken[:3]}")
+        with open(os.path.join(out, "search-index.js"), encoding="utf-8") as f:
+            index = json.loads(f.read().split("=", 1)[1].rstrip().rstrip(";"))
+        check(index["heights"][0] == rpc.call("getblockhash", 0) and txid1 in index["txids"] and addr_b2 in index["addresses"],
+              "Suchindex enthält Blöcke, Transaktionen und Adressen")
+        with open(os.path.join(out, "index.html"), encoding="utf-8") as f:
+            home = f.read()
+        check("Momentaufnahme vom" in home and 'href="/' not in home, "Export zeigt den Stand und nutzt nur relative Links")
+        check(ex.URLS.static_site is False and get(base, "/")[0] == 200, "Webserver läuft nach dem Export normal weiter")
 
         print("Reorg: zwei Blöcke ersetzen")
         rpc.call("invalidateblock", rpc.call("getblockhash", tip["height"] - 1))

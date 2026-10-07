@@ -96,6 +96,34 @@ Explorer beenden und die Datei `explorer-<netz>.sqlite` (und die Dateien mit
 `-wal` und `-shm` am Ende) löschen. Beim nächsten Start baut er alles neu auf.
 
 
+Als Teil der Website veröffentlichen (Vercel)
+--------------------------------------------
+
+Vercel und ähnliche Dienste zeigen nur fertige Dateien an. Einen Node können
+sie nicht abfragen. Darum kann der Explorer alle Seiten als Dateien speichern,
+eine **Momentaufnahme** der Blockchain:
+
+```
+py contrib/velincoin/explorer/explorer.py --export website/explorer
+```
+
+Das Netz wählt ihr wie immer mit `--chain` (Standard: Testnetz). Die Wallet
+muss dabei laufen, mit eingeschaltetem RPC-Server. Danach liegt im Ordner
+`website/explorer` für jeden Block, jede Transaktion und jede Adresse eine
+eigene Seite, im Design der Website. Die Website verlinkt im Menü auf
+`explorer/index.html`. Dann den Ordner `website` wie gewohnt bei Vercel
+hochladen.
+
+- Jede Seite zeigt oben, von wann die Daten sind. Neue Blöcke erscheinen erst
+  nach einem neuen Export und erneutem Hochladen.
+- Die Suche funktioniert auch ohne Server. Sie nutzt die Datei
+  `search-index.js` aus dem Export.
+- Schrift und Farben kommen aus `website/assets`. Der Export gehört deshalb in
+  den Ordner `website/explorer`.
+- Für sehr lange Ketten ist das nicht gedacht, weil jede Seite eine eigene Datei
+  wird.
+
+
 JSON-API
 --------
 

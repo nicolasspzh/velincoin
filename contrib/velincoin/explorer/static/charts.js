@@ -18,6 +18,7 @@
   var nf8 = new Intl.NumberFormat("de-CH", { maximumFractionDigits: 8 });
   var nfInt = new Intl.NumberFormat("de-CH", { maximumFractionDigits: 0 });
   var compact = new Intl.NumberFormat("de-CH", { notation: "compact", maximumFractionDigits: 1 });
+  var small = new Intl.NumberFormat("de-CH", { maximumSignificantDigits: 3 });
 
   var CHARTS = {
     supply: {
@@ -52,6 +53,7 @@
     var a = Math.abs(v);
     if (a < 0.001) return v.toExponential(1);
     if (a >= 1e6) return compact.format(v);
+    if (a < 1) return small.format(v);  // 0.0039 instead of 0
     return nf2.format(v);
   }
 
