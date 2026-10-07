@@ -238,6 +238,10 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->statsSpacer = nullptr;
     ui->statsRow->addSpacing(16);
     ui->statsRow->addWidget(m_chart, 1);
+    // The chart is taller than the balances; keep each balance together at the top
+    for (QLayout* stat : {static_cast<QLayout*>(ui->statAvailable), static_cast<QLayout*>(ui->statPending), static_cast<QLayout*>(ui->statImmature)}) {
+        ui->statsRow->setAlignment(stat, Qt::AlignTop);
+    }
     connect(m_chart, &BalanceChart::hasDataChanged, this, [this](bool has_data) { m_chart->setVisible(has_data && !m_privacy); });
 
     // Reminder until the wallet is backed up: without a copy the coins are lost with the computer
