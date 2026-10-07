@@ -25,7 +25,12 @@ Ihr braucht mindestens **zwei** Server an verschiedenen Orten, damit das Netz
 nicht von einem einzelnen Rechner abhängt. Ein kleiner gemieteter Linux-Server
 (VPS) reicht am Anfang, solange die Kette klein ist.
 
-**Schneller Weg (Testnetz, Debian):** Das Skript
+**Empfohlen:** `contrib/velincoin/server/install.sh`, Schritt für Schritt erklärt
+in [server-einrichten.md](server-einrichten.md). Es installiert fertige
+Programme (kein Kompilieren, 1 GB RAM reicht), beide Netze, die Live-Explorer
+und den Website-Explorer, und löst ein Setup mit `setup-seed-node.sh` ab.
+
+**Alternative (nur Testnetz, Debian):** Das Skript
 [`contrib/velincoin/setup-seed-node.sh`](../../contrib/velincoin/setup-seed-node.sh)
 erledigt die Punkte 1 bis 5 unten in einem Durchgang. Es kompiliert Velincoin Core
 auf dem Server (ohne Wallet), legt den Benutzer `velincoin` und

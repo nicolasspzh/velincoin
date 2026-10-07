@@ -234,7 +234,8 @@ def main():
     ap.add_argument("--branch", default="main", help="Branch, von dem die Website veröffentlicht wird (Standard main)")
     ap.add_argument("--folder", default="website/explorer", help="Ordner des Explorers im Repository")
     ap.add_argument("--token-file", default=os.path.join(HERE, "github-token.txt"), help="Datei mit dem GitHub-Token")
-    ap.add_argument("--interval", type=float, default=300, help="Sekunden zwischen zwei Prüfungen (Standard 300)")
+    # Vercel's free plan publishes at most 100 times a day; every 20 minutes are 72
+    ap.add_argument("--interval", type=float, default=1200, help="Sekunden zwischen zwei Prüfungen (Standard 1200)")
     ap.add_argument("--once", action="store_true", help="Nur einmal aktualisieren, dann beenden")
     ap.add_argument("--replace", action="store_true", help="Auch eine andere Kette auf der Website ersetzen")
     ap.add_argument("--github-api", default="https://api.github.com", help=argparse.SUPPRESS)

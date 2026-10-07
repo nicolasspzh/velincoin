@@ -28,6 +28,11 @@ if [ "$(id -u)" -ne 0 ]; then
     echo "Bitte als root ausführen." >&2
     exit 1
 fi
+# install.sh richtet den Website-Explorer selbst ein
+if [ -f /etc/systemd/system/velincoind-test.service ]; then
+    echo "Dieser Server ist mit install.sh eingerichtet, der Website-Explorer läuft dort schon mit." >&2
+    exit 1
+fi
 if [ ! -f "$SYNC_PY" ] || ! id velincoin >/dev/null 2>&1; then
     echo "Zuerst setup-seed-node.sh ausführen." >&2
     exit 1

@@ -78,7 +78,13 @@ wieder läuft:
 |---|---|---|
 | Velincoin Hauptnetz | 9733 | Wallets im Hauptnetz verbinden sich hierher |
 | Velincoin Testnetz | 29733 | Wallets im Testnetz verbinden sich hierher |
-| Block Explorer | 80 | Webseite mit allen Blöcken, live |
+| Live-Explorer Testnetz | 80 | Webseite mit allen Blöcken, jeder neue Block nach Sekunden |
+| Live-Explorer Hauptnetz | 8080 | dasselbe für das Hauptnetz |
+| Website-Explorer | – | lädt den Testnetz-Explorer alle 20 Minuten auf velincoin.vercel.app |
+
+Es spielt keine Rolle, was vorher auf dem Server lief. Ein älteres Setup mit
+`setup-seed-node.sh` wird abgelöst, und Blöcke eines alten Testnetzes kommen
+zur Seite (siehe README, «Neustarts des Testnetzes»).
 
 Auf einem Minimal-System (zum Beispiel «debian 13 minimal» bei Netcup) zuerst
 `curl` installieren:
@@ -101,29 +107,48 @@ Sobald die Dateien auch auf der Website liegen (nach dem Zusammenführen in
 curl -fsSL https://velincoin.vercel.app/server/install.sh | bash
 ```
 
-Das Skript braucht etwa eine Minute. Am Ende zeigt es die Adressen der beiden
-Explorer und der beiden Nodes an. Danach ist der Server fertig: Er startet
-nach einem Neustart von selbst wieder, und die Blockchain bleibt erhalten.
+Unterwegs fragt das Skript nach einem **GitHub-Token** für den Explorer auf der
+Website. Den hat Nicolas (Fine-grained token, nur das Repository `velincoin`,
+*Contents: Read and write*). Er wird beim Einfügen nicht angezeigt. Ist schon
+einer auf dem Server gespeichert, fragt das Skript nicht. Ohne Token einfach
+Enter drücken: Dann läuft alles ausser dem Website-Explorer.
 
-Prüfen, ob alles läuft:
+Das Skript braucht etwa eine Minute. Am Ende zeigt es die Adressen der
+Explorer und der Nodes an. Danach ist der Server fertig: Er startet nach einem
+Neustart von selbst wieder, und die Blockchain bleibt erhalten.
+
+
+Den Explorer ansehen
+--------------------
+
+Dafür braucht es keine Konsole, nur den Browser:
+
+- **Live-Explorer Testnetz:** http://159.195.4.228/
+- **Live-Explorer Hauptnetz:** http://159.195.4.228:8080/
+- **Explorer auf der Website:** https://velincoin.vercel.app/explorer/
+  (alle 20 Minuten aktualisiert)
+
+Die Website und die Wallet (*Hilfe → Block Explorer öffnen*) verlinken den
+Live-Explorer. Der Browser zeigt «Nicht sicher» an, weil der Server noch kein
+HTTPS hat. Für einen Explorer, der nur liest, ist das unbedenklich.
+
+
+Prüfen, ob alles läuft
+----------------------
 
 ```
 systemctl status velincoind-test velincoind-main
 runuser -u velincoin -- velincoin-cli -datadir=/var/lib/velincoin -testnet4 getblockcount
+journalctl -u velincoin-explorer-sync
 ```
 
-Im Browser zeigt `http://IP-ADRESSE/` den Explorer des Testnetzes und
-`http://IP-ADRESSE:8080/` den des Hauptnetzes.
 
+Schritt 4: Server in der Wallet
+-------------------------------
 
-Schritt 4: Server in die Wallet eintragen
------------------------------------------
-
-Die IP-Adresse (oder ein Name dafür, siehe unten) wird im Code als fester
-Seed eingetragen (`vFixedSeeds` bzw. `vSeeds` in
-`src/kernel/chainparams.cpp`, siehe `seed-server.md`). Danach wird ein neuer
-Installer gebaut. Wallets mit diesem Installer verbinden sich beim Start
-automatisch mit dem Server.
+Ist schon erledigt: Die IP-Adresse ist als fester Seed eingetragen
+(`contrib/seeds/`, siehe `seed-server.md`), und die Wallet verbindet sich bei
+jedem Start von selbst mit dem Server. Niemand muss eine IP-Adresse eingeben.
 
 
 Optional: Ein Name statt der IP-Adresse
@@ -142,4 +167,5 @@ Kosten und Pflege
 - Der Server braucht keine tägliche Pflege. Updates von Ubuntu installiert er
   selbst (unattended-upgrades ist bei Ubuntu standardmässig an).
 - Für eine neue Velincoin-Version führt man das Installationsskript einfach
-  noch einmal aus.
+  noch einmal aus. Vorher die Programme neu bauen und mit
+  `contrib/velincoin/server/package.sh` packen (siehe README).

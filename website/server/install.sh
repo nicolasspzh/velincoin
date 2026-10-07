@@ -4,21 +4,25 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #
 # Sets up a Velincoin server: a node for the main network and one for the
-# test network, plus the live block explorer for both. Run it as root on
-# Ubuntu 24.04 (or newer) or Debian 13, x86_64:
+# test network, the live block explorer for both, and (with a GitHub token)
+# the explorer on the website every 20 minutes. Run it as root on Ubuntu 24.04
+# (or newer) or Debian 13, x86_64:
 #
 #   curl -fsSL https://velincoin.vercel.app/server/install.sh | bash
 #
-# Running it again updates the programs and keeps all data.
+# Running it again updates the programs and keeps all data. It also replaces
+# a server set up with contrib/velincoin/setup-seed-node.sh.
 # Guide: doc/velincoin/server-einrichten.md
 
 set -euo pipefail
 
 BASE_URL="${VELINCOIN_BASE_URL:-https://velincoin.vercel.app/server}"
 PACKAGE="velincoin-server-linux-x86_64.tar.gz"
-PACKAGE_SHA256="6d903173ddef3a9e266bbb8899628fc25c0c54189348464b4d0366dfb85d9dca"
+PACKAGE_SHA256="5f075a695e2a55b1a71be929a97cd5542c8758288d8c27068f2e99c15e242502"
 PREFIX=/opt/velincoin
 DATADIR=/var/lib/velincoin
+CONF_DIR=/etc/velincoin
+TOKEN_FILE=$CONF_DIR/github-token.txt
 SERVICES="velincoind-main velincoind-test velincoin-explorer-main velincoin-explorer-test"
 
 say() { printf '\n==> %s\n' "$*"; }
@@ -50,7 +54,7 @@ fi
 
 say "Benutzer velincoin"
 if ! id velincoin >/dev/null 2>&1; then
-    useradd --system --home-dir "$DATADIR" --create-home --shell /usr/sbin/nologin velincoin
+    useradd --system --user-group --home-dir "$DATADIR" --create-home --shell /usr/sbin/nologin velincoin
 fi
 mkdir -p "$DATADIR"
 chown velincoin:velincoin "$DATADIR"
@@ -65,17 +69,76 @@ mkdir -p "$tmp/pkg"
 tar -xzf "$tmp/$PACKAGE" -C "$tmp/pkg" --strip-components=1
 "$tmp/pkg/bin/velincoind" -version >/dev/null 2>&1 || fail "velincoind startet auf diesem System nicht (zu altes Linux?)."
 
+say "Dienste anhalten"
+for s in $SERVICES velincoin-explorer-sync; do systemctl stop "$s" 2>/dev/null || true; done
+# Ein Setup von setup-seed-node.sh (Dienst "velincoind", Daten in /var/lib/velincoind)
+# würde dieselben Ports belegen. Es wird durch die Dienste unten ersetzt.
+if [ -f /etc/systemd/system/velincoind.service ]; then
+    systemctl disable --now velincoind >/dev/null 2>&1 || true
+    rm -f /etc/systemd/system/velincoind.service
+    echo "Das ältere Setup (Dienst velincoind) ist abgelöst. Seine Daten in /var/lib/velincoind bleiben liegen."
+fi
+
 say "Programme installieren"
-for s in $SERVICES; do systemctl stop "$s" 2>/dev/null || true; done
 rm -rf "$PREFIX"
 mkdir -p "$PREFIX"
 cp -r "$tmp/pkg/." "$PREFIX/"
 ln -sf "$PREFIX/bin/velincoin-cli" /usr/local/bin/velincoin-cli
 install -m 644 "$PREFIX"/systemd/*.service /etc/systemd/system/
+systemctl daemon-reload
+
+say "Explorer auf der Website (alle 20 Minuten)"
+if [ ! -s "$TOKEN_FILE" ]; then
+    echo "Dafür braucht es einen GitHub-Token (Fine-grained token, nur das Repository"
+    echo "velincoin, Contents: Read and write). Ohne Token läuft nur der Live-Explorer."
+    printf "Token einfügen und Enter drücken (er bleibt unsichtbar), leer lassen = überspringen: "
+    token=""
+    read -r -s token 2>/dev/null </dev/tty || token=""
+    echo
+    token=$(printf '%s' "$token" | tr -d '[:space:]')
+    if [ -n "$token" ]; then
+        install -d -m 0710 -o root -g velincoin "$CONF_DIR"
+        install -m 0640 -o root -g velincoin /dev/null "$TOKEN_FILE"
+        printf '%s\n' "$token" > "$TOKEN_FILE"
+    fi
+    unset token
+fi
+if [ -s "$TOKEN_FILE" ]; then
+    chgrp velincoin "$CONF_DIR" "$TOKEN_FILE"
+    SERVICES="$SERVICES velincoin-explorer-sync"
+    website_explorer="https://velincoin.vercel.app/explorer/ (alle 20 Minuten)"
+else
+    systemctl disable velincoin-explorer-sync >/dev/null 2>&1 || true
+    website_explorer="nicht eingerichtet (kein GitHub-Token)"
+fi
+echo "Website-Explorer: $website_explorer"
 
 say "Dienste starten"
-systemctl daemon-reload
+log_file="$DATADIR/testnet4/debug.log"
+log_start=$(stat -c %s "$log_file" 2>/dev/null || echo 0)
 for s in $SERVICES; do systemctl enable --now "$s" >/dev/null 2>&1; done
+# Nach einem Neustart des Testnetzes (neuer Genesis-Block oder höhere niedrigste
+# Schwierigkeit, siehe README) startet der Node mit den alten Blöcken nicht
+# mehr. Sie kommen dann zur Seite, und der Node lädt die neue Kette.
+for _ in $(seq 90); do
+    [ "$(stat -c %s "$log_file" 2>/dev/null || echo 0)" -lt "$log_start" ] && log_start=0
+    new_log=$(tail -c +"$((log_start + 1))" "$log_file" 2>/dev/null || true)
+    # Other genesis block, or blocks below today's lowest difficulty (older test network)
+    if grep -qE "Incorrect or no genesis block found|LoadBlockIndexGuts: CheckProofOfWork failed" <<<"$new_log"; then
+        old_dir="$DATADIR/testnet4-alte-kette-$(date +%Y%m%d-%H%M%S)"
+        echo "Das Testnetz wurde neu gestartet. Die Blöcke der alten Kette kommen nach $old_dir."
+        systemctl stop velincoind-test
+        mkdir -p "$old_dir"
+        for d in blocks chainstate indexes; do
+            if [ -e "$DATADIR/testnet4/$d" ]; then mv "$DATADIR/testnet4/$d" "$old_dir/"; fi
+        done
+        chown -R velincoin:velincoin "$old_dir"
+        systemctl start velincoind-test
+        break
+    fi
+    if grep -q "init message: Done loading" <<<"$new_log"; then break; fi
+    sleep 1
+done
 
 say "Firewall: SSH, Velincoin (9733, 29733) und Explorer (80, 8080) erlauben"
 ufw allow OpenSSH >/dev/null
@@ -90,16 +153,17 @@ say "Fertig"
 cat <<EOM
 Velincoin läuft jetzt auf diesem Server und startet nach einem Neustart von selbst.
 
-  Explorer Testnetz:  http://$ip/
-  Explorer Hauptnetz: http://$ip:8080/
-  Node Hauptnetz:     $ip:9733
-  Node Testnetz:      $ip:29733
+  Live-Explorer Testnetz:  http://$ip/
+  Live-Explorer Hauptnetz: http://$ip:8080/
+  Website-Explorer:        $website_explorer
+  Node Hauptnetz:          $ip:9733
+  Node Testnetz:           $ip:29733
 
 Nützliche Befehle:
   systemctl status velincoind-test        Läuft der Testnetz-Node?
   runuser -u velincoin -- velincoin-cli -datadir=$DATADIR -testnet4 getblockcount
   runuser -u velincoin -- velincoin-cli -datadir=$DATADIR getconnectioncount
-  journalctl -u velincoin-explorer-test   Meldungen des Explorers
+  journalctl -u velincoin-explorer-sync   Meldungen des Website-Explorers
 
 Erneut ausführen aktualisiert die Programme, die Blockchain bleibt erhalten.
 EOM
