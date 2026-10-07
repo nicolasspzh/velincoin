@@ -26,6 +26,7 @@
 #include <QPainter>
 #include <QPixmap>
 #include <QPushButton>
+#include <QToolButton>
 #include <QStatusTipEvent>
 
 #include <algorithm>
@@ -188,6 +189,15 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     connect(ui->receiveButton, &QPushButton::clicked, this, &OverviewPage::receiveCoinsClicked);
     connect(ui->showAllButton, &QPushButton::clicked, this, &OverviewPage::showHistoryClicked);
 
+    // Eye button next to the total balance: shows and hides the amounts (Settings > Mask values)
+    m_privacy_button = new QToolButton(this);
+    m_privacy_button->setObjectName(QStringLiteral("privacyButton"));
+    m_privacy_button->setCursor(Qt::PointingHandCursor);
+    m_privacy_button->setIconSize(QSize(20, 20));
+    ui->totalRow->insertWidget(1, m_privacy_button, 0, Qt::AlignVCenter);
+    connect(m_privacy_button, &QToolButton::clicked, this, &OverviewPage::togglePrivacyClicked);
+    updateIcons();
+
     // Sync button: connect to the Velincoin server now, the node then fetches new blocks by itself
     m_sync_button = new QPushButton(tr("Sync"), this);
     m_sync_button->setObjectName(QStringLiteral("syncButton"));
@@ -218,6 +228,7 @@ void OverviewPage::setPrivacy(bool privacy)
     }
 
     LimitTransactionRows();
+    updateIcons();
 
     const QString status_tip = m_privacy ? tr("Privacy mode activated for the Overview tab. To unmask the values, uncheck Settings->Mask values.") : "";
     setStatusTip(status_tip);
@@ -360,6 +371,10 @@ void OverviewPage::updateIcons()
     // the primary button is white, so its icon is drawn dark
     ui->sendButton->setIcon(TintedIcon(QStringLiteral(":/icons/send"), VelincoinTheme::PRIMARY_BUTTON_TEXT));
     ui->receiveButton->setIcon(TintedIcon(QStringLiteral(":/icons/receiving_addresses"), VelincoinTheme::TEXT));
+    if (m_privacy_button) {
+        m_privacy_button->setIcon(TintedIcon(m_privacy ? QStringLiteral(":/icons/eye_closed") : QStringLiteral(":/icons/eye"), VelincoinTheme::TEXT_DIM));
+        m_privacy_button->setToolTip(m_privacy ? tr("Show amounts") : tr("Hide amounts"));
+    }
 }
 
 // Only show most recent NUM_ITEMS rows

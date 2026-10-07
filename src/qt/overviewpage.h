@@ -23,6 +23,7 @@ namespace Ui {
 QT_BEGIN_NAMESPACE
 class QModelIndex;
 class QPushButton;
+class QToolButton;
 QT_END_NAMESPACE
 
 /** Overview ("home") page widget */
@@ -48,6 +49,8 @@ Q_SIGNALS:
     void sendCoinsClicked();
     void receiveCoinsClicked();
     void showHistoryClicked();
+    //! The eye button next to the total balance was clicked
+    void togglePrivacyClicked();
 
 protected:
     void changeEvent(QEvent* e) override;
@@ -58,6 +61,7 @@ private:
     WalletModel* walletModel{nullptr};
     bool m_privacy{false};
     QPushButton* m_sync_button{nullptr};
+    QToolButton* m_privacy_button{nullptr};
     bool m_sync_requested{false};
 
     const PlatformStyle* m_platform_style;

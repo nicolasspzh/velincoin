@@ -828,6 +828,8 @@ void BitcoinGUI::addWallet(WalletModel* walletModel)
     connect(wallet_view, &WalletView::sendCoinsClicked, this, [this] { gotoSendCoinsPage(); });
     connect(wallet_view, &WalletView::receiveCoinsClicked, this, &BitcoinGUI::gotoReceiveCoinsPage);
     connect(wallet_view, &WalletView::showHistoryClicked, this, &BitcoinGUI::gotoHistoryPage);
+    // The eye button on the overview toggles Settings > Mask values; the menu item stays in sync
+    connect(wallet_view, &WalletView::togglePrivacyClicked, m_mask_values_action, &QAction::toggle);
     connect(wallet_view, &WalletView::transactionClicked, this, &BitcoinGUI::gotoHistoryPage);
     connect(wallet_view, &WalletView::coinsSent, this, &BitcoinGUI::gotoHistoryPage);
     connect(wallet_view, &WalletView::message, [this](const QString& title, const QString& message, unsigned int style) {

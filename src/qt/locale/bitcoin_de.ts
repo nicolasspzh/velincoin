@@ -1980,6 +1980,14 @@ Der Migrationsprozess erstellt vor der Migration ein Backup der Wallet. Diese Si
             <numerusform>%n Verbindungen, Block %1</numerusform>
         </translation>
     </message>
+    <message>
+        <source>Show amounts</source>
+        <translation>Beträge anzeigen</translation>
+    </message>
+    <message>
+        <source>Hide amounts</source>
+        <translation>Beträge verbergen</translation>
+    </message>
 </context>
 <context>
     <name>PSBTOperationsDialog</name>
