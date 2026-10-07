@@ -5,6 +5,8 @@
 #ifndef BITCOIN_QT_GUICONSTANTS_H
 #define BITCOIN_QT_GUICONSTANTS_H
 
+#include <qt/velincointheme.h>
+
 #include <chrono>
 #include <cstdint>
 
@@ -27,16 +29,17 @@ static const bool DEFAULT_SPLASHSCREEN = true;
 /* Invalid field background style */
 #define STYLE_INVALID "border: 3px solid #FF8080"
 
+/* Transaction list colors, from the Velincoin theme so they are readable on its background */
 /* Transaction list -- unconfirmed transaction */
-#define COLOR_UNCONFIRMED QColor(120, 120, 130)
+#define COLOR_UNCONFIRMED VelincoinTheme::TEXT_FAINT
 /* Transaction list -- negative amount */
-#define COLOR_NEGATIVE QColor(248, 113, 113)
+#define COLOR_NEGATIVE VelincoinTheme::NEGATIVE
 /* Transaction list -- bare address (without label) */
-#define COLOR_BAREADDRESS QColor(140, 140, 140)
+#define COLOR_BAREADDRESS VelincoinTheme::TEXT_DIM
 /* Transaction list -- TX status decoration - danger, tx needs attention */
-#define COLOR_TX_STATUS_DANGER QColor(200, 100, 100)
-/* Transaction list -- TX status decoration - default color */
-#define COLOR_BLACK QColor(0, 0, 0)
+#define COLOR_TX_STATUS_DANGER VelincoinTheme::NEGATIVE
+/* Transaction list -- TX status decoration - default color (was black, invisible on dark) */
+#define COLOR_BLACK VelincoinTheme::TEXT
 
 /* Tooltips longer than this (in characters) are converted into rich text,
    so that they can be word-wrapped.

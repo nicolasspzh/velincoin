@@ -16,6 +16,7 @@
 #include <qt/optionsmodel.h>
 #include <qt/platformstyle.h>
 #include <qt/sendcoinsentry.h>
+#include <qt/velincointheme.h>
 
 #include <chainparams.h>
 #include <interfaces/node.h>
@@ -364,7 +365,7 @@ bool SendCoinsDialog::PrepareSendText(QString& question_string, QString& informa
         question_string.append(" (" + tr("%1 kvB", "PSBT transaction creation").arg((double)m_current_transaction->getTransactionSize() / 1000, 0, 'g', 3) + "): ");
 
         // append transaction fee value
-        question_string.append("<span style='color:#aa0000; font-weight:bold;'>");
+        question_string.append(QStringLiteral("<span style='color:%1; font-weight:bold;'>").arg(VelincoinTheme::NEGATIVE.name()));
         question_string.append(BitcoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), txFee));
         question_string.append("</span>");
         question_string.append(demo_html(txFee));

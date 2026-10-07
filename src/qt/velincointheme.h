@@ -23,6 +23,13 @@ inline const QColor ACCENT{0x8b, 0x5c, 0xf6};
 inline const QColor POSITIVE{0x86, 0xef, 0xac};
 inline const QColor NEGATIVE{0xf8, 0x71, 0x71};
 inline const QColor PENDING{0xfb, 0xbf, 0x24};
+//! Violet for text and links (lighter than ACCENT, readable on dark surfaces)
+inline const QColor ACCENT_TEXT{0xa7, 0x8b, 0xfa};
+//! Text on the white primary button
+inline const QColor PRIMARY_BUTTON_TEXT{0x05, 0x05, 0x05};
+//! Test network badge: background and border around PENDING text
+inline const QColor PENDING_BACKGROUND{0x17, 0x14, 0x0c};
+inline const QColor PENDING_BORDER{0x3a, 0x32, 0x20};
 
 /** Readable network name from NetworkStyle::getTitleAddText() ("" for main, "[testnet4]", ...). */
 QString NetworkLabel(QString title_add_text);

@@ -117,6 +117,7 @@ public:
 };
 
 #include <qt/rpcconsole.moc>
+#include <qt/velincointheme.h>
 
 /**
  * Split shell command line into a list of arguments and optionally execute the command(s).
@@ -854,13 +855,14 @@ void RPCConsole::clear(bool keep_prompt)
     ui->messagesWidget->document()->setDefaultStyleSheet(
         QString(
                 "table { }"
-                "td.time { color: #808080; font-size: %2; padding-top: 3px; } "
+                "td.time { color: %3; font-size: %2; padding-top: 3px; } "
                 "td.message { font-family: %1; font-size: %2; white-space:pre-wrap; } "
-                "td.cmd-request { color: #a78bfa; } "
-                "td.cmd-error { color: #f87171; } "
-                ".secwarning { color: #f87171; }"
-                "b { color: #a78bfa; } "
-            ).arg(fixedFontInfo.family(), QString("%1pt").arg(consoleFontSize))
+                "td.cmd-request { color: %4; } "
+                "td.cmd-error { color: %5; } "
+                ".secwarning { color: %5; }"
+                "b { color: %4; } "
+            ).arg(fixedFontInfo.family(), QString("%1pt").arg(consoleFontSize), VelincoinTheme::TEXT_DIM.name(),
+                  VelincoinTheme::ACCENT_TEXT.name(), VelincoinTheme::NEGATIVE.name())
         );
 
     static const QString welcome_message =

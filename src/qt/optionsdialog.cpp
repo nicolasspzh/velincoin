@@ -12,6 +12,7 @@
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
+#include <qt/velincointheme.h>
 
 #include <common/system.h>
 #include <interfaces/node.h>
@@ -99,7 +100,7 @@ OptionsDialog::OptionsDialog(QWidget* parent, bool enableWallet)
     ui->threadsScriptVerif->setMinimum(-GetNumCores());
     ui->threadsScriptVerif->setMaximum(MAX_SCRIPTCHECK_THREADS);
     ui->pruneWarning->setVisible(false);
-    ui->pruneWarning->setStyleSheet("QLabel { color: red; }");
+    ui->pruneWarning->setStyleSheet(QStringLiteral("QLabel { color: %1; }").arg(VelincoinTheme::NEGATIVE.name()));
 
     ui->pruneSize->setEnabled(false);
     connect(ui->prune, &QPushButton::toggled, ui->pruneSize, &QWidget::setEnabled);
@@ -408,7 +409,7 @@ void OptionsDialog::togglePruneWarning(bool enabled)
 
 void OptionsDialog::showRestartWarning(bool fPersistent)
 {
-    ui->statusLabel->setStyleSheet("QLabel { color: red; }");
+    ui->statusLabel->setStyleSheet(QStringLiteral("QLabel { color: %1; }").arg(VelincoinTheme::NEGATIVE.name()));
 
     if(fPersistent)
     {
@@ -443,7 +444,7 @@ void OptionsDialog::updateProxyValidationState()
     else
     {
         setOkButtonState(false);
-        ui->statusLabel->setStyleSheet("QLabel { color: red; }");
+        ui->statusLabel->setStyleSheet(QStringLiteral("QLabel { color: %1; }").arg(VelincoinTheme::NEGATIVE.name()));
         ui->statusLabel->setText(tr("The supplied proxy address is invalid."));
     }
 }

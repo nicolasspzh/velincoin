@@ -232,7 +232,7 @@ void OverviewPage::setBalance(const interfaces::WalletBalances& balances)
     const QString unit_suffix = QStringLiteral(" ") + BitcoinUnits::shortName(unit);
     if (total.endsWith(unit_suffix)) {
         total = total.left(total.size() - unit_suffix.size()).toHtmlEscaped() +
-                QStringLiteral("<span style=\"font-size:15pt; font-weight:500; color:#8e8e98;\">&nbsp;%1</span>").arg(BitcoinUnits::shortName(unit).toHtmlEscaped());
+                QStringLiteral("<span style=\"font-size:15pt; font-weight:500; color:%1;\">&nbsp;%2</span>").arg(VelincoinTheme::TEXT_DIM.name(), BitcoinUnits::shortName(unit).toHtmlEscaped());
     } else {
         total = total.toHtmlEscaped();
     }
@@ -315,7 +315,7 @@ void OverviewPage::updateIcons()
     ui->labelTransactionsStatus->setIcon(warning);
     ui->labelWalletStatus->setIcon(warning);
     // the primary button is white, so its icon is drawn dark
-    ui->sendButton->setIcon(TintedIcon(QStringLiteral(":/icons/send"), QColor(0x05, 0x05, 0x05)));
+    ui->sendButton->setIcon(TintedIcon(QStringLiteral(":/icons/send"), VelincoinTheme::PRIMARY_BUTTON_TEXT));
     ui->receiveButton->setIcon(TintedIcon(QStringLiteral(":/icons/receiving_addresses"), VelincoinTheme::TEXT));
 }
 
