@@ -2,3 +2,6 @@
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm
+# Never commit the GitHub token of explorer_sync.py
+github-token.txt
+__pycache__/

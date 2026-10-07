@@ -682,8 +682,9 @@ class Explorer:
         """Page frame of the static export, in the look of the Velincoin website."""
         label = CHAINS[self.chain][3]
         u = URLS
-        when, height = self.snapshot
-        stamp = f"Momentaufnahme vom {fmt_time(when)}, Blockhöhe {fmt_int(height)}"
+        # The time of the export and the confirmations are filled in by search.js from
+        # search-index.js. So a new block changes only a few pages, which keeps the
+        # automatic upload (explorer_sync.py) small.
         return f"""<!doctype html>
 <html lang="de" data-site="velincoin">
 <head>
@@ -709,13 +710,21 @@ class Explorer:
   </div>
 </header>
 <main class="wrap">
-<p class="note snapshot">{h(stamp)}. Neue Blöcke erscheinen erst mit dem nächsten Export.</p>
+<p class="note snapshot" data-snapshot>Momentaufnahme der Velincoin-Blockchain.</p>
 {body}
 </main>
-<footer class="wrap foot">{h(stamp)}. Alle Zeiten in UTC. Velincoin ist ein Schulprojekt, VLC hat keinen Marktwert.</footer>
+<footer class="wrap foot">Alle Zeiten in UTC. Velincoin ist ein Schulprojekt, VLC hat keinen Marktwert.</footer>
 </body>
 </html>
 """
+
+    def confirmations_html(self, height, tip_height, words=True):
+        """Number of confirmations. In the static export search.js computes it from the
+        height of the newest block, so the page does not change with every new block."""
+        if URLS.static_site:
+            return f'<span data-confs="{height}" data-words="{int(words)}">–</span>'
+        n = tip_height - height + 1
+        return fmt_int(n) + ((" Bestätigung" if n == 1 else " Bestätigungen") if words else "")
 
     def block_row(self, con, ident):
         if HEIGHT_RE.fullmatch(ident):
@@ -821,7 +830,7 @@ class Explorer:
             ("Vorheriger Block", link_block(b["prev"], b["prev"]) if b["prev"] else "–"),
             ("Nächster Block", link_block(next_hash, next_hash) if next_hash else "–"),
             ("Zeit", h(fmt_time(b["time"]))),
-            ("Bestätigungen", fmt_int(tip["height"] - b["height"] + 1)),
+            ("Bestätigungen", self.confirmations_html(b["height"], tip["height"], words=False)),
             ("Transaktionen", fmt_int(b["ntx"])),
             ("Grösse", h(fmt_bytes(b["size"]))),
             ("Gewicht", fmt_int(b["weight"])),
@@ -856,9 +865,8 @@ class Explorer:
         tx, row, spent = self.get_tx(con, txid)
         tip = db_tip(con)
         if row is not None:
-            confirmations = tip["height"] - row["height"] + 1
             status = (f'Bestätigt in Block {link_block(row["blockhash"], fmt_int(row["height"]))}, '
-                      f'{fmt_int(confirmations)} {"Bestätigung" if confirmations == 1 else "Bestätigungen"}')
+                      f'{self.confirmations_html(row["height"], tip["height"])}')
             when = fmt_time(row["blocktime"])
         elif tx.get("blockhash"):
             status = f'Bestätigt in Block {link_block(tx["blockhash"], tx["blockhash"])} (noch nicht im Explorer)'
@@ -1255,9 +1263,15 @@ def export_static(explorer, outdir, log=print):
 
         for name in EXPORT_STATIC_FILES:
             shutil.copyfile(os.path.join(STATIC_DIR, name), os.path.join(outdir, "static", name))
-        index = {"heights": hashes, "txids": txids + mempool, "addresses": sorted(addresses)}
+        index = {"heights": hashes, "txids": txids + mempool, "addresses": sorted(addresses),
+                 "tip": tip["height"], "time": explorer.snapshot[0], "time_text": fmt_time(explorer.snapshot[0])}
         with open(os.path.join(outdir, "search-index.js"), "w", encoding="utf-8", newline="\n") as f:
             f.write("window.VLC_SEARCH = " + json.dumps(index) + ";\n")
+        # Which chain this export shows. explorer_sync.py checks it before it replaces
+        # the explorer on the website with a different chain.
+        info = {"chain": explorer.chain, "genesis": hashes[0], "tip_height": tip["height"], "tip_hash": tip["hash"]}
+        with open(os.path.join(outdir, "sync.json"), "w", encoding="utf-8", newline="\n") as f:
+            f.write(json.dumps(info, indent=1) + "\n")
         log(f"Export fertig: {written} Seiten bis Blockhöhe {tip['height']} in {outdir}")
         return written
     finally:

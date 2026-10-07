@@ -8,6 +8,25 @@
 (function () {
   "use strict";
 
+  var nf = new Intl.NumberFormat("de-CH");
+  var info = window.VLC_SEARCH;
+
+  // Time of the export and confirmations come from search-index.js, so the
+  // pages themselves do not change with every new block.
+  if (info && typeof info.tip === "number") {
+    var stamp = document.querySelector("[data-snapshot]");
+    if (stamp) {
+      stamp.textContent = "Stand vom " + info.time_text + ", Blockhöhe " + nf.format(info.tip) +
+        ". Neue Blöcke erscheinen mit der nächsten Aktualisierung.";
+    }
+    var confs = document.querySelectorAll("[data-confs]");
+    for (var i = 0; i < confs.length; i++) {
+      var n = info.tip - parseInt(confs[i].getAttribute("data-confs"), 10) + 1;
+      var words = confs[i].getAttribute("data-words") === "1";
+      confs[i].textContent = nf.format(n) + (words ? (n === 1 ? " Bestätigung" : " Bestätigungen") : "");
+    }
+  }
+
   var form = document.querySelector("form.search");
   if (!form) return;
   var base = form.getAttribute("data-base") || "";
