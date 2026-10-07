@@ -106,6 +106,11 @@ fi
 echo
 echo "Warte, bis der Node bereit ist ..."
 cli=(velincoin-cli -datadir="$DATA_DIR" -testnet4)
+# velincoin-cli -rpcwait wartet nicht auf die Cookie-Datei, deshalb zuerst darauf warten.
+for _ in $(seq 120); do
+    [ -e "$DATA_DIR/testnet4/.cookie" ] && break
+    sleep 1
+done
 "${cli[@]}" -rpcwait -rpcwaittimeout=120 getblockchaininfo
 
 echo
