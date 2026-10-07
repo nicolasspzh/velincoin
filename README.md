@@ -154,9 +154,13 @@ Was noch nicht angepasst ist
   beschreiben noch Bitcoin Core.
 - **Regtest** (lokales Testnetz für Entwickler): Adressen beginnen noch wie bei
   Bitcoin mit `bcrt1`.
-- **Seed-Nodes:** Es sind keine eingetragen. Nodes müssen sich im Moment manuell
-  verbinden, zum Beispiel mit `-addnode=<ip>:9733`. Siehe
-  [doc/velincoin/seed-server.md](doc/velincoin/seed-server.md).
+- **Seed-Nodes:** Fester Seed ist der Velincoin-Server `159.195.4.228` (IPv4) und
+  `2a00:11c0:5f:4539:1448:c9ff:fe1d:3565` (IPv6), Port 9733 im Hauptnetz und
+  29733 im Testnetz (`contrib/seeds/nodes_main.txt`, `nodes_testnet4.txt`,
+  daraus erzeugt `src/chainparamsseeds.h`). Ein neuer Node ohne bekannte Adressen
+  verbindet sich nach etwa einer Minute von selbst damit. DNS-Seeds gibt es noch
+  keine. Siehe [doc/velincoin/seed-server.md](doc/velincoin/seed-server.md) und
+  [doc/velincoin/server-einrichten.md](doc/velincoin/server-einrichten.md).
 - **Mindest-Arbeit der Kette (`nMinimumChainWork`):** steht auf 0. Das ist für eine
   neue Kette nötig. Sobald das Netz läuft, muss der Wert regelmässig erhöht werden.
   Er schützt neue Nodes davor, einer gefälschten Kette mit wenig Arbeit zu folgen.
