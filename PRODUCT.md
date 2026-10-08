@@ -28,15 +28,15 @@ Its own proof-of-work blockchain with a fixed supply of 21 million VLC, no premi
 
 - Windows 10/11 desktop; the installer is not code-signed, so Windows SmartScreen shows a warning.
 - The installer adds Velincoin Core and a test network shortcut to the start menu.
-- No seed servers yet: wallets connect by entering a peer address in the console (`addnode`).
-- Mining uses the console command `generatetoaddress` on one CPU core: about 1 to 2 minutes per block on the test network (90-second target block time), about 15 to 20 minutes on the main network. Mined coins are spendable after 100 more blocks.
+- One seed server for the test network (`159.195.4.228`, port 29733): the wallet connects to it by itself at start. It also runs the live block explorer.
+- Mining uses the wallet's Mining page (test network only) or the console command `generatetoaddress`: about 1 to 2 minutes per block on the test network with one CPU core (90-second target block time). Mined coins are spendable after 100 more blocks.
 
 ## Capabilities and Constraints
 
 - Download: `velincoin-win64-setup.exe`, Velincoin Core 31.1, about 28 MB, served from the website folder.
 - Networks: main network (`vlc1…` addresses, port 9733) and test network (`tvlc1…`, port 29733).
-- Status: testing phase. The main network has not launched publicly; VLC has no market value, there is no exchange, no sale and no presale.
-- Open decision: mining algorithm (SHA-256 today) before any public launch.
+- Status: testing phase. Only the test network is shown and used, including at the presentation on Friday, 9 October 2026. The main network exists in the code but is not finished and not launched. VLC has no market value, there is no exchange, no sale and no presale.
+- Decided: the mining algorithm stays SHA-256.
 
 ## Brand Commitments
 
