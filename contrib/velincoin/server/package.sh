@@ -31,7 +31,7 @@ for prog in velincoind velincoin-cli; do
     cp "$BUILD/bin/$prog" "$pkg/bin/"
     strip "$pkg/bin/$prog"
 done
-cp "$ROOT/contrib/velincoin/explorer/explorer.py" "$ROOT/contrib/velincoin/explorer/explorer_sync.py" "$pkg/explorer/"
+cp "$ROOT/contrib/velincoin/explorer/explorer.py" "$pkg/explorer/"
 cp -r "$ROOT/contrib/velincoin/explorer/static/." "$pkg/explorer/static/"
 cp "$ROOT/contrib/velincoin/server/systemd/"*.service "$pkg/systemd/"
 cp "$ROOT/COPYING" "$pkg/"

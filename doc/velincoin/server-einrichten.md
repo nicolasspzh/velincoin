@@ -80,7 +80,6 @@ wieder läuft:
 | Velincoin Testnetz | 29733 | Wallets im Testnetz verbinden sich hierher |
 | Live-Explorer Testnetz | 80 | Webseite mit allen Blöcken, jeder neue Block nach Sekunden |
 | Live-Explorer Hauptnetz | 8080 | dasselbe für das Hauptnetz |
-| Website-Explorer | – | lädt den Testnetz-Explorer alle 20 Minuten auf velincoin.vercel.app |
 
 Es spielt keine Rolle, was vorher auf dem Server lief. Ein älteres Setup mit
 `setup-seed-node.sh` wird abgelöst, und Blöcke eines alten Testnetzes kommen
@@ -107,11 +106,10 @@ Sobald die Dateien auch auf der Website liegen (nach dem Zusammenführen in
 curl -fsSL https://velincoin.vercel.app/server/install.sh | bash
 ```
 
-Unterwegs fragt das Skript nach einem **GitHub-Token** für den Explorer auf der
-Website. Den hat Nicolas (Fine-grained token, nur das Repository `velincoin`,
-*Contents: Read and write*). Er wird beim Einfügen nicht angezeigt. Ist schon
-einer auf dem Server gespeichert, fragt das Skript nicht. Ohne Token einfach
-Enter drücken: Dann läuft alles ausser dem Website-Explorer.
+Früher lud der Server zusätzlich einen Explorer auf die Website hoch (Dienst
+`velincoin-explorer-sync`, mit einem GitHub-Token). Den gibt es nicht mehr, der
+Live-Explorer reicht. Das Skript schaltet diesen Dienst ab und löscht den Token
+auf dem Server. Den Token danach auch auf GitHub widerrufen.
 
 Das Skript braucht etwa eine Minute. Am Ende zeigt es die Adressen der
 Explorer und der Nodes an. Danach ist der Server fertig: Er startet nach einem
@@ -125,8 +123,6 @@ Dafür braucht es keine Konsole, nur den Browser:
 
 - **Live-Explorer Testnetz:** http://159.195.4.228/
 - **Live-Explorer Hauptnetz:** http://159.195.4.228:8080/
-- **Explorer auf der Website:** https://velincoin.vercel.app/explorer/
-  (alle 20 Minuten aktualisiert)
 
 Die Website und die Wallet (*Hilfe → Block Explorer öffnen*) verlinken den
 Live-Explorer. Der Browser zeigt «Nicht sicher» an, weil der Server noch kein
@@ -139,7 +135,6 @@ Prüfen, ob alles läuft
 ```
 systemctl status velincoind-test velincoind-main
 runuser -u velincoin -- velincoin-cli -datadir=/var/lib/velincoin -testnet4 getblockcount
-journalctl -u velincoin-explorer-sync
 ```
 
 
