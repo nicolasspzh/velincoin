@@ -74,6 +74,7 @@ public:
         Server,                 // bool
         EnablePSBTControls,     // bool
         MaskValues,             // bool
+        ShowDemoValue,          // bool
         OptionIDRowCount,
     };
 
@@ -106,6 +107,7 @@ public:
     bool getCoinControlFeatures() const { return fCoinControlFeatures; }
     bool getSubFeeFromAmount() const { return m_sub_fee_from_amount; }
     bool getEnablePSBTControls() const { return m_enable_psbt_controls; }
+    bool getShowDemoValue() const { return m_show_demo_value; }
     const QString& getOverriddenByCommandLine() { return strOverriddenByCommandLine; }
 
     /** Whether -signer was set or not */
@@ -134,6 +136,7 @@ private:
     bool m_sub_fee_from_amount;
     bool m_enable_psbt_controls;
     bool m_mask_values;
+    bool m_show_demo_value{true};
 
     /* settings that were overridden by command-line */
     QString strOverriddenByCommandLine;
@@ -152,6 +155,7 @@ Q_SIGNALS:
     void coinControlFeaturesChanged(bool);
     void showTrayIconChanged(bool);
     void fontForMoneyChanged(const QFont&);
+    void showDemoValueChanged(bool);
 };
 
 Q_DECLARE_METATYPE(OptionsModel::FontChoice)

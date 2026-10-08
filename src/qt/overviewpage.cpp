@@ -5,8 +5,11 @@
 #include <qt/overviewpage.h>
 #include <qt/forms/ui_overviewpage.h>
 
+#include <qt/backupreminder.h>
+#include <qt/balancechart.h>
 #include <qt/bitcoinunits.h>
 #include <qt/clientmodel.h>
+#include <qt/demovalue.h>
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
@@ -14,6 +17,7 @@
 #include <qt/transactionfilterproxy.h>
 #include <qt/transactionoverviewwidget.h>
 #include <qt/transactiontablemodel.h>
+#include <qt/velincoinserver.h>
 #include <qt/velincointheme.h>
 #include <qt/walletmodel.h>
 
@@ -23,6 +27,12 @@
 #include <QImage>
 #include <QPainter>
 #include <QPixmap>
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QTimer>
+#include <QToolButton>
 #include <QStatusTipEvent>
 
 #include <algorithm>
@@ -175,10 +185,88 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
     ui->listTransactions->setCursor(Qt::PointingHandCursor);
 
+    // The CHF value is a fixed demo rate, not a price; the tooltip says so
+    for (QLabel* label : {ui->labelTotalDemo, ui->labelBalanceDemo, ui->labelUnconfirmedDemo}) {
+        label->setToolTip(DemoValue::ToolTip());
+    }
+
     connect(ui->listTransactions, &TransactionOverviewWidget::clicked, this, &OverviewPage::handleTransactionClicked);
     connect(ui->sendButton, &QPushButton::clicked, this, &OverviewPage::sendCoinsClicked);
     connect(ui->receiveButton, &QPushButton::clicked, this, &OverviewPage::receiveCoinsClicked);
     connect(ui->showAllButton, &QPushButton::clicked, this, &OverviewPage::showHistoryClicked);
+
+    // Eye button next to the total balance: shows and hides the amounts (Settings > Mask values)
+    m_privacy_button = new QToolButton(this);
+    m_privacy_button->setObjectName(QStringLiteral("privacyButton"));
+    m_privacy_button->setCursor(Qt::PointingHandCursor);
+    m_privacy_button->setIconSize(QSize(20, 20));
+    ui->totalRow->insertWidget(1, m_privacy_button, 0, Qt::AlignVCenter);
+    connect(m_privacy_button, &QToolButton::clicked, this, &OverviewPage::togglePrivacyClicked);
+    updateIcons();
+
+    // Sync button: connect to the Velincoin server now, the node then fetches new blocks by itself
+    m_sync_button = new QPushButton(tr("Sync"), this);
+    m_sync_button->setObjectName(QStringLiteral("syncButton"));
+    m_sync_button->setCursor(Qt::PointingHandCursor);
+    m_sync_button->setToolTip(tr("Connect to the Velincoin server now and fetch new blocks."));
+    ui->headerLayout->addWidget(m_sync_button);
+    connect(m_sync_button, &QPushButton::clicked, this, &OverviewPage::syncClicked);
+
+    // Hint while there is no connection: without peers no new blocks or payments arrive
+    m_connection_hint = new QFrame(this);
+    m_connection_hint->setObjectName(QStringLiteral("connectionHint"));
+    QHBoxLayout* hint_layout = new QHBoxLayout(m_connection_hint);
+    hint_layout->setContentsMargins(16, 12, 12, 12);
+    hint_layout->setSpacing(10);
+    QLabel* hint_text = new QLabel(tr("Not connected to the Velincoin network. New blocks and payments only arrive when the wallet is connected."), m_connection_hint);
+    hint_text->setWordWrap(true);
+    hint_layout->addWidget(hint_text, 1);
+    QPushButton* hint_sync = new QPushButton(tr("Sync"), m_connection_hint);
+    connect(hint_sync, &QPushButton::clicked, this, &OverviewPage::syncClicked);
+    hint_layout->addWidget(hint_sync);
+    QPushButton* hint_add = new QPushButton(tr("Add node…"), m_connection_hint);
+    connect(hint_add, &QPushButton::clicked, this, &OverviewPage::addNodeClicked);
+    hint_layout->addWidget(hint_add);
+    m_connection_hint->setVisible(false);
+    ui->topLayout->insertWidget(ui->topLayout->indexOf(ui->balanceCard), m_connection_hint);
+
+    // Balance history next to the balances, in the room the spacer kept free
+    m_chart = new BalanceChart(ui->balanceCard);
+    m_chart->setVisible(false);
+    ui->statsRow->removeItem(ui->statsSpacer);
+    delete ui->statsSpacer;
+    ui->statsSpacer = nullptr;
+    ui->statsRow->addSpacing(16);
+    ui->statsRow->addWidget(m_chart, 1);
+    // The chart is taller than the balances; keep each balance together at the top
+    for (QLayout* stat : {static_cast<QLayout*>(ui->statAvailable), static_cast<QLayout*>(ui->statPending), static_cast<QLayout*>(ui->statImmature)}) {
+        ui->statsRow->setAlignment(stat, Qt::AlignTop);
+    }
+    connect(m_chart, &BalanceChart::hasDataChanged, this, [this](bool has_data) { m_chart->setVisible(has_data && !m_privacy); });
+
+    // Reminder until the wallet is backed up: without a copy the coins are lost with the computer
+    m_backup_hint = new QFrame(this);
+    m_backup_hint->setObjectName(QStringLiteral("backupHint"));
+    QHBoxLayout* backup_layout = new QHBoxLayout(m_backup_hint);
+    backup_layout->setContentsMargins(16, 12, 12, 12);
+    backup_layout->setSpacing(10);
+    QLabel* backup_text = new QLabel(tr("This wallet is not backed up yet. If this computer breaks or gets lost, the VLC in it are gone. "
+                                        "Save a copy, for example on a USB stick."), m_backup_hint);
+    backup_text->setWordWrap(true);
+    backup_layout->addWidget(backup_text, 1);
+    QPushButton* backup_later = new QPushButton(tr("Later"), m_backup_hint);
+    backup_later->setToolTip(tr("Remind me again in %1 days").arg(BackupReminder::SNOOZE_DAYS));
+    connect(backup_later, &QPushButton::clicked, this, [this] {
+        if (walletModel) BackupReminder::Snooze(walletModel->getWalletName());
+        updateBackupHint();
+    });
+    backup_layout->addWidget(backup_later);
+    QPushButton* backup_now = new QPushButton(tr("Back up now"), m_backup_hint);
+    backup_now->setProperty("primary", true);
+    connect(backup_now, &QPushButton::clicked, this, &OverviewPage::backupClicked);
+    backup_layout->addWidget(backup_now);
+    m_backup_hint->setVisible(false);
+    ui->topLayout->insertWidget(ui->topLayout->indexOf(ui->balanceCard), m_backup_hint);
 
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
@@ -202,6 +290,9 @@ void OverviewPage::setPrivacy(bool privacy)
     }
 
     LimitTransactionRows();
+    updateIcons();
+    // The chart would show the amounts as well
+    m_chart->setVisible(!m_privacy && m_chart->hasData());
 
     const QString status_tip = m_privacy ? tr("Privacy mode activated for the Overview tab. To unmask the values, uncheck Settings->Mask values.") : "";
     setStatusTip(status_tip);
@@ -226,7 +317,7 @@ void OverviewPage::setBalance(const interfaces::WalletBalances& balances)
     const QString unit_suffix = QStringLiteral(" ") + BitcoinUnits::shortName(unit);
     if (total.endsWith(unit_suffix)) {
         total = total.left(total.size() - unit_suffix.size()).toHtmlEscaped() +
-                QStringLiteral("<span style=\"font-size:15pt; font-weight:500; color:#8e8e98;\">&nbsp;%1</span>").arg(BitcoinUnits::shortName(unit).toHtmlEscaped());
+                QStringLiteral("<span style=\"font-size:15pt; font-weight:500; color:%1;\">&nbsp;%2</span>").arg(VelincoinTheme::TEXT_DIM.name(), BitcoinUnits::shortName(unit).toHtmlEscaped());
     } else {
         total = total.toHtmlEscaped();
     }
@@ -237,12 +328,60 @@ void OverviewPage::setBalance(const interfaces::WalletBalances& balances)
 
     ui->labelImmature->setVisible(showImmature);
     ui->labelImmatureText->setVisible(showImmature);
+
+    // Demo value in CHF, hidden together with the amounts when values are masked
+    const bool show_demo{walletModel->getOptionsModel()->getShowDemoValue() && !m_privacy};
+    ui->labelTotalDemo->setText(DemoValue::Label(balances.balance + balances.unconfirmed_balance + balances.immature_balance));
+    ui->labelBalanceDemo->setText(DemoValue::Label(balances.balance));
+    ui->labelUnconfirmedDemo->setText(DemoValue::Label(balances.unconfirmed_balance));
+    ui->labelTotalDemo->setVisible(show_demo);
+    ui->labelBalanceDemo->setVisible(show_demo);
+    ui->labelUnconfirmedDemo->setVisible(show_demo);
+}
+
+void OverviewPage::syncClicked()
+{
+    if (!clientModel) return;
+    QString error;
+    if (!VelincoinServer::ConnectNow(clientModel->node(), error)) {
+        m_sync_button->setToolTip(tr("Could not connect: %1").arg(error));
+    }
+    m_sync_requested = true;
+    updateSyncButton();
+}
+
+void OverviewPage::updateSyncButton()
+{
+    if (!clientModel || !m_sync_button) return;
+    const int connections{clientModel->getNumConnections()};
+    const int height{clientModel->getNumBlocks()};
+    const int headers{clientModel->getHeaderTipHeight()};
+    if (m_sync_requested && connections == 0) {
+        m_sync_button->setText(tr("Connecting…"));
+    } else if (connections > 0 && headers > height) {
+        m_sync_button->setText(tr("Loading blocks… %1 of %2").arg(height).arg(headers));
+    } else if (m_sync_requested && connections > 0) {
+        m_sync_button->setText(tr("Up to date · block %1").arg(height));
+    } else {
+        m_sync_button->setText(tr("Sync"));
+    }
+    m_connection_hint->setVisible(m_connection_hint_allowed && connections == 0);
+    m_sync_button->setToolTip(tr("Connect to the Velincoin server now and fetch new blocks.") + QStringLiteral("\n") +
+                              tr("%n connection(s), block %1", "", connections).arg(height));
 }
 
 void OverviewPage::setClientModel(ClientModel *model)
 {
     this->clientModel = model;
     if (model) {
+        connect(model, &ClientModel::numConnectionsChanged, this, &OverviewPage::updateSyncButton);
+        // The first connections take a few seconds after start; only then is "no connection" worth a hint
+        QTimer::singleShot(15000, this, [this] {
+            m_connection_hint_allowed = true;
+            updateSyncButton();
+        });
+        connect(model, &ClientModel::numBlocksChanged, this, &OverviewPage::updateSyncButton);
+        updateSyncButton();
         // Show warning, for example if this is a prerelease version
         connect(model, &ClientModel::alertsChanged, this, &OverviewPage::updateAlerts);
         updateAlerts(model->getStatusBarWarnings());
@@ -272,15 +411,26 @@ void OverviewPage::setWalletModel(WalletModel *model)
         connect(filter.get(), &TransactionFilterProxy::rowsRemoved, this, &OverviewPage::LimitTransactionRows);
         connect(filter.get(), &TransactionFilterProxy::rowsMoved, this, &OverviewPage::LimitTransactionRows);
         LimitTransactionRows();
+        m_chart->setModel(filter.get());
+        m_chart->setVisible(!m_privacy && m_chart->hasData());
         // Keep up to date with wallet
         setBalance(model->getCachedBalance());
         connect(model, &WalletModel::balanceChanged, this, &OverviewPage::setBalance);
 
         connect(model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &OverviewPage::updateDisplayUnit);
+        connect(model->getOptionsModel(), &OptionsModel::showDemoValueChanged, this, &OverviewPage::updateDisplayUnit);
     }
+    updateBackupHint();
 
     // update the display unit, to not use the default ("BTC")
     updateDisplayUnit();
+}
+
+void OverviewPage::updateBackupHint()
+{
+    // A watch-only wallet has no keys to lose
+    m_backup_hint->setVisible(walletModel && !walletModel->wallet().privateKeysDisabled() &&
+                              BackupReminder::ShouldRemind(walletModel->getWalletName()));
 }
 
 void OverviewPage::changeEvent(QEvent* e)
@@ -299,8 +449,12 @@ void OverviewPage::updateIcons()
     ui->labelTransactionsStatus->setIcon(warning);
     ui->labelWalletStatus->setIcon(warning);
     // the primary button is white, so its icon is drawn dark
-    ui->sendButton->setIcon(TintedIcon(QStringLiteral(":/icons/send"), QColor(0x05, 0x05, 0x05)));
+    ui->sendButton->setIcon(TintedIcon(QStringLiteral(":/icons/send"), VelincoinTheme::PRIMARY_BUTTON_TEXT));
     ui->receiveButton->setIcon(TintedIcon(QStringLiteral(":/icons/receiving_addresses"), VelincoinTheme::TEXT));
+    if (m_privacy_button) {
+        m_privacy_button->setIcon(TintedIcon(m_privacy ? QStringLiteral(":/icons/eye_closed") : QStringLiteral(":/icons/eye"), VelincoinTheme::TEXT_DIM));
+        m_privacy_button->setToolTip(m_privacy ? tr("Show amounts") : tr("Hide amounts"));
+    }
 }
 
 // Only show most recent NUM_ITEMS rows
@@ -328,6 +482,7 @@ void OverviewPage::updateDisplayUnit()
 
         // Update txdelegate->unit with the current unit
         txdelegate->unit = walletModel->getOptionsModel()->getDisplayUnit();
+        m_chart->setDisplayUnit(txdelegate->unit);
 
         ui->listTransactions->update();
     }

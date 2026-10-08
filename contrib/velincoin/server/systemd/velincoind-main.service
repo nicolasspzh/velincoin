@@ -1,0 +1,20 @@
+# Velincoin node for the main network, run by install.sh.
+[Unit]
+Description=Velincoin node (main network)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=velincoin
+Group=velincoin
+ExecStart=/opt/velincoin/bin/velincoind -datadir=/var/lib/velincoin -listen=1 -dbcache=50 -maxmempool=50 -maxconnections=60 -rpcbind=127.0.0.1 -rpcallowip=127.0.0.1 -printtoconsole=0
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=300
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

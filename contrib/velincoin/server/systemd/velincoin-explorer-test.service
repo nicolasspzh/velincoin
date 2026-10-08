@@ -1,0 +1,20 @@
+# Live block explorer for the test network on port 80, run by install.sh.
+[Unit]
+Description=Velincoin block explorer (test network, port 80)
+After=velincoind-test.service
+Wants=velincoind-test.service
+
+[Service]
+User=velincoin
+Group=velincoin
+ExecStart=/usr/bin/python3 /opt/velincoin/explorer/explorer.py --chain testnet4 --datadir /var/lib/velincoin --db /var/lib/velincoin/explorer-testnet4.sqlite --bind 0.0.0.0 --port 80
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+Restart=always
+RestartSec=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

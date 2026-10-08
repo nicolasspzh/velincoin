@@ -102,8 +102,10 @@ std::unique_ptr<interfaces::Handler> HandleLoadWallet(WalletContext& context, Lo
 void NotifyWalletLoaded(WalletContext& context, const std::shared_ptr<CWallet>& wallet);
 std::unique_ptr<WalletDatabase> MakeWalletDatabase(const std::string& name, const DatabaseOptions& options, DatabaseStatus& status, bilingual_str& error);
 
-//! -fallbackfee default
-static const CAmount DEFAULT_FALLBACK_FEE = 0;
+//! -fallbackfee default. Velincoin: the lowest fee (as -mintxfee), because a
+//! small network rarely has enough transactions for a fee estimate. Bitcoin
+//! Core uses 0 here, which makes sending fail until there is an estimate.
+static const CAmount DEFAULT_FALLBACK_FEE = 1000;
 //! -discardfee default
 static const CAmount DEFAULT_DISCARD_FEE = 10000;
 //! -mintxfee default

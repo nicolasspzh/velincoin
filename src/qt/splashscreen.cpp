@@ -52,10 +52,13 @@ SplashScreen::SplashScreen(const NetworkStyle* networkStyle)
 
     // dark background with a faint violet glow behind the logo
     const QRect area(0, 0, 480, 320);
-    pixPaint.fillRect(area, QColor(0x09, 0x09, 0x0b));
+    pixPaint.fillRect(area, VelincoinTheme::WINDOW);
     QRadialGradient glow(QPointF(96, 112), 240);
-    glow.setColorAt(0, QColor(139, 92, 246, 60));
-    glow.setColorAt(1, QColor(139, 92, 246, 0));
+    QColor glow_color{VelincoinTheme::ACCENT};
+    glow_color.setAlpha(60);
+    glow.setColorAt(0, glow_color);
+    glow_color.setAlpha(0);
+    glow.setColorAt(1, glow_color);
     pixPaint.fillRect(area, glow);
 
     // the Velincoin logo
@@ -66,19 +69,19 @@ SplashScreen::SplashScreen(const NetworkStyle* networkStyle)
     QFont titleFont(font, 22);
     titleFont.setWeight(QFont::DemiBold);
     pixPaint.setFont(titleFont);
-    pixPaint.setPen(QColor(0xff, 0xff, 0xff));
+    pixPaint.setPen(VelincoinTheme::TEXT);
     pixPaint.drawText(paddingLeft, 186, titleText);
 
     QFont versionFont(font, 10);
     pixPaint.setFont(versionFont);
-    pixPaint.setPen(QColor(0x9a, 0x9a, 0xa5));
+    pixPaint.setPen(VelincoinTheme::TEXT_DIM);
     pixPaint.drawText(paddingLeft, 212, versionText);
 
     // draw copyright stuff
     {
         QFont smallFont(font, 8);
         pixPaint.setFont(smallFont);
-        pixPaint.setPen(QColor(0x6b, 0x6b, 0x75));
+        pixPaint.setPen(VelincoinTheme::TEXT_FAINT);
         QRect copyrightRect(paddingLeft, 228, 480 - 2 * paddingLeft, 50);
         pixPaint.drawText(copyrightRect, Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap, copyrightText);
     }
@@ -92,10 +95,10 @@ SplashScreen::SplashScreen(const NetworkStyle* networkStyle)
         const QFontMetrics fm = pixPaint.fontMetrics();
         const int w = GUIUtil::TextWidth(fm, badgeText) + 20;
         const QRect badge(480 - w - 20, 20, w, 24);
-        pixPaint.setPen(QColor(0x3a, 0x32, 0x20));
-        pixPaint.setBrush(QColor(0x17, 0x14, 0x0c));
+        pixPaint.setPen(VelincoinTheme::PENDING_BORDER);
+        pixPaint.setBrush(VelincoinTheme::PENDING_BACKGROUND);
         pixPaint.drawRoundedRect(badge, 12, 12);
-        pixPaint.setPen(QColor(0xfb, 0xbf, 0x24));
+        pixPaint.setPen(VelincoinTheme::PENDING);
         pixPaint.drawText(badge, Qt::AlignCenter, badgeText);
     }
 

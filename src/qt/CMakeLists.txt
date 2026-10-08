@@ -67,6 +67,8 @@ unset(warn_flags)
 # The bitcoinqt sources have to include headers in
 # order to parse them to collect translatable strings.
 add_library(bitcoinqt STATIC EXCLUDE_FROM_ALL
+  addnodedialog.cpp
+  addnodedialog.h
   bantablemodel.cpp
   bantablemodel.h
   bitcoin.cpp
@@ -83,6 +85,8 @@ add_library(bitcoinqt STATIC EXCLUDE_FROM_ALL
   clientmodel.h
   csvmodelwriter.cpp
   csvmodelwriter.h
+  demovalue.cpp
+  demovalue.h
   freespacechecker.cpp
   freespacechecker.h
   guiutil.cpp
@@ -121,10 +125,14 @@ add_library(bitcoinqt STATIC EXCLUDE_FROM_ALL
   rpcconsole.h
   splashscreen.cpp
   splashscreen.h
+  testnetreset.cpp
+  testnetreset.h
   trafficgraphwidget.cpp
   trafficgraphwidget.h
   utilitydialog.cpp
   utilitydialog.h
+  velincoinserver.cpp
+  velincoinserver.h
   velincointheme.cpp
   velincointheme.h
   $<$<PLATFORM_ID:Windows>:winshutdownmonitor.cpp>
@@ -167,14 +175,22 @@ if(ENABLE_WALLET)
       addresstablemodel.h
       askpassphrasedialog.cpp
       askpassphrasedialog.h
+      backupreminder.cpp
+      backupreminder.h
+      balancechart.cpp
+      balancechart.h
       coincontroldialog.cpp
       coincontroldialog.h
       coincontroltreewidget.cpp
       coincontroltreewidget.h
+      cpuminer.cpp
+      cpuminer.h
       createwalletdialog.cpp
       createwalletdialog.h
       editaddressdialog.cpp
       editaddressdialog.h
+      miningpage.cpp
+      miningpage.h
       openuridialog.cpp
       openuridialog.h
       overviewpage.cpp

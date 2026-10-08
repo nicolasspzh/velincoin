@@ -29,7 +29,7 @@ Its own proof-of-work blockchain with a fixed supply of 21 million VLC, no premi
 - Windows 10/11 desktop; the installer is not code-signed, so Windows SmartScreen shows a warning.
 - The installer adds Velincoin Core and a test network shortcut to the start menu.
 - No seed servers yet: wallets connect by entering a peer address in the console (`addnode`).
-- Mining uses the console command `generatetoaddress` on one CPU core: about 15 seconds per block on the test network (256 times easier), about 15 to 20 minutes on the main network. Mined coins are spendable after 100 more blocks.
+- Mining uses the console command `generatetoaddress` on one CPU core: about 1 to 2 minutes per block on the test network (90-second target block time), about 15 to 20 minutes on the main network. Mined coins are spendable after 100 more blocks.
 
 ## Capabilities and Constraints
 

@@ -9,6 +9,7 @@
 #include <qt/bitcoinunits.h>
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
+#include <qt/velincoinserver.h>
 
 #include <common/args.h>
 #include <interfaces/node.h>
@@ -198,8 +199,11 @@ bool OptionsModel::Init(bilingual_str& error)
         settings.setValue("DisplayBitcoinUnit", QVariant::fromValue(m_display_bitcoin_unit));
     }
 
-    if (!settings.contains("strThirdPartyTxUrls"))
-        settings.setValue("strThirdPartyTxUrls", "");
+    // Transactions open in the Velincoin server's live explorer by default
+    if (!settings.contains("strThirdPartyTxUrls")) {
+        const QString explorer{VelincoinServer::ExplorerUrl()};
+        settings.setValue("strThirdPartyTxUrls", explorer.isEmpty() ? QString() : explorer + QStringLiteral("tx/%s"));
+    }
     strThirdPartyTxUrls = settings.value("strThirdPartyTxUrls", "").toString();
 
     if (!settings.contains("fCoinControlFeatures"))
@@ -210,6 +214,12 @@ bool OptionsModel::Init(bilingual_str& error)
         settings.setValue("enable_psbt_controls", false);
     }
     m_enable_psbt_controls = settings.value("enable_psbt_controls", false).toBool();
+
+    // Fixed demo value of VLC in CHF on the overview and when sending
+    if (!settings.contains("fShowDemoValue")) {
+        settings.setValue("fShowDemoValue", true);
+    }
+    m_show_demo_value = settings.value("fShowDemoValue", true).toBool();
 
     // These are shared with the core or have a command-line parameter
     // and we want command-line parameters to overwrite the GUI settings.
@@ -478,6 +488,8 @@ QVariant OptionsModel::getOption(OptionID option, const std::string& suffix) con
         return SettingToBool(setting(), false);
     case MaskValues:
         return m_mask_values;
+    case ShowDemoValue:
+        return m_show_demo_value;
     default:
         return QVariant();
     }
@@ -685,6 +697,13 @@ bool OptionsModel::setOption(OptionID option, const QVariant& value, const std::
     case MaskValues:
         m_mask_values = value.toBool();
         settings.setValue("mask_values", m_mask_values);
+        break;
+    case ShowDemoValue:
+        if (m_show_demo_value != value.toBool()) {
+            m_show_demo_value = value.toBool();
+            settings.setValue("fShowDemoValue", m_show_demo_value);
+            Q_EMIT showDemoValueChanged(m_show_demo_value);
+        }
         break;
     default:
         break;
