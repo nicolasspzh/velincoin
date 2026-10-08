@@ -10,6 +10,7 @@
 #include <QWidget>
 #include <memory>
 
+class BalanceChart;
 class ClientModel;
 class TransactionFilterProxy;
 class TxViewDelegate;
@@ -22,6 +23,9 @@ namespace Ui {
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;
+class QPushButton;
+class QToolButton;
+class QFrame;
 QT_END_NAMESPACE
 
 /** Overview ("home") page widget */
@@ -36,6 +40,8 @@ public:
     void setClientModel(ClientModel *clientModel);
     void setWalletModel(WalletModel *walletModel);
     void showOutOfSyncWarning(bool fShow);
+    /** Show or hide the backup reminder for this wallet (see BackupReminder). */
+    void updateBackupHint();
 
 public Q_SLOTS:
     void setBalance(const interfaces::WalletBalances& balances);
@@ -47,6 +53,12 @@ Q_SIGNALS:
     void sendCoinsClicked();
     void receiveCoinsClicked();
     void showHistoryClicked();
+    //! The eye button next to the total balance was clicked
+    void togglePrivacyClicked();
+    //! The "Add node" button of the no-connection hint was clicked
+    void addNodeClicked();
+    //! "Back up now" in the backup reminder was clicked
+    void backupClicked();
 
 protected:
     void changeEvent(QEvent* e) override;
@@ -56,6 +68,13 @@ private:
     ClientModel* clientModel{nullptr};
     WalletModel* walletModel{nullptr};
     bool m_privacy{false};
+    QPushButton* m_sync_button{nullptr};
+    QToolButton* m_privacy_button{nullptr};
+    QFrame* m_connection_hint{nullptr};
+    QFrame* m_backup_hint{nullptr};
+    BalanceChart* m_chart{nullptr};
+    bool m_connection_hint_allowed{false};
+    bool m_sync_requested{false};
 
     const PlatformStyle* m_platform_style;
 
@@ -63,6 +82,8 @@ private:
     std::unique_ptr<TransactionFilterProxy> filter;
 
 private Q_SLOTS:
+    void syncClicked();
+    void updateSyncButton();
     void LimitTransactionRows();
     void updateIcons();
     void updateDisplayUnit();

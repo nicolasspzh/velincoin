@@ -6,6 +6,7 @@
 
 #include <qt/bitcoingui.h>
 
+#include <qt/addnodedialog.h>
 #include <qt/bitcoinunits.h>
 #include <qt/clientmodel.h>
 #include <qt/createwalletdialog.h>
@@ -20,6 +21,7 @@
 #include <qt/platformstyle.h>
 #include <qt/rpcconsole.h>
 #include <qt/utilitydialog.h>
+#include <qt/velincoinserver.h>
 #include <qt/velincointheme.h>
 
 #ifdef ENABLE_WALLET
@@ -48,6 +50,7 @@
 #include <QComboBox>
 #include <QCursor>
 #include <QDateTime>
+#include <QDesktopServices>
 #include <QDragEnterEvent>
 #include <QHBoxLayout>
 #include <QInputDialog>
@@ -68,6 +71,7 @@
 #include <QSystemTrayIcon>
 #include <QTimer>
 #include <QToolBar>
+#include <QUrl>
 #include <QUrlQuery>
 #include <QVBoxLayout>
 #include <QWindow>
@@ -145,6 +149,12 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
     // Create actions for the toolbar, menu bar and tray/dock icon
     // Needs walletFrame to be initialized
     createActions();
+#ifdef ENABLE_WALLET
+    if (walletFrame) {
+        // The welcome page (no wallet loaded) offers the same three actions as the File menu
+        walletFrame->setWelcomeActions(m_create_wallet_action, m_open_wallet_action, m_open_wallet_menu, m_restore_wallet_action);
+    }
+#endif // ENABLE_WALLET
 
     // Create application menu bar
     createMenuBar();
@@ -280,6 +290,15 @@ void BitcoinGUI::createActions()
     historyAction->setShortcut(QKeySequence(QStringLiteral("Alt+4")));
     tabGroup->addAction(historyAction);
 
+    // Only on the test network and regtest, see setMiner()
+    m_mining_action = new QAction(platformStyle->SingleColorIcon(QStringLiteral(":/icons/tx_mined")), tr("&Mining"), this);
+    m_mining_action->setStatusTip(tr("Mine test VLC with this computer"));
+    m_mining_action->setToolTip(m_mining_action->statusTip());
+    m_mining_action->setCheckable(true);
+    m_mining_action->setShortcut(QKeySequence(QStringLiteral("Alt+5")));
+    m_mining_action->setVisible(false);
+    tabGroup->addAction(m_mining_action);
+
 #ifdef ENABLE_WALLET
     // These showNormalIfMinimized are needed because Send Coins and Receive Coins
     // can be triggered from the tray menu, and need to show the GUI to be useful.
@@ -291,6 +310,8 @@ void BitcoinGUI::createActions()
     connect(receiveCoinsAction, &QAction::triggered, this, &BitcoinGUI::gotoReceiveCoinsPage);
     connect(historyAction, &QAction::triggered, [this]{ showNormalIfMinimized(); });
     connect(historyAction, &QAction::triggered, this, &BitcoinGUI::gotoHistoryPage);
+    connect(m_mining_action, &QAction::triggered, [this]{ showNormalIfMinimized(); });
+    connect(m_mining_action, &QAction::triggered, this, &BitcoinGUI::gotoMiningPage);
 #endif // ENABLE_WALLET
 
     quitAction = new QAction(tr("E&xit"), this);
@@ -365,6 +386,11 @@ void BitcoinGUI::createActions()
     m_migrate_wallet_action->setStatusTip(tr("Migrate a wallet"));
     m_migrate_wallet_menu = new QMenu(this);
 
+    m_open_explorer_action = new QAction(tr("Open &block explorer"), this);
+    m_open_explorer_action->setStatusTip(tr("Show all blocks and transactions of this network in the browser"));
+    m_open_explorer_action->setVisible(!VelincoinServer::ExplorerUrl().isEmpty());
+    connect(m_open_explorer_action, &QAction::triggered, [] { QDesktopServices::openUrl(QUrl(VelincoinServer::ExplorerUrl())); });
+
     showHelpMessageAction = new QAction(tr("&Command-line options"), this);
     showHelpMessageAction->setMenuRole(QAction::NoRole);
     showHelpMessageAction->setStatusTip(tr("Show the %1 help message to get a list with possible Velincoin command-line options").arg(CLIENT_NAME));
@@ -380,6 +406,10 @@ void BitcoinGUI::createActions()
     connect(optionsAction, &QAction::triggered, this, &BitcoinGUI::optionsClicked);
     connect(showHelpMessageAction, &QAction::triggered, this, &BitcoinGUI::showHelpMessageClicked);
     connect(openRPCConsoleAction, &QAction::triggered, this, &BitcoinGUI::showDebugWindow);
+
+    m_add_node_action = new QAction(tr("Add node…"), this);
+    m_add_node_action->setStatusTip(tr("Connect to another Velincoin node by IP address or name"));
+    connect(m_add_node_action, &QAction::triggered, this, &BitcoinGUI::showAddNodeDialog);
     // prevents an open debug window from becoming stuck/unusable on client shutdown
     connect(quitAction, &QAction::triggered, rpcConsole, &QWidget::hide);
 
@@ -606,6 +636,7 @@ void BitcoinGUI::createMenuBar()
     }
 
     window_menu->addSeparator();
+    window_menu->addAction(m_add_node_action);
     for (RPCConsole::TabTypes tab_type : rpcConsole->tabs()) {
         QAction* tab_action = window_menu->addAction(rpcConsole->tabTitle(tab_type));
         tab_action->setShortcut(rpcConsole->tabShortcut(tab_type));
@@ -616,6 +647,7 @@ void BitcoinGUI::createMenuBar()
     }
 
     QMenu *help = appMenuBar->addMenu(tr("&Help"));
+    help->addAction(m_open_explorer_action);
     help->addAction(showHelpMessageAction);
     help->addSeparator();
     help->addAction(aboutAction);
@@ -665,6 +697,7 @@ void BitcoinGUI::createToolBars()
         toolbar->addAction(sendCoinsAction);
         toolbar->addAction(receiveCoinsAction);
         toolbar->addAction(historyAction);
+        toolbar->addAction(m_mining_action);
         overviewAction->setChecked(true);
 
 #ifdef ENABLE_WALLET
@@ -822,6 +855,9 @@ void BitcoinGUI::addWallet(WalletModel* walletModel)
     connect(wallet_view, &WalletView::sendCoinsClicked, this, [this] { gotoSendCoinsPage(); });
     connect(wallet_view, &WalletView::receiveCoinsClicked, this, &BitcoinGUI::gotoReceiveCoinsPage);
     connect(wallet_view, &WalletView::showHistoryClicked, this, &BitcoinGUI::gotoHistoryPage);
+    // The eye button on the overview toggles Settings > Mask values; the menu item stays in sync
+    connect(wallet_view, &WalletView::togglePrivacyClicked, m_mask_values_action, &QAction::toggle);
+    connect(wallet_view, &WalletView::addNodeClicked, this, &BitcoinGUI::showAddNodeDialog);
     connect(wallet_view, &WalletView::transactionClicked, this, &BitcoinGUI::gotoHistoryPage);
     connect(wallet_view, &WalletView::coinsSent, this, &BitcoinGUI::gotoHistoryPage);
     connect(wallet_view, &WalletView::message, [this](const QString& title, const QString& message, unsigned int style) {
@@ -890,6 +926,7 @@ void BitcoinGUI::setWalletActionsEnabled(bool enabled)
     sendCoinsAction->setEnabled(enabled);
     receiveCoinsAction->setEnabled(enabled);
     historyAction->setEnabled(enabled && !isPrivacyModeActivated());
+    m_mining_action->setEnabled(enabled);
     encryptWalletAction->setEnabled(enabled);
     backupWalletAction->setEnabled(enabled);
     changePassphraseAction->setEnabled(enabled);
@@ -1018,6 +1055,12 @@ void BitcoinGUI::showDebugWindow()
     Q_EMIT consoleShown(rpcConsole);
 }
 
+void BitcoinGUI::showAddNodeDialog()
+{
+    AddNodeDialog dlg(m_node, Params().GetDefaultPort(), this);
+    dlg.exec();
+}
+
 void BitcoinGUI::showDebugWindowActivateConsole()
 {
     rpcConsole->setTabFocus(RPCConsole::TabTypes::CONSOLE);
@@ -1043,6 +1086,20 @@ void BitcoinGUI::gotoOverviewPage()
 {
     overviewAction->setChecked(true);
     if (walletFrame) walletFrame->gotoOverviewPage();
+}
+
+void BitcoinGUI::setMiner(CpuMiner* miner)
+{
+    m_miner = miner;
+    if (walletFrame) walletFrame->setMiner(miner);
+    if (!miner && m_mining_action->isChecked()) gotoOverviewPage();
+    m_mining_action->setVisible(miner != nullptr);
+}
+
+void BitcoinGUI::gotoMiningPage()
+{
+    m_mining_action->setChecked(true);
+    if (walletFrame) walletFrame->gotoMiningPage();
 }
 
 void BitcoinGUI::gotoHistoryPage()
@@ -1266,7 +1323,10 @@ void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
         if(walletFrame)
         {
             walletFrame->showOutOfSyncWarning(true);
-            modalOverlay->showHide();
+            // Velincoin: the sync overlay is not shown on its own. On a young network with
+            // few miners the last block is often hours old, so it would cover the wallet
+            // at every start. It stays one click away on the progress bar, the sync icon
+            // and the "Not synchronized" button on the overview.
         }
 #endif // ENABLE_WALLET
 
@@ -1361,6 +1421,7 @@ void BitcoinGUI::changeEvent(QEvent *e)
         sendCoinsAction->setIcon(platformStyle->SingleColorIcon(QStringLiteral(":/icons/send")));
         receiveCoinsAction->setIcon(platformStyle->SingleColorIcon(QStringLiteral(":/icons/receiving_addresses")));
         historyAction->setIcon(platformStyle->SingleColorIcon(QStringLiteral(":/icons/history")));
+        m_mining_action->setIcon(platformStyle->SingleColorIcon(QStringLiteral(":/icons/tx_mined")));
     }
 
     QMainWindow::changeEvent(e);

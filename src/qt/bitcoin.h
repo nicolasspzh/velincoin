@@ -24,6 +24,7 @@ class PaymentServer;
 class PlatformStyle;
 class SplashScreen;
 class WalletController;
+class CpuMiner;
 class WalletModel;
 namespace interfaces {
 class Init;
@@ -98,6 +99,8 @@ private:
 #ifdef ENABLE_WALLET
     PaymentServer* paymentServer{nullptr};
     WalletController* m_wallet_controller{nullptr};
+    //! Mining page (test network and regtest only)
+    std::unique_ptr<CpuMiner> m_miner;
 #endif
     const PlatformStyle* platformStyle{nullptr};
     std::unique_ptr<QWidget> shutdownWindow;

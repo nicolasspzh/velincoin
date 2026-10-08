@@ -152,10 +152,11 @@ public:
         assert(consensus.hashGenesisBlock == uint256{"000000002e63a20ccb2371805261134fdc98a6a22dad956e5599fca4469f05e7"});
         assert(genesis.hashMerkleRoot == uint256{"b9b0a6d3e91faa65f910bb26080bd644add054293a045c66c2d63ac5fd82f571"});
 
-        // No seed nodes yet. Add DNS seeds (for example "seed.velincoin.com.")
-        // and fixed seed nodes here once Velincoin servers are running.
+        // No DNS seeds yet (for example "seed.velincoin.com."). The fixed seed is
+        // the Velincoin server (contrib/seeds/nodes_main.txt); a new node with
+        // an empty address list connects to it after about a minute.
         vSeeds.clear();
-        vFixedSeeds.clear();
+        vFixedSeeds = std::vector<uint8_t>(std::begin(chainparams_seed_main), std::end(chainparams_seed_main));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,70);  // addresses start with 'V'
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,63);  // addresses start with 'S'
@@ -311,11 +312,17 @@ public:
         consensus.CSVHeight = 1;
         consensus.SegwitHeight = 1;
         consensus.MinBIP9WarningHeight = 0;
-        // Velincoin: the lowest difficulty is 256 times lower than on the main
-        // network, so that a normal computer finds a test block in seconds.
-        consensus.powLimit = uint256{"000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
-        consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
-        consensus.nPowTargetSpacing = 10 * 60;
+        // Velincoin: test blocks come every 90 seconds instead of every 10
+        // minutes. The genesis difficulty (16 times lower than on the main
+        // network) is also the lowest one: about 1 to 2 minutes per block on
+        // one processor core, never just seconds. When no block was found for
+        // 2 * 90 seconds, the next block may use it again
+        // (fPowAllowMinDifficultyBlocks), which matters once the difficulty
+        // has risen. The difficulty is adjusted every 2016 blocks
+        // (2016 * 90 seconds = 2.1 days), as before.
+        consensus.powLimit = uint256{"0000000ffff00000000000000000000000000000000000000000000000000000"};
+        consensus.nPowTargetSpacing = 90;
+        consensus.nPowTargetTimespan = 2016 * consensus.nPowTargetSpacing;
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.enforce_BIP94 = true;
         consensus.fPowNoRetargeting = false;
@@ -353,17 +360,17 @@ public:
         genesis = CreateGenesisBlock(testnet4_genesis_msg,
                 testnet4_genesis_script,
                 1791201250,
-                47970045,
-                0x1e00ffff,
+                538747823,
+                0x1d0ffff0,
                 1,
                 50 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256{"000000f91b6f17b7699c5018fa8fc70e2dc8e966629f5974066b22d51cf9c354"});
+        assert(consensus.hashGenesisBlock == uint256{"000000075657e9777f2b51a6e28cbb0accf71ea826173207ab369d344859b903"});
         assert(genesis.hashMerkleRoot == uint256{"c82407bd2296a5651dac226c8a1b7122b015b20570c3e145237a238b89df8bc2"});
 
-        // No seed nodes yet. Add DNS seeds (for example "testnet-seed.velincoin.com.")
-        // and fixed seed nodes here once Velincoin test servers are running.
-        vFixedSeeds.clear();
+        // Fixed seeds from contrib/seeds/nodes_testnet4.txt. No DNS seeds yet
+        // (for example "testnet-seed.velincoin.com.").
+        vFixedSeeds = std::vector<uint8_t>(std::begin(chainparams_seed_testnet4), std::end(chainparams_seed_testnet4));
         vSeeds.clear();
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,127); // addresses start with 't'

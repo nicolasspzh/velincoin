@@ -5,6 +5,7 @@
 #include <interfaces/node.h>
 #include <qt/trafficgraphwidget.h>
 #include <qt/clientmodel.h>
+#include <qt/velincointheme.h>
 
 #include <QPainter>
 #include <QPainterPath>
@@ -101,15 +102,19 @@ void TrafficGraphWidget::paintEvent(QPaintEvent *)
     if(!vSamplesIn.empty()) {
         QPainterPath p;
         paintPath(p, vSamplesIn);
-        painter.fillPath(p, QColor(0, 255, 0, 128));
-        painter.setPen(Qt::green);
+        QColor fill{VelincoinTheme::POSITIVE};
+        fill.setAlpha(128);
+        painter.fillPath(p, fill);
+        painter.setPen(VelincoinTheme::POSITIVE);
         painter.drawPath(p);
     }
     if(!vSamplesOut.empty()) {
         QPainterPath p;
         paintPath(p, vSamplesOut);
-        painter.fillPath(p, QColor(255, 0, 0, 128));
-        painter.setPen(Qt::red);
+        QColor fill{VelincoinTheme::NEGATIVE};
+        fill.setAlpha(128);
+        painter.fillPath(p, fill);
+        painter.setPen(VelincoinTheme::NEGATIVE);
         painter.drawPath(p);
     }
 }

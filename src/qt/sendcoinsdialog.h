@@ -27,6 +27,7 @@ namespace Ui {
 }
 
 QT_BEGIN_NAMESPACE
+class QLabel;
 class QUrl;
 QT_END_NAMESPACE
 
@@ -95,6 +96,13 @@ private:
     void updateFeeMinimizedLabel();
     void updateCoinControlState();
 
+    //! Velincoin: what a normal transfer costs with the chosen fee and where the fee goes
+    QLabel* m_fee_hint{nullptr};
+    //! Fee rate of the "Recommended" choice per kvB, from updateSmartFeeLabel()
+    CAmount m_smart_fee_per_k{0};
+    //! No estimate yet, so "Recommended" is the lowest fee
+    bool m_smart_fee_is_lowest_fallback{false};
+
 private Q_SLOTS:
     void sendButtonClicked(bool checked);
     void on_buttonChooseFee_clicked();
@@ -120,6 +128,7 @@ private Q_SLOTS:
     void updateFeeSectionControls();
     void updateNumberOfBlocks(int count, const QDateTime& blockDate, double nVerificationProgress, SyncType synctype, SynchronizationState sync_state);
     void updateSmartFeeLabel();
+    void updateFeeHint();
 
 Q_SIGNALS:
     // Fired when a message should be reported to the user

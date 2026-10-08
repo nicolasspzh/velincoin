@@ -19,9 +19,6 @@
      <property name="visible">
       <bool>false</bool>
      </property>
-     <property name="styleSheet">
-      <string notr="true">QLabel { background: #19150b; color: #fde68a; border: 1px solid #3a3220; border-radius: 10px; padding: 6px 10px; }</string>
-     </property>
      <property name="wordWrap">
       <bool>true</bool>
      </property>

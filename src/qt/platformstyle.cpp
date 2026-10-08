@@ -83,14 +83,9 @@ QColor PlatformStyle::TextColor() const
 QColor PlatformStyle::SingleColor() const
 {
     if (colorizeIcons) {
-        QColor colorHighlightBg(QApplication::palette().color(QPalette::Highlight));
-        QColor colorHighlightFg(QApplication::palette().color(QPalette::HighlightedText));
-        const QColor colorText(QApplication::palette().color(QPalette::WindowText));
-        const int colorTextLightness = colorText.lightness();
-        if (abs(colorHighlightBg.lightness() - colorTextLightness) < abs(colorHighlightFg.lightness() - colorTextLightness)) {
-            return colorHighlightBg;
-        }
-        return colorHighlightFg;
+        // Velincoin: icons in the text color, so they fit the dark and the light theme
+        // (Bitcoin Core picks the highlight color, which is violet on the light theme)
+        return QApplication::palette().color(QPalette::WindowText);
     }
     return {0, 0, 0};
 }

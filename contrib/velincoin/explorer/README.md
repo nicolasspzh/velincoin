@@ -96,72 +96,19 @@ Explorer beenden und die Datei `explorer-<netz>.sqlite` (und die Dateien mit
 `-wal` und `-shm` am Ende) löschen. Beim nächsten Start baut er alles neu auf.
 
 
-Als Teil der Website veröffentlichen (Vercel)
---------------------------------------------
+Live-Explorer auf dem Server
+----------------------------
 
-Vercel und ähnliche Dienste zeigen nur fertige Dateien an. Einen Node können
-sie nicht abfragen. Darum kann der Explorer alle Seiten als Dateien speichern,
-eine **Momentaufnahme** der Blockchain:
+Öffentlich läuft der Explorer auf dem Velincoin-Server, für das Testnetz unter
+http://159.195.4.228/ und für das Hauptnetz unter http://159.195.4.228:8080/.
+Er zeigt jeden neuen Block nach wenigen Sekunden. Die Website und die Wallet
+(*Hilfe → Block Explorer öffnen*) verlinken ihn. Eingerichtet wird er mit
+`contrib/velincoin/server/install.sh`, siehe `doc/velincoin/server-einrichten.md`.
 
-```
-py contrib/velincoin/explorer/explorer.py --export website/explorer
-```
-
-Das Netz wählt ihr wie immer mit `--chain` (Standard: Testnetz). Die Wallet
-muss dabei laufen, mit eingeschaltetem RPC-Server. Danach liegt im Ordner
-`website/explorer` für jeden Block, jede Transaktion und jede Adresse eine
-eigene Seite, im Design der Website. Die Website verlinkt im Menü auf
-`explorer/index.html`. Dann den Ordner `website` wie gewohnt bei Vercel
-hochladen.
-
-- Jede Seite zeigt oben, von wann die Daten sind. Neue Blöcke erscheinen erst
-  nach einem neuen Export und erneutem Hochladen.
-- Die Suche funktioniert auch ohne Server. Sie nutzt die Datei
-  `search-index.js` aus dem Export.
-- Schrift und Farben kommen aus `website/assets`. Der Export gehört deshalb in
-  den Ordner `website/explorer`.
-- Für sehr lange Ketten ist das nicht gedacht, weil jede Seite eine eigene Datei
-  wird.
-
-Ist Vercel mit dem GitHub-Repository verbunden, veröffentlicht Vercel bei jedem
-Push auf den eingestellten Branch automatisch neu. Dann gehört der Export in
-ein Commit: Export ausführen, den Ordner `website/explorer` committen und
-pushen. In den Projekteinstellungen von Vercel muss dafür als Root Directory
-`website` eingestellt sein.
-
-
-Automatisch aktualisieren (explorer_sync.py)
---------------------------------------------
-
-`explorer_sync.py` erledigt Export und Hochladen von selbst. Es läuft neben der
-Wallet, schaut alle 5 Minuten nach neuen Blöcken und Zahlungen und lädt nur die
-geänderten Dateien mit der GitHub-API in den Ordner `website/explorer` auf dem
-Branch `main`. Vercel veröffentlicht danach automatisch. Git muss dafür nicht
-installiert sein.
-
-Einmalig einrichten:
-
-1. Auf GitHub einen Token erstellen: **Settings > Developer settings > Personal
-   access tokens > Fine-grained tokens > Generate new token**. Bei
-   *Repository access* nur das Repository `velincoin` auswählen, bei
-   *Repository permissions* **Contents** auf **Read and write** stellen.
-2. Den Token in eine Datei `github-token.txt` neben `explorer_sync.py` speichern.
-   Diese Datei nie weitergeben und nie committen. Sie steht in `.gitignore`.
-
-Starten, während die Wallet mit RPC-Server läuft:
-
-```
-py explorer_sync.py
-```
-
-Beenden mit Ctrl+C. `py explorer_sync.py --once` aktualisiert nur einmal.
-
-- Die Website kann nur eine Blockchain zeigen. Zeigt sie bereits eine andere
-  Kette, zum Beispiel die eines anderen, nicht verbundenen Computers, bricht
-  das Programm ab. Mit `--replace` ersetzt es sie trotzdem.
-- Ein neuer Block ändert nur wenige Dateien. Die Zahl der Bestätigungen und der
-  Stand werden im Browser aus `search-index.js` berechnet.
-- Getestet mit `test_explorer_sync.py` gegen eine nachgebaute GitHub-API.
+Früher lag zusätzlich eine Kopie auf der Website (`website/explorer`), die
+`explorer_sync.py` alle 20 Minuten hochlud. Die gibt es nicht mehr, der
+Live-Explorer reicht. `explorer.py --export ORDNER` kann weiterhin alle Seiten
+als Dateien speichern, eine Momentaufnahme der Blockchain.
 
 
 JSON-API

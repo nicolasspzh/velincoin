@@ -14,6 +14,7 @@
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
+#include <qt/velincointheme.h>
 
 #include <common/args.h>
 #include <interfaces/node.h>
@@ -195,7 +196,7 @@ void Intro::setStatus(int status, const QString &message, quint64 bytesAvailable
         break;
     case FreespaceChecker::ST_ERROR:
         ui->errorMessage->setText(tr("Error") + ": " + message);
-        ui->errorMessage->setStyleSheet("QLabel { color: #f87171 }");
+        ui->errorMessage->setStyleSheet(QStringLiteral("QLabel { color: %1 }").arg(VelincoinTheme::NEGATIVE.name()));
         break;
     }
     /* Indicate number of bytes available */
@@ -218,10 +219,10 @@ void Intro::UpdateFreeSpaceLabel()
     QString freeString = tr("%n GB of space available", "", m_bytes_available / GB_BYTES);
     if (m_bytes_available < m_required_space_gb * GB_BYTES) {
         freeString += " " + tr("(of %n GB needed)", "", m_required_space_gb);
-        ui->freeSpace->setStyleSheet("QLabel { color: #f87171 }");
+        ui->freeSpace->setStyleSheet(QStringLiteral("QLabel { color: %1 }").arg(VelincoinTheme::NEGATIVE.name()));
     } else if (m_bytes_available / GB_BYTES - m_required_space_gb < 10) {
         freeString += " " + tr("(%n GB needed for full chain)", "", m_required_space_gb);
-        ui->freeSpace->setStyleSheet("QLabel { color: #fbbf24 }");
+        ui->freeSpace->setStyleSheet(QStringLiteral("QLabel { color: %1 }").arg(VelincoinTheme::PENDING.name()));
     } else {
         ui->freeSpace->setStyleSheet("");
     }
