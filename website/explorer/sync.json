@@ -1,0 +1,6 @@
+{
+ "chain": "testnet4",
+ "genesis": "000000075657e9777f2b51a6e28cbb0accf71ea826173207ab369d344859b903",
+ "tip_height": 137,
+ "tip_hash": "00000008ad4a57a785a8b156c9242b58500952ba7bb8e320d1ea5ec5246d05dc"
+}
