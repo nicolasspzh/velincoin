@@ -1,1 +1,0 @@
-window.VLC_SEARCH = {"heights": ["000000075657e9777f2b51a6e28cbb0accf71ea826173207ab369d344859b903"], "txids": ["c82407bd2296a5651dac226c8a1b7122b015b20570c3e145237a238b89df8bc2"], "addresses": [], "tip": 0, "time": 1791400171, "time_text": "07.10.2026 19:09 UTC"};

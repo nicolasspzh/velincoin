@@ -4,9 +4,8 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #
 # Sets up a Velincoin server: a node for the main network and one for the
-# test network, the live block explorer for both, and (with a GitHub token)
-# the explorer on the website every 20 minutes. Run it as root on Ubuntu 24.04
-# (or newer) or Debian 13, x86_64:
+# test network, and the live block explorer for both. Run it as root on
+# Ubuntu 24.04 (or newer) or Debian 13, x86_64:
 #
 #   curl -fsSL https://velincoin.vercel.app/server/install.sh | bash
 #
@@ -22,7 +21,6 @@ PACKAGE_SHA256="5f075a695e2a55b1a71be929a97cd5542c8758288d8c27068f2e99c15e242502
 PREFIX=/opt/velincoin
 DATADIR=/var/lib/velincoin
 CONF_DIR=/etc/velincoin
-TOKEN_FILE=$CONF_DIR/github-token.txt
 SERVICES="velincoind-main velincoind-test velincoin-explorer-main velincoin-explorer-test"
 
 say() { printf '\n==> %s\n' "$*"; }
@@ -78,40 +76,31 @@ if [ -f /etc/systemd/system/velincoind.service ]; then
     rm -f /etc/systemd/system/velincoind.service
     echo "Das ältere Setup (Dienst velincoind) ist abgelöst. Seine Daten in /var/lib/velincoind bleiben liegen."
 fi
+# Den Explorer auf der Website gibt es nicht mehr, der Live-Explorer reicht.
+# Ältere Setups luden ihn mit dem Dienst velincoin-explorer-sync und einem
+# GitHub-Token alle 20 Minuten hoch. Beides wird entfernt.
+if [ -f /etc/systemd/system/velincoin-explorer-sync.service ]; then
+    systemctl disable velincoin-explorer-sync >/dev/null 2>&1 || true
+    rm -f /etc/systemd/system/velincoin-explorer-sync.service
+    echo "Der Explorer auf der Website (Dienst velincoin-explorer-sync) ist abgeschaltet."
+fi
+if [ -f "$CONF_DIR/github-token.txt" ]; then
+    rm -f "$CONF_DIR/github-token.txt"
+    echo "Der GitHub-Token in $CONF_DIR/github-token.txt ist gelöscht. Bitte ihn auch auf"
+    echo "GitHub widerrufen (Settings > Developer settings > Personal access tokens)."
+fi
 
 say "Programme installieren"
 rm -rf "$PREFIX"
 mkdir -p "$PREFIX"
 cp -r "$tmp/pkg/." "$PREFIX/"
 ln -sf "$PREFIX/bin/velincoin-cli" /usr/local/bin/velincoin-cli
-install -m 644 "$PREFIX"/systemd/*.service /etc/systemd/system/
+for unit in "$PREFIX"/systemd/*.service; do
+    # Ältere Pakete enthalten noch den Dienst des Website-Explorers
+    case "$unit" in */velincoin-explorer-sync.service) continue ;; esac
+    install -m 644 "$unit" /etc/systemd/system/
+done
 systemctl daemon-reload
-
-say "Explorer auf der Website (alle 20 Minuten)"
-if [ ! -s "$TOKEN_FILE" ]; then
-    echo "Dafür braucht es einen GitHub-Token (Fine-grained token, nur das Repository"
-    echo "velincoin, Contents: Read and write). Ohne Token läuft nur der Live-Explorer."
-    printf "Token einfügen und Enter drücken (er bleibt unsichtbar), leer lassen = überspringen: "
-    token=""
-    read -r -s token 2>/dev/null </dev/tty || token=""
-    echo
-    token=$(printf '%s' "$token" | tr -d '[:space:]')
-    if [ -n "$token" ]; then
-        install -d -m 0710 -o root -g velincoin "$CONF_DIR"
-        install -m 0640 -o root -g velincoin /dev/null "$TOKEN_FILE"
-        printf '%s\n' "$token" > "$TOKEN_FILE"
-    fi
-    unset token
-fi
-if [ -s "$TOKEN_FILE" ]; then
-    chgrp velincoin "$CONF_DIR" "$TOKEN_FILE"
-    SERVICES="$SERVICES velincoin-explorer-sync"
-    website_explorer="https://velincoin.vercel.app/explorer/ (alle 20 Minuten)"
-else
-    systemctl disable velincoin-explorer-sync >/dev/null 2>&1 || true
-    website_explorer="nicht eingerichtet (kein GitHub-Token)"
-fi
-echo "Website-Explorer: $website_explorer"
 
 say "Dienste starten"
 log_file="$DATADIR/testnet4/debug.log"
@@ -155,7 +144,6 @@ Velincoin läuft jetzt auf diesem Server und startet nach einem Neustart von sel
 
   Live-Explorer Testnetz:  http://$ip/
   Live-Explorer Hauptnetz: http://$ip:8080/
-  Website-Explorer:        $website_explorer
   Node Hauptnetz:          $ip:9733
   Node Testnetz:           $ip:29733
 
@@ -163,7 +151,6 @@ Nützliche Befehle:
   systemctl status velincoind-test        Läuft der Testnetz-Node?
   runuser -u velincoin -- velincoin-cli -datadir=$DATADIR -testnet4 getblockcount
   runuser -u velincoin -- velincoin-cli -datadir=$DATADIR getconnectioncount
-  journalctl -u velincoin-explorer-sync   Meldungen des Website-Explorers
 
 Erneut ausführen aktualisiert die Programme, die Blockchain bleibt erhalten.
 EOM

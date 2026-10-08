@@ -127,9 +127,12 @@ for _ in $(seq 90); do
     if grep -q "init message: Done loading" <<<"$new_log"; then break; fi
     sleep 1
 done
-# Der Explorer-Sync (setup-explorer-sync.sh) soll mit dem neuen Code laufen
-if systemctl is-enabled --quiet velincoin-explorer-sync 2>/dev/null; then
-    systemctl restart velincoin-explorer-sync
+# Den Explorer auf der Website gibt es nicht mehr. Ein älteres Setup lud ihn mit
+# dem Dienst velincoin-explorer-sync hoch. Er wird abgeschaltet.
+if [ -f /etc/systemd/system/velincoin-explorer-sync.service ]; then
+    systemctl disable --now velincoin-explorer-sync >/dev/null 2>&1 || true
+    rm -f /etc/systemd/system/velincoin-explorer-sync.service
+    systemctl daemon-reload
 fi
 
 # Nur falls die Firewall ufw aktiv ist: Port öffnen. Ohne Firewall ist er offen.

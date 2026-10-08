@@ -109,8 +109,6 @@ ungültig, Test-Coins aus dem alten Testnetz sind weg. Die Wallets bleiben.
 - **velincoind:** startet mit alten Blöcken nicht ("Incorrect or no genesis block
   found"). Im Testnetz-Datenordner die Ordner `blocks` und `chainstate` löschen.
   Auf dem Seed-Server erledigt das `contrib/velincoin/setup-seed-node.sh`.
-- **Block Explorer:** `explorer_sync.py` ersetzt die Kette eines alten Testnetzes
-  auf der Website von selbst (Liste `RETIRED_GENESIS`).
 
 `-testnet` (Testnet3) und `-signet` sind weiterhin die Netze von Bitcoin. Ihre
 Bitcoin-Seed-Server sind entfernt, damit sich ein Velincoin-Node nie von selbst
