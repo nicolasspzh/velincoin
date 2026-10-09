@@ -1,6 +1,10 @@
 Velincoin-Server einrichten (Netcup VPS)
 ========================================
 
+> **Projekt beendet (9. Oktober 2026):** Velincoin läuft nicht mehr auf dem
+> Server `159.195.4.228`, der Live-Explorer ist offline. Diese Anleitung gilt
+> weiter für einen neuen Server. Einstieg: [wiederaufbau.md](wiederaufbau.md).
+
 Ein Server, der rund um die Uhr läuft, hält das Velincoin-Netz am Leben:
 
 - Die Wallets verbinden sich automatisch mit ihm, niemand muss mehr eine IP
@@ -96,15 +100,21 @@ Dann diesen Befehl kopieren, im Terminal mit
 Rechtsklick einfügen und Enter drücken. Es ist eine einzige Zeile:
 
 ```
-curl -fsSL https://raw.githubusercontent.com/nicolasspzh/velincoin/claude/dazzling-maxwell-vld1af/website/server/install.sh | VELINCOIN_BASE_URL=https://raw.githubusercontent.com/nicolasspzh/velincoin/claude/dazzling-maxwell-vld1af/website/server bash
+curl -fsSL https://raw.githubusercontent.com/nicolasspzh/velincoin/main/website/server/install.sh | VELINCOIN_BASE_URL=https://raw.githubusercontent.com/nicolasspzh/velincoin/main/website/server bash
 ```
 
-Sobald die Dateien auch auf der Website liegen (nach dem Zusammenführen in
-`main`), geht es kürzer:
+Läuft die Website wieder (siehe [wiederaufbau.md](wiederaufbau.md), Teil 5),
+geht es auch kürzer:
 
 ```
 curl -fsSL https://velincoin.vercel.app/server/install.sh | bash
 ```
+
+**Server mit anderen Programmen:** Das Skript schaltet die Firewall `ufw` ein
+und erlaubt nur SSH und die Velincoin-Ports. Vorher mit `ss -tlnp` nachsehen,
+welche Ports andere Programme brauchen, und sie danach mit
+`ufw allow <port>/tcp` wieder erlauben. Details in
+[wiederaufbau.md](wiederaufbau.md), Teil 2.
 
 Früher lud der Server zusätzlich einen Explorer auf die Website hoch (Dienst
 `velincoin-explorer-sync`, mit einem GitHub-Token). Den gibt es nicht mehr, der

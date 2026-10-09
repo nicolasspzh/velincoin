@@ -5,9 +5,11 @@ Velincoin (Kürzel **VLC**) ist eine eigene Kryptowährung mit eigener Blockchai
 Der Code ist ein Fork von [Bitcoin Core](https://github.com/bitcoin/bitcoin) v31.1.
 Website: https://velincoin.com
 
-Status: **in Entwicklung, noch nicht öffentlich gestartet.** Für das Testnetz läuft
-ein Seed-Server (`159.195.4.228`, Port 29733). Für das Hauptnetz gibt es noch keinen
-Server und keine Börse.
+Status: **Projekt beendet am 9. Oktober 2026.** Der Velincoin-Server
+(`159.195.4.228`) und die Website sind abgeschaltet, das Hauptnetz wurde nie
+öffentlich gestartet. Dieses Repository bleibt als Archiv. Wie man alles wieder
+aufbaut (Wallet, Server, Block Explorer, Website):
+[doc/velincoin/wiederaufbau.md](doc/velincoin/wiederaufbau.md).
 
 Was ist gleich wie bei Bitcoin?
 -------------------------------
@@ -133,6 +135,10 @@ und erklärt, wohin die Gebühr geht.
 Weitere Dokumente
 -----------------
 
+- [doc/velincoin/wiederaufbau.md](doc/velincoin/wiederaufbau.md): Archiv und
+  Wiederaufbau nach dem Projektende, der Einstieg für alles Weitere
+- [doc/velincoin/server-einrichten.md](doc/velincoin/server-einrichten.md): den
+  Velincoin-Server mit Nodes und Live-Explorer einrichten
 - [doc/velincoin/erste-schritte.md](doc/velincoin/erste-schritte.md): Node starten,
   Wallet anlegen, minen und senden, Schritt für Schritt
 - [doc/velincoin/sha256-risiko.md](doc/velincoin/sha256-risiko.md): das Risiko
